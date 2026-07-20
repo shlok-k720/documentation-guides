@@ -133,6 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('tabRequests').addEventListener('click', () => showTab('requests'));
   document.getElementById('tabGuides').addEventListener('click', () => showTab('guides'));
 
+  document.getElementById('prevPage').addEventListener('click', () => fetchRequests(Math.max(1, currentPage - 1)));
+  document.getElementById('nextPage').addEventListener('click', () => fetchRequests(currentPage + 1));
+  document.getElementById('exportCsv').addEventListener('click', exportCsv);
+
   document.getElementById('addGuideForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = e.target;
@@ -149,3 +153,42 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) { msg.textContent = 'Failed to add guide'; }
   });
 });
+
+// enhance fetchGuides to include delete buttons for guides when logged in
+async function deleteGuide(id) {
+  if (!confirm('Delete guide ' + id + '?')) return;
+  try {
+    const res = await fetch('/api/guides/' + encodeURIComponent(id), { method: 'DELETE', headers: authHeaders() });
+    const body = await res.json();
+    if (body.ok) fetchGuides(); else alert('Delete failed');
+  } catch (err) { alert('Delete failed'); }
+}
+
+// rewrite fetchGuides to attach delete when admin token present
+const _oldFetchGuides = fetchGuides;
+fetchGuides = async function() {
+  const el = document.getElementById('guidesList');
+  el.textContent = 'Loading…';
+  try {
+    const res = await fetch('/api/guides');
+    const guides = await res.json();
+    if (!guides.length) { el.textContent = 'No guides.'; return; }
+    const list = document.createElement('div');
+    const isAdmin = !!getToken();
+    guides.forEach(g => {
+      const item = document.createElement('div');
+      item.style.borderBottom = '1px solid #eee';
+      item.style.padding = '8px 0';
+      const deleteBtn = isAdmin ? `<button data-id="${g.id}" class="btn danger" style="margin-left:8px">Delete</button>` : '';
+      item.innerHTML = `<strong>${escapeHtml(g.name)}</strong> <div style="color:#666">${escapeHtml(g.description || '')}</div><div style="margin-top:6px;"><a class="btn secondary" href="${escapeHtml(g.url)}">Open</a>${deleteBtn}</div>`;
+      list.appendChild(item);
+    });
+    el.innerHTML = '';
+    el.appendChild(list);
+    if (isAdmin) {
+      el.querySelectorAll('button[data-id]').forEach(btn => btn.addEventListener('click', () => deleteGuide(btn.dataset.id)));
+    }
+  } catch (err) {
+    el.textContent = 'Failed to load guides.';
+  }
+};
