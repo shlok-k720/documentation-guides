@@ -1,0 +1,11 @@
+title: Documentation Guides
+description: A small site for documentation guides
+baseurl: ""
+url: ""
+markdown: kramdown
+theme: minima
+exclude:
+  - node_modules
+  - src
+  - public
+  - db
