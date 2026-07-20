@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin — Documentation Guides</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Admin</h1>
+      <div id="loginBox">
+        <p>Enter admin password to continue.</p>
+        <div class="form-row">
+          <label for="adminPass">Password</label>
+          <input id="adminPass" type="password" />
+        </div>
+        <div class="form-row">
+          <button id="loginBtn" class="btn">Login</button>
+          <span id="loginMessage"></span>
+        </div>
+      </div>
+
+      <div id="adminUI" style="display:none;">
+        <div style="display:flex;gap:12px;margin:12px 0 18px;">
+          <button id="tabRequests" class="btn secondary">Requests</button>
+          <button id="tabGuides" class="btn secondary">Guides</button>
+          <button id="logoutBtn" class="btn">Logout</button>
+        </div>
+
+        <section id="requestsTab" style="display:none;">
+          <h2>Requests</h2>
+          <div id="requestsList">Loading…</div>
+          <div id="requestsControls" style="margin-top:12px;display:flex;gap:8px;align-items:center;">
+            <button id="prevPage" class="btn secondary">Prev</button>
+            <div id="pageInfo" style="font-size:.95rem;color:#444">Page 1</div>
+            <button id="nextPage" class="btn secondary">Next</button>
+            <button id="exportCsv" class="btn">Export CSV</button>
+          </div>
+        </section>
+
+        <section id="guidesTab" style="display:none;">
+          <h2>Guides</h2>
+          <div id="guidesList">Loading…</div>
+          <h3>Add Guide</h3>
+          <form id="addGuideForm">
+            <div class="form-row"><label>Name</label><input name="name" required /></div>
+            <div class="form-row"><label>URL</label><input name="url" required placeholder="/guides/your_guide.html" /></div>
+            <div class="form-row"><label>Description</label><input name="description" /></div>
+            <div class="form-row"><button class="btn" type="submit">Add guide</button><span id="addGuideMsg"></span></div>
+          </form>
+        </section>
+      </div>
+    </main>
+    <script src="/admin.js"></script>
+  </body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Documentation Guides</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <h1>Documentation Guides</h1>
+          <p class="tagline">A small directory of documentation guides and templates.</p>
+        </div>
+        <div>
+          <a href="/admin" class="btn secondary">Admin</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section id="cards" class="card-grid" aria-live="polite"></section>
+      <section id="request-guide" class="request-section">
+        <h2>Request a Guide</h2>
+        <form id="requestForm">
+          <div class="form-row">
+            <label for="name">Your name</label>
+            <input id="name" name="name" type="text" required />
+          </div>
+          <div class="form-row">
+            <label for="email">Email (optional)</label>
+            <input id="email" name="email" type="email" />
+          </div>
+          <div class="form-row">
+            <label for="topic">Topic</label>
+            <input id="topic" name="topic" type="text" required placeholder="What guide do you want?" />
+          </div>
+          <div class="form-row">
+            <label for="details">Details</label>
+            <textarea id="details" name="details" rows="4" placeholder="Additional context, audience, and desired scope"></textarea>
+          </div>
+          <div class="form-row">
+            <button type="submit" class="btn">Submit request</button>
+            <span id="requestMessage" aria-live="polite"></span>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">Built with Node.js • Static guides</div>
+    </footer>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

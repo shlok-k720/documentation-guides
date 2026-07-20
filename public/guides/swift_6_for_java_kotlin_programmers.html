@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="A comprehensive Swift 6 and SwiftUI tutorial for experienced Java and Kotlin programmers.">
+<title>Swift 6 for Java and Kotlin Programmers</title>
+<style>
+:root{--font-scale:1;--sidebar-width:310px;--content-max:1080px;--radius:12px;--radius-sm:8px;--shadow:0 12px 30px rgba(15,23,42,.12);--transition:180ms ease}
+html[data-theme="light"]{--bg:#f7f8fb;--surface:#fff;--surface-2:#f0f3f8;--surface-3:#e7ebf2;--text:#172033;--muted:#5c667a;--border:#d9deea;--accent:#1d5fd1;--accent-2:#12489f;--accent-soft:#eaf1ff;--code-bg:#111827;--code-text:#e5e7eb;--code-border:#273449;--sidebar-bg:#111827;--sidebar-text:#e5e7eb;--sidebar-muted:#9ca3af;--sidebar-hover:#1f2937;--sidebar-active:#284b82;--note-bg:#eef6ff;--note-border:#8ec5ff;--warn-bg:#fff7e8;--warn-border:#f5ba55;--danger-bg:#fff0f0;--danger-border:#f18787;--success-bg:#edfbf2;--success-border:#68c489}
+html[data-theme="dark"]{--bg:#0b1020;--surface:#121a2c;--surface-2:#182238;--surface-3:#22304c;--text:#e7ecf5;--muted:#aeb8cb;--border:#2c3956;--accent:#7eb1ff;--accent-2:#a9caff;--accent-soft:#182c4f;--code-bg:#080c16;--code-text:#e6edf7;--code-border:#2b3852;--sidebar-bg:#070b14;--sidebar-text:#eef2f8;--sidebar-muted:#9aa8be;--sidebar-hover:#131d31;--sidebar-active:#17386a;--note-bg:#142741;--note-border:#377ec9;--warn-bg:#302616;--warn-border:#a87523;--danger-bg:#321a20;--danger-border:#a94e60;--success-bg:#142b20;--success-border:#3d8b5a}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:calc(16px * var(--font-scale));line-height:1.68;transition:background var(--transition),color var(--transition)}button,input{font:inherit}button{color:inherit}a{color:var(--accent)}
+.app-shell{min-height:100vh}.sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-width);background:var(--sidebar-bg);color:var(--sidebar-text);z-index:30;display:grid;grid-template-rows:auto auto 1fr auto;transition:transform var(--transition),background var(--transition);box-shadow:10px 0 30px rgba(0,0,0,.15)}.sidebar.collapsed{transform:translateX(calc(-1 * var(--sidebar-width)))}.sidebar-head{padding:20px 20px 14px;border-bottom:1px solid rgba(255,255,255,.09)}.brand{display:flex;align-items:center;gap:11px}.brand-mark{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(145deg,#2f6fda,#6aa8ff);color:white;font-weight:800;letter-spacing:-.05em}.brand-title{font-weight:760;line-height:1.2}.brand-sub{color:var(--sidebar-muted);font-size:.78rem;margin-top:2px}.search-wrap{padding:12px 16px 8px}.search{width:100%;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);color:white;border-radius:9px;padding:10px 12px;outline:none}.search::placeholder{color:#9aa7ba}.search:focus{border-color:#74a9ff;box-shadow:0 0 0 3px rgba(93,155,255,.18)}.nav-scroll{overflow:auto;padding:8px 12px 18px}.nav-tree,.nav-tree ul{list-style:none;padding:0;margin:0}.nav-group>span{display:block;color:var(--sidebar-muted);padding:15px 10px 6px;text-transform:uppercase;letter-spacing:.09em;font-size:.68rem;font-weight:800}.nav-group ul{padding-left:10px;border-left:1px solid rgba(255,255,255,.1);margin-left:8px}.nav-link{width:100%;text-align:left;border:0;background:transparent;color:var(--sidebar-text);padding:8px 10px;border-radius:7px;cursor:pointer;font-size:.84rem;line-height:1.35}.nav-link:hover{background:var(--sidebar-hover)}.nav-link.active{background:var(--sidebar-active);color:white;font-weight:700}.nav-link[hidden],.nav-group[hidden]{display:none}.sidebar-footer{border-top:1px solid rgba(255,255,255,.1);padding:10px;background:color-mix(in srgb,var(--sidebar-bg) 94%,white)}.progress-row{display:flex;justify-content:space-between;color:var(--sidebar-muted);font-size:.74rem;padding:0 4px 7px}.progress-track{height:3px;background:rgba(255,255,255,.12);border-radius:99px;overflow:hidden;margin-bottom:9px}.progress-bar{height:100%;width:0;background:#74a9ff;transition:width var(--transition)}.footer-buttons{display:grid;grid-template-columns:1fr 1fr 42px;gap:8px}.side-action{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.06);color:white;min-height:40px;border-radius:8px;cursor:pointer}.side-action:hover{background:rgba(255,255,255,.12)}.side-action:disabled{opacity:.35;cursor:not-allowed}
+.sidebar-tab{position:fixed;left:var(--sidebar-width);top:50%;transform:translateY(-50%);z-index:31;border:1px solid var(--border);border-left:0;background:var(--surface);color:var(--text);writing-mode:vertical-rl;padding:12px 8px;border-radius:0 8px 8px 0;cursor:pointer;box-shadow:6px 0 18px rgba(0,0,0,.1);transition:left var(--transition)}.sidebar.collapsed+.sidebar-tab{left:0}.main{margin-left:var(--sidebar-width);min-height:100vh;transition:margin-left var(--transition)}.sidebar.collapsed~.main{margin-left:0}.topbar{position:sticky;top:0;z-index:15;backdrop-filter:blur(16px);background:color-mix(in srgb,var(--bg) 85%,transparent);border-bottom:1px solid color-mix(in srgb,var(--border) 70%,transparent)}.topbar-inner{max-width:calc(var(--content-max) + 80px);margin:0 auto;padding:12px 28px;display:flex;justify-content:space-between;align-items:center;gap:16px}.crumb{color:var(--muted);font-size:.82rem}.crumb strong{color:var(--text)}.top-actions{display:flex;gap:8px}.icon-btn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:8px;min-width:38px;min-height:38px;cursor:pointer}.icon-btn:hover{background:var(--surface-2)}
+.doc-page{display:none}.doc-page.active{display:block;animation:page-in 220ms ease}@keyframes page-in{from{opacity:.25;transform:translateY(6px)}to{opacity:1;transform:none}}.page-inner{max-width:var(--content-max);margin:0 auto;padding:54px 34px 90px}h1,h2,h3{line-height:1.2;letter-spacing:-.025em}h1{font-size:2.55rem;margin:0 0 18px}h2{font-size:1.55rem;margin:42px 0 14px;padding-top:4px}h3{font-size:1.05rem;margin:18px 0 8px}p{margin:0 0 16px}.lead{font-size:1.14rem;color:var(--muted);max-width:78ch}ul,ol{padding-left:1.35rem}li{margin:.34rem 0}code:not(pre code){background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:.08em .35em;font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:.88em}table{width:100%;border-collapse:collapse;margin:18px 0 28px;display:block;overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm)}thead{background:var(--surface-2)}th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}tr:last-child td{border-bottom:0}th{font-size:.83rem;text-transform:uppercase;letter-spacing:.04em}.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:18px 0 26px}.mini-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}.mini-card h3{margin-top:0}.callout{border-left:4px solid;border-radius:8px;padding:14px 16px;margin:20px 0}.callout.note{background:var(--note-bg);border-color:var(--note-border)}.callout.warning{background:var(--warn-bg);border-color:var(--warn-border)}.callout.danger{background:var(--danger-bg);border-color:var(--danger-border)}.callout.success{background:var(--success-bg);border-color:var(--success-border)}.pipeline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:18px;border:1px solid var(--border);background:var(--surface);border-radius:var(--radius);margin:20px 0 28px}.pipeline span{background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:8px 11px;font-family:monospace}.checklist{list-style:none;padding-left:0}.checklist li{position:relative;padding-left:1.7rem}.checklist li::before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:900}
+.compare-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:16px 0 24px}.code-shell{border:1px solid var(--code-border);border-radius:var(--radius-sm);overflow:hidden;background:var(--code-bg);box-shadow:0 8px 22px rgba(0,0,0,.1)}.code-toolbar{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-bottom:1px solid var(--code-border);color:#aab7c9;font-size:.72rem;letter-spacing:.06em;background:color-mix(in srgb,var(--code-bg) 88%,white)}.copy-btn{border:1px solid #3a475c;background:transparent;color:#cbd5e1;border-radius:6px;padding:3px 8px;cursor:pointer;letter-spacing:0}.copy-btn:hover{background:rgba(255,255,255,.08)}pre{margin:0;overflow:auto;padding:16px 18px;background:var(--code-bg);color:var(--code-text);tab-size:4}pre code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:.82rem;line-height:1.58;white-space:pre}.tok-comment{color:#7f8c9f;font-style:italic}.tok-string{color:#a6da95}.tok-number{color:#f5a97f}.tok-keyword{color:#ff7ab2}.tok-type{color:#8bd5ca}.tok-annotation{color:#c6a0f6}.tok-function{color:#8aadf4}.tok-property{color:#91d7e3}.tok-operator{color:#f5bde6}.tok-tag{color:#f38ba8}.tok-attribute{color:#89b4fa}.comparison-label{margin:20px 0 0;font-size:.9rem;font-weight:700;color:var(--muted)}.page-end{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;color:var(--muted);font-size:.82rem}
+.mobile-bottom{display:none;position:fixed;inset:auto 0 0 0;z-index:20;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--border);padding:9px;grid-template-columns:1fr 1fr 44px;gap:8px}.mobile-bottom button{min-height:42px;border:1px solid var(--border);background:var(--surface-2);border-radius:8px;cursor:pointer}dialog{width:min(460px,calc(100vw - 28px));border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:14px;padding:0;box-shadow:var(--shadow)}dialog::backdrop{background:rgba(3,8,20,.58);backdrop-filter:blur(3px)}.modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--border)}.modal-head h2{margin:0;font-size:1.2rem}.modal-body{padding:20px}.setting-row{margin-bottom:24px}.setting-row label{display:block;font-weight:700;margin-bottom:8px}.segmented{display:grid;grid-template-columns:1fr 1fr;gap:8px}.segmented button{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:10px;cursor:pointer}.segmented button.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-2);font-weight:700}.range-row{display:grid;grid-template-columns:38px 1fr 38px;gap:10px;align-items:center}input[type=range]{width:100%;accent-color:var(--accent)}.modal-foot{padding:14px 20px 20px;display:flex;justify-content:flex-end}.primary-btn{border:0;background:var(--accent);color:white;border-radius:8px;padding:9px 16px;cursor:pointer}.search-results{position:fixed;top:76px;left:calc(var(--sidebar-width) + 22px);width:min(580px,calc(100vw - var(--sidebar-width) - 44px));z-index:40;border:1px solid var(--border);background:var(--surface);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;display:none}.search-results.open{display:block}.search-result{width:100%;text-align:left;border:0;border-bottom:1px solid var(--border);background:var(--surface);padding:12px 14px;cursor:pointer}.search-result:last-child{border-bottom:0}.search-result:hover,.search-result.active{background:var(--surface-2)}.search-result strong{display:block}.search-result span{color:var(--muted);font-size:.82rem}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+@media(max-width:900px){.sidebar{transform:translateX(calc(-1 * var(--sidebar-width)))}.sidebar.open{transform:translateX(0)}.sidebar-tab{left:0}.sidebar.open+.sidebar-tab{left:var(--sidebar-width)}.main,.sidebar.collapsed~.main{margin-left:0}.mobile-bottom{display:grid}.page-inner{padding:36px 20px 104px}.topbar-inner{padding:10px 16px}h1{font-size:2rem}.search-results{left:14px;width:calc(100vw - 28px)}.compare-grid{grid-template-columns:1fr}}@media(max-width:520px){:root{--sidebar-width:min(88vw,330px)}.page-end{flex-direction:column;gap:4px}}@media print{.sidebar,.sidebar-tab,.topbar,.mobile-bottom,dialog{display:none!important}.main{margin:0}.doc-page{display:block!important;page-break-before:always}.doc-page:first-child{page-break-before:avoid}body{background:white;color:black;font-size:11pt}.page-inner{max-width:none;padding:24px}}
+</style>
+</head>
+<body>
+<div class="app-shell">
+<aside aria-label="Documentation navigation" class="sidebar" id="sidebar">
+  <div class="sidebar-head"><div class="brand"><div class="brand-mark">S6</div><div><div class="brand-title">Swift 6 + SwiftUI</div><div class="brand-sub">For Java and Kotlin programmers</div></div></div></div>
+  <div class="search-wrap"><label class="sr-only" for="navSearch">Search documentation</label><input autocomplete="off" class="search" id="navSearch" placeholder="Search topics…  /" type="search"></div>
+  <nav class="nav-scroll"><ul class="nav-tree" id="navTree"></ul></nav>
+  <div class="sidebar-footer"><div class="progress-row"><span id="progressLabel"></span><span id="progressPercent"></span></div><div class="progress-track"><div class="progress-bar" id="progressBar"></div></div><div class="footer-buttons"><button class="side-action" id="prevBtn" type="button">← Previous</button><button class="side-action" id="nextBtn" type="button">Next →</button><button aria-label="Open settings" class="side-action" id="settingsBtn" type="button">⚙</button></div></div>
+</aside>
+<button aria-controls="sidebar" aria-expanded="true" class="sidebar-tab" id="sidebarTab" type="button">Contents</button>
+<main class="main" id="main">
+<header class="topbar"><div class="topbar-inner"><div class="crumb"><span id="crumbGroup"></span> / <strong id="crumbTitle"></strong></div><div class="top-actions"><button class="icon-btn" id="focusSearchBtn" title="Search" type="button">⌕</button><button class="icon-btn" id="printBtn" title="Print or save as PDF" type="button">⎙</button></div></div></header>
+
+<section class="doc-page" data-group="Start here" data-summary="Orientation, prerequisites, and a Java/Kotlin-to-Swift mental model." data-title="Welcome to Swift 6" id="welcome"><div class="page-inner">
+<h1>Swift 6 for Java and Kotlin Programmers</h1><p class="lead">A tutorial-oriented guide to the Swift language, SwiftUI, and Apple development. You already know objects, types, collections, lambdas, and Android-style declarative UI. Here you will learn where Swift deliberately makes different tradeoffs.</p>
+<div class="callout note"><strong>Version target: Swift 6.</strong> Examples use modern Swift concurrency and strict concurrency terminology. SwiftUI APIs evolve with Apple platforms, but the patterns here are intentionally durable.</div>
+<h2>Your map from the JVM</h2><div class="card-grid"><article class="mini-card"><h3>Java intuition</h3><p>Reference-oriented classes, nullable references, garbage collection, interfaces, checked exceptions.</p></article><article class="mini-card"><h3>Kotlin intuition</h3><p>Null safety, data classes, extension functions, sealed types, coroutines, Compose-like state flow.</p></article><article class="mini-card"><h3>Swift shift</h3><p>Value types by default, optionals, protocols, ARC, structured concurrency, and views described as values.</p></article></div>
+<h2>Learning path</h2><div class="pipeline"><span>language basics</span><b>→</b><span>types and ownership</span><b>→</b><span>concurrency</span><b>→</b><span>SwiftUI</span><b>→</b><span>Apple frameworks</span><b>→</b><span>advanced practice</span></div>
+<h2>What you need</h2><ul><li>A Mac running a current Xcode release, or Swift installed from <code>swift.org</code> for command-line language practice.</li><li>Comfort reading Java and Kotlin. No Objective-C knowledge is required.</li><li>For iOS/macOS apps: an Apple ID; paid developer membership is only needed for certain device distribution and services.</li></ul>
+<div class="page-end"><span>Start here</span><strong>Welcome to Swift 6</strong></div></div></section>
+
+<section class="doc-page" data-group="Start here" data-summary="Install tools, create a project, and understand the Apple build workflow." data-title="Tooling and project anatomy" id="tooling"><div class="page-inner">
+<h1>Tooling and project anatomy</h1><p class="lead">Xcode is the primary IDE, simulator host, debugger, profiler launcher, and signer. Swift Package Manager (SwiftPM) is the standard language-level package and build tool.</p>
+<h2>Choose a starting point</h2><table><thead><tr><th>Goal</th><th>Recommended start</th><th>JVM analogy</th></tr></thead><tbody><tr><td>Learn Swift syntax</td><td>Swift Playground or <code>swift package init --type executable</code></td><td>JShell / Gradle application</td></tr><tr><td>Build Apple UI</td><td>Xcode → App → SwiftUI</td><td>Android Studio → Compose app</td></tr><tr><td>Share non-UI code</td><td>Swift package with library and test targets</td><td>Gradle multi-module library</td></tr></tbody></table>
+<div class="comparison-label">A command-line entry point</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello");
+    }
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>fun main() {
+    println("Hello")
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>import Foundation
+
+print("Hello")</code></pre></div></div>
+<h2>Apple app pieces</h2><ul><li><strong>Target:</strong> a buildable product such as an iOS app, test bundle, widget, or framework.</li><li><strong>Bundle:</strong> the signed app package, identified by a reverse-DNS bundle identifier.</li><li><strong>Scheme:</strong> a build/run/test configuration selector.</li><li><strong>Info.plist and entitlements:</strong> app metadata and capabilities such as notifications, iCloud, or sign-in.</li><li><strong>Assets:</strong> named colors, images, symbols, and app icons compiled into the app.</li></ul>
+<div class="callout warning"><strong>Do not confuse SwiftPM with Xcode projects.</strong> Xcode can open a Swift package directly, but an Apple app often also needs signing, assets, capabilities, and platform build settings managed by an Xcode project.</div>
+<div class="page-end"><span>Start here</span><strong>Tooling and project anatomy</strong></div></div></section>
+
+<section class="doc-page" data-group="Swift language foundations" data-summary="Learn Swift declarations, type inference, mutability, and naming." data-title="Variables, constants, and types" id="variables"><div class="page-inner">
+<h1>Variables, constants, and types</h1><p class="lead">Swift uses local type inference like Kotlin, but its <code>let</code> and <code>var</code> apply consistently to bindings, properties, parameters, and collection variables.</p>
+<div class="comparison-label">Declarations and interpolation</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>final String name = "Mina";
+int score = 10;
+score += 5;
+System.out.println(name + ": " + score);</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>val name = "Mina"
+var score = 10
+score += 5
+println("$name: $score")</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>let name = "Mina"
+var score = 10
+score += 5
+print("\(name): \(score)")</code></pre></div></div>
+<h2>Important differences</h2><table><thead><tr><th>Concept</th><th>Swift</th><th>Java/Kotlin comparison</th></tr></thead><tbody><tr><td>Constant binding</td><td><code>let</code></td><td><code>final</code> / <code>val</code></td></tr><tr><td>Mutable binding</td><td><code>var</code></td><td>ordinary variable / <code>var</code></td></tr><tr><td>Type annotation</td><td><code>let count: Int = 3</code></td><td><code>int count = 3</code> / <code>val count: Int = 3</code></td></tr><tr><td>Integers</td><td><code>Int</code> is platform-word sized</td><td>Usually use <code>int</code> / <code>Int</code>; choose fixed-width Swift integers for a protocol or file format</td></tr><tr><td>Strings</td><td>Unicode-correct <code>String</code>, not random-access by integer offset</td><td>Do not assume Java UTF-16 indexing semantics</td></tr></tbody></table>
+<div class="callout note"><strong>Binding immutability is not deep immutability.</strong> A <code>let</code> class reference cannot be rebound, but its mutable object can still change. A <code>let</code> struct value cannot have its mutable properties changed.</div>
+<div class="page-end"><span>Swift language foundations</span><strong>Variables, constants, and types</strong></div></div></section>
+
+<section class="doc-page" data-group="Swift language foundations" data-summary="Use optionals instead of nullable references and learn safe unwrapping." data-title="Optionals and null safety" id="optionals"><div class="page-inner">
+<h1>Optionals and null safety</h1><p class="lead">Swift's <code>T?</code> means a value is either <code>.some(T)</code> or <code>.none</code>. It occupies the same conceptual role as Kotlin <code>T?</code>, but has Swift-specific syntax and powerful pattern matching.</p>
+<div class="comparison-label">Safely consume a possibly missing value</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>String city = user.getCity();
+if (city != null) {
+    System.out.println(city.toUpperCase());
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>val city: String? = user.city
+city?.let { println(it.uppercase()) }</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>let city: String? = user.city
+if let city {
+    print(city.uppercased())
+}</code></pre></div></div>
+<h2>Core operations</h2><table><thead><tr><th>Swift</th><th>Meaning</th><th>Kotlin analogy</th></tr></thead><tbody><tr><td><code>if let value</code></td><td>Unwrap only in this branch</td><td><code>value?.let { ... }</code></td></tr><tr><td><code>guard let value else { return }</code></td><td>Early exit; unwrapped value remains available afterward</td><td>Elvis + return, often more readable in Swift</td></tr><tr><td><code>value ?? fallback</code></td><td>Default if missing</td><td><code>value ?: fallback</code></td></tr><tr><td><code>try? operation()</code></td><td>Convert a thrown error into an optional</td><td><code>runCatching(...).getOrNull()</code></td></tr><tr><td><code>value!</code></td><td>Force unwrap; traps if absent</td><td><code>!!</code></td></tr></tbody></table>
+<div class="callout danger"><strong>Treat <code>!</code> as a proof obligation.</strong> Use it only when an invariant makes absence impossible and that invariant is clear. Prefer <code>guard let</code>, default values, or a throwing initializer for ordinary input.</div>
+<div class="page-end"><span>Swift language foundations</span><strong>Optionals and null safety</strong></div></div></section>
+
+<section class="doc-page" data-group="Swift language foundations" data-summary="Work with arrays, dictionaries, sets, ranges, strings, and functional collection APIs." data-title="Collections and strings" id="collections"><div class="page-inner">
+<h1>Collections and strings</h1><p class="lead">Swift's standard collections are value types with copy-on-write storage. They feel Kotlin-like in syntax but have different APIs and performance properties.</p>
+<div class="comparison-label">Transform then filter a collection</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>var names = List.of("Ada", "Bob", "Ari");
+var result = names.stream()
+    .filter(n -&gt; n.startsWith("A"))
+    .map(String::toUpperCase)
+    .toList();</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>val names = listOf("Ada", "Bob", "Ari")
+val result = names
+    .filter { it.startsWith("A") }
+    .map { it.uppercase() }</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>let names = ["Ada", "Bob", "Ari"]
+let result = names
+    .filter { $0.hasPrefix("A") }
+    .map { $0.uppercased() }</code></pre></div></div>
+<h2>Collection reference</h2><table><thead><tr><th>Swift type</th><th>Create</th><th>Notes</th></tr></thead><tbody><tr><td><code>Array&lt;Element&gt;</code> / <code>[Element]</code></td><td><code>var scores = [10, 20]</code></td><td>Ordered, integer-indexed collection</td></tr><tr><td><code>Dictionary&lt;Key, Value&gt;</code> / <code>[Key: Value]</code></td><td><code>let ages = ["Ana": 14]</code></td><td>Subscript lookup returns an optional</td></tr><tr><td><code>Set&lt;Element&gt;</code></td><td><code>let tags: Set = ["swift", "ui"]</code></td><td>Elements must be <code>Hashable</code></td></tr><tr><td><code>Range</code></td><td><code>0..&lt;5</code>, <code>0...5</code></td><td>Half-open versus closed; use half-open for indexes</td></tr></tbody></table>
+<h2>Strings are not integer-indexed</h2><p>A Swift <code>Character</code> represents an extended grapheme cluster. Use <code>text.startIndex</code>, <code>text.index(_:offsetBy:)</code>, or string APIs such as <code>prefix</code>, <code>split</code>, and <code>firstIndex</code>; do not translate Java's <code>charAt(i)</code> mechanically.</p>
+<div class="page-end"><span>Swift language foundations</span><strong>Collections and strings</strong></div></div></section>
+
+<section class="doc-page" data-group="Swift language foundations" data-summary="Define functions, closures, labels, default arguments, and error-handling contracts." data-title="Functions, closures, and errors" id="functions"><div class="page-inner">
+<h1>Functions, closures, and errors</h1><p class="lead">Swift function calls emphasize readable argument labels. Closures are first-class values and become terse in collection pipelines and SwiftUI callbacks.</p>
+<div class="comparison-label">A function with defaults and a closure callback</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>static String greet(String name) {
+    return "Hi, " + name;
+}
+names.forEach(name -&gt; System.out.println(greet(name)));</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>fun greet(name: String = "Guest") = "Hi, $name"
+names.forEach { println(greet(it)) }</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>func greet(_ name: String = "Guest") -&gt; String {
+    "Hi, \(name)"
+}
+names.forEach { print(greet($0)) }</code></pre></div></div>
+<h2>External argument labels</h2><p>In <code>func move(from start: Point, to end: Point)</code>, callers write <code>move(from: a, to: b)</code>. The underscore in <code>greet(_ name: String)</code> suppresses the external label. Labels are part of a function's API and make multi-argument calls read like a sentence.</p>
+<h2>Errors are explicit, but not checked exceptions</h2><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>String text() throws IOException {
+    return Files.readString(path);
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>fun text(): String =
+    path.readText()</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>func text() throws -&gt; String {
+    try String(contentsOf: url)
+}
+let value = try text()</code></pre></div></div>
+<p>Swift marks potentially failing calls with <code>try</code>; callers use <code>do/catch</code>, <code>try?</code>, or <code>try!</code>. A function may declare <code>throws</code>, but the compiler does not require a specific checked error type.</p>
+<div class="page-end"><span>Swift language foundations</span><strong>Functions, closures, and errors</strong></div></div></section>
+
+<section class="doc-page" data-group="Swift language foundations" data-summary="Use switch, pattern matching, loops, and expressive control flow." data-title="Control flow and pattern matching" id="control-flow"><div class="page-inner">
+<h1>Control flow and pattern matching</h1><p class="lead">Swift's <code>switch</code> is exhaustive and powerful. It is closer to Kotlin's exhaustive <code>when</code> than to Java's traditional statement switch.</p>
+<div class="comparison-label">Classify an HTTP response code</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>String category;
+if (code &gt;= 200 &amp;&amp; code &lt; 300) {
+    category = "success";
+} else if (code == 404) {
+    category = "missing";
+} else { category = "other"; }</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>val category = when (code) {
+    in 200..299 -&gt; "success"
+    404 -&gt; "missing"
+    else -&gt; "other"
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>let category: String
+switch code {
+case 200...299: category = "success"
+case 404: category = "missing"
+default: category = "other"
+}</code></pre></div></div>
+<h2>Control-flow tools worth learning</h2><ul><li><code>if case</code> and <code>guard case</code> match enum cases or optional patterns.</li><li><code>for case let .success(value) in results</code> filters and unwraps in one loop.</li><li><code>where</code> adds a condition to <code>case</code> or a <code>for</code> loop.</li><li><code>defer</code> schedules cleanup when the current scope exits, similar to a small, local <code>finally</code>.</li><li><code>fallthrough</code> is explicit and uncommon; cases do not fall through by default.</li></ul>
+<div class="page-end"><span>Swift language foundations</span><strong>Control flow and pattern matching</strong></div></div></section>
+
+<section class="doc-page" data-group="Types and design" data-summary="Choose structs, classes, enums, properties, and initializers based on semantics." data-title="Structs, classes, and enums" id="types"><div class="page-inner">
+<h1>Structs, classes, and enums</h1><p class="lead">The first major Swift design question is usually not “which class?” Instead: should this be a value, an identity-bearing shared object, or a closed set of cases?</p>
+<table><thead><tr><th>Use</th><th>Swift construct</th><th>Why</th></tr></thead><tbody><tr><td>Independent data value</td><td><code>struct</code></td><td>Value semantics, synthesized memberwise initializer, easy <code>Sendable</code> reasoning</td></tr><tr><td>Shared identity / lifecycle</td><td><code>class</code></td><td>Reference semantics, inheritance where necessary, ARC-managed identity</td></tr><tr><td>Finite alternatives with associated data</td><td><code>enum</code></td><td>Exhaustive switching and algebraic data types</td></tr></tbody></table>
+<div class="comparison-label">A data model with a computed property</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>record Player(String name, int score) {
+    boolean isWinning() {
+        return score &gt;= 10;
+    }
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>data class Player(val name: String, val score: Int) {
+    val isWinning get() = score &gt;= 10
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>struct Player {
+    let name: String
+    var score: Int
+    var isWinning: Bool { score &gt;= 10 }
+}</code></pre></div></div>
+<h2>Enums carry data</h2><div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>enum LoadState {
+    case idle
+    case loading
+    case loaded([Player])
+    case failed(any Error)
+}
+
+switch state {
+case .loaded(let players): print(players.count)
+case .failed(let error): print(error.localizedDescription)
+default: break
+}</code></pre></div>
+<div class="callout note"><strong>Do not reach for inheritance to share behavior.</strong> Swift often models shared capability with protocols and default implementations; it reserves classes for meaningful shared mutable identity.</div>
+<div class="page-end"><span>Types and design</span><strong>Structs, classes, and enums</strong></div></div></section>
+
+<section class="doc-page" data-group="Types and design" data-summary="Model behavior with protocols, extensions, protocol composition, and existentials." data-title="Protocols and extensions" id="protocols"><div class="page-inner">
+<h1>Protocols and extensions</h1><p class="lead">A Swift protocol resembles a Java interface or Kotlin interface, but extensions can add default behavior to a protocol or methods to an existing type without inheritance.</p>
+<div class="comparison-label">A capability with a default implementation</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>interface Named {
+    String name();
+    default String label() {
+        return "@" + name();
+    }
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>interface Named {
+    val name: String
+    fun label() = "@$name"
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>protocol Named {
+    var name: String { get }
+}
+extension Named {
+    var label: String { "@\(name)" }
+}</code></pre></div></div>
+<h2>Protocol vocabulary</h2><table><thead><tr><th>Syntax</th><th>Purpose</th></tr></thead><tbody><tr><td><code>struct User: Named</code></td><td>Conform a type to a protocol</td></tr><tr><td><code>any Named</code></td><td>Store an existential: an unknown conforming type</td></tr><tr><td><code>some Named</code></td><td>Return one specific hidden conforming type; preserves type identity</td></tr><tr><td><code>Named &amp; Sendable</code></td><td>Protocol composition (often written with a generic constraint instead)</td></tr><tr><td><code>protocol P: AnyObject</code></td><td>Restrict conformance to classes; enables weak references</td></tr></tbody></table>
+<div class="callout warning"><strong>Extension dispatch has nuance.</strong> A member declared only in a protocol extension is statically dispatched when accessed through a protocol-typed value. Put requirements in the protocol when polymorphic customization matters.</div>
+<div class="page-end"><span>Types and design</span><strong>Protocols and extensions</strong></div></div></section>
+
+<section class="doc-page" data-group="Types and design" data-summary="Write reusable, type-safe generic functions and understand associated types." data-title="Generics and associated types" id="generics"><div class="page-inner">
+<h1>Generics and associated types</h1><p class="lead">Swift generics are reified enough for strong optimization and expressive constraints. Protocols with associated types describe families of related types, much like Kotlin generic interfaces.</p>
+<div class="comparison-label">A generic clamp operation</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>static &lt;T extends Comparable&lt;T&gt;&gt; T clamp(
+    T value, T low, T high) {
+  return value.compareTo(low) &lt; 0 ? low :
+         value.compareTo(high) &gt; 0 ? high : value;
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>fun &lt;T : Comparable&lt;T&gt;&gt; clamp(
+    value: T, low: T, high: T
+) = value.coerceIn(low, high)</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>func clamp&lt;T: Comparable&gt;(
+    _ value: T, low: T, high: T
+) -&gt; T {
+    min(max(value, low), high)
+}</code></pre></div></div>
+<h2>Associated types</h2><div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>protocol Cache {
+    associatedtype Key: Hashable
+    associatedtype Value
+    subscript(key: Key) -&gt; Value? { get set }
+}
+
+func preload&lt;C: Cache&gt;(_ cache: inout C, key: C.Key, value: C.Value) {
+    cache[key] = value
+}</code></pre></div>
+<p>Because each conformer chooses its own <code>Key</code> and <code>Value</code>, <code>any Cache</code> cannot generally be used as freely as <code>any Named</code>. Prefer generic parameters or type erasure when the associated types matter.</p>
+<div class="page-end"><span>Types and design</span><strong>Generics and associated types</strong></div></div></section>
+
+<section class="doc-page" data-group="Memory and value semantics" data-summary="Understand value copying, copy-on-write, mutating methods, and inout." data-title="Value semantics and copy-on-write" id="value-semantics"><div class="page-inner">
+<h1>Value semantics and copy-on-write</h1><p class="lead">Value semantics is one of Swift's central design tools. Assigning a struct means values evolve independently; standard collections avoid eager deep copies with copy-on-write (CoW) storage.</p>
+<div class="comparison-label">Independent values after assignment</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>var a = new ArrayList&lt;Integer&gt;();
+a.add(1);
+var b = a;       // same object
+b.add(2);
+// a is [1, 2]</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>val a = mutableListOf(1)
+val b = a        // same object
+b += 2
+// a is [1, 2]</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>var a = [1]
+var b = a        // value copy; storage can be shared
+b.append(2)
+// a is [1]</code></pre></div></div>
+<h2>Design implications</h2><ul><li>A struct method that changes <code>self</code> or a stored property must be marked <code>mutating</code>.</li><li>You cannot mutate a value held by <code>let</code>, even if one of its properties is declared <code>var</code>.</li><li><code>inout</code> temporarily grants exclusive write access: <code>increment(&amp;score)</code>. Do not let an <code>inout</code> reference escape.</li><li>CoW means <code>Array</code>, <code>Dictionary</code>, <code>Set</code>, and <code>String</code> often copy cheaply until one owner mutates.</li></ul>
+<div class="callout note"><strong>Value types are not automatically “deep immutable.”</strong> A struct can contain a class reference; copying the struct then copies the reference. Choose contained types intentionally.</div>
+<div class="page-end"><span>Memory and value semantics</span><strong>Value semantics and copy-on-write</strong></div></div></section>
+
+<section class="doc-page" data-group="Memory and value semantics" data-summary="Manage object lifetime with ARC, strong, weak, unowned, and closure captures." data-title="ARC and object lifetime" id="arc"><div class="page-inner">
+<h1>ARC and object lifetime</h1><p class="lead">Swift uses Automatic Reference Counting (ARC) for class instances. Unlike JVM garbage collection, reference-count changes usually determine release immediately when the last strong reference disappears.</p>
+<div class="comparison-label">Avoid a closure retain cycle</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>class Controller {
+  void start() {
+    service.fetch(result -&gt; render(result));
+  }
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>class Controller {
+  fun start() {
+    service.fetch { render(it) }
+  }
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>final class Controller {
+    func start() {
+        service.fetch { [weak self] result in
+            self?.render(result)
+        }
+    }
+}</code></pre></div></div>
+<h2>Ownership rules</h2><table><thead><tr><th>Reference</th><th>Effect</th><th>Use</th></tr></thead><tbody><tr><td>Strong (default)</td><td>Keeps object alive</td><td>Normal ownership</td></tr><tr><td><code>weak</code></td><td>Does not keep object alive; always optional</td><td>Back references, delegates, callbacks that may outlive owner</td></tr><tr><td><code>unowned</code></td><td>Does not keep object alive; non-optional</td><td>Only when referenced object is guaranteed to outlive the reference</td></tr></tbody></table>
+<div class="callout danger"><strong>ARC cannot collect cycles.</strong> If object A strongly owns B and B strongly owns A (directly or via closures, delegates, timers, tasks, or publishers), both leak. Break the ownership relationship deliberately, usually with <code>weak</code>.</div>
+<h2>Practical debugging</h2><p>Use Xcode's Memory Graph Debugger to inspect cycles and Instruments (Leaks, Allocations) to measure behavior. Do not add <code>weak self</code> blindly: it can silently make required work disappear. First decide who should own the task and for how long.</p>
+<div class="page-end"><span>Memory and value semantics</span><strong>ARC and object lifetime</strong></div></div></section>
+
+<section class="doc-page" data-group="Concurrency" data-summary="Use async/await, tasks, cancellation, task groups, and structured concurrency." data-title="Async await and structured concurrency" id="async-await"><div class="page-inner">
+<h1>Async await and structured concurrency</h1><p class="lead">Swift concurrency expresses asynchronous work in the function type: <code>async</code>, <code>throws</code>, and actor isolation. It is closest to Kotlin coroutines, but its isolation model is built into the type system.</p>
+<div class="comparison-label">Load independent values concurrently</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>var user = userFuture.get();
+var posts = postsFuture.get();</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>coroutineScope {
+  val user = async { loadUser() }
+  val posts = async { loadPosts() }
+  Screen(user.await(), posts.await())
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>async let user = loadUser()
+async let posts = loadPosts()
+return try await Screen(
+    user: user, posts: posts
+)</code></pre></div></div>
+<h2>Rules that prevent bugs</h2><ul><li>Prefer a child <code>Task</code>, <code>async let</code>, or a task group over unstructured <code>Task { }</code> when the work has a clear parent.</li><li>Cancellation is cooperative. Check <code>Task.isCancelled</code> or call <code>try Task.checkCancellation()</code> in long-running work.</li><li>An <code>await</code> is a suspension point, not necessarily a thread switch.</li><li>Never block an async task with semaphores or synchronous waiting for another async task.</li><li>Use <code>withThrowingTaskGroup</code> for a dynamic number of child tasks.</li></ul>
+<div class="page-end"><span>Concurrency</span><strong>Async await and structured concurrency</strong></div></div></section>
+
+<section class="doc-page" data-group="Concurrency" data-summary="Protect mutable state with actors, Sendable, and MainActor isolation." data-title="Actors, Sendable, and MainActor" id="actors"><div class="page-inner">
+<h1>Actors, Sendable, and MainActor</h1><p class="lead">Actors protect mutable state through isolation. Swift 6's strict concurrency checking asks whether values crossing concurrency domains are safe to send.</p>
+<div class="comparison-label">A concurrency-safe counter</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>class Counter {
+  private int value;
+  synchronized void increment() { value++; }
+  synchronized int get() { return value; }
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>class Counter {
+  private var value = 0
+  @Synchronized fun increment() { value++ }
+  @Synchronized fun get() = value
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>actor Counter {
+    private var value = 0
+    func increment() { value += 1 }
+    func get() -&gt; Int { value }
+}
+
+await counter.increment()</code></pre></div></div>
+<h2>Key concepts</h2><table><thead><tr><th>Concept</th><th>Meaning</th></tr></thead><tbody><tr><td><code>actor</code></td><td>Reference type whose mutable state is isolated; calls from outside commonly require <code>await</code></td></tr><tr><td><code>@MainActor</code></td><td>Isolates UI-facing code to the main actor; use for observable UI models and UI mutations</td></tr><tr><td><code>Sendable</code></td><td>Marker protocol for values safely transferable across concurrency domains; value types with Sendable fields often qualify naturally</td></tr><tr><td>Reentrancy</td><td>An actor can process other work while one method is suspended at <code>await</code>; re-check assumptions after an await</td></tr></tbody></table>
+<div class="callout warning"><strong>An actor is not a transaction.</strong> Do the state update that must be atomic before an <code>await</code>, or validate state again after resuming. Actor isolation prevents data races; it does not make multi-step logic automatically atomic.</div>
+<div class="page-end"><span>Concurrency</span><strong>Actors, Sendable, and MainActor</strong></div></div></section>
+
+<section class="doc-page" data-group="SwiftUI fundamentals" data-summary="Understand the SwiftUI app entry point, view values, and declarative rendering." data-title="SwiftUI mental model" id="swiftui-mental-model"><div class="page-inner">
+<h1>SwiftUI mental model</h1><p class="lead">SwiftUI views are lightweight descriptions of UI, not long-lived Android <code>View</code> objects. When state changes, SwiftUI evaluates view descriptions again and reconciles the rendered interface.</p>
+<div class="comparison-label">A minimal app</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA / ANDROID</span><button class="copy-btn">Copy</button></div><pre><code>public class MainActivity extends Activity {
+  protected void onCreate(Bundle state) {
+    super.onCreate(state);
+    setContentView(R.layout.main);
+  }
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN / COMPOSE</span><button class="copy-btn">Copy</button></div><pre><code>class MainActivity : ComponentActivity() {
+  override fun onCreate(state: Bundle?) {
+    super.onCreate(state)
+    setContent { Text("Hello") }
+  }
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT / SWIFTUI</span><button class="copy-btn">Copy</button></div><pre><code>import SwiftUI
+
+@main
+struct SampleApp: App {
+    var body: some Scene {
+        WindowGroup { Text("Hello") }
+    }
+}</code></pre></div></div>
+<h2>Read this declaration literally</h2><p><code>body</code> returns <code>some View</code>: one concrete, compiler-known view type hidden behind an opaque return type. Its result is a value description. Avoid storing a view to “update it”; store the model state, then let <code>body</code> derive the view hierarchy.</p>
+<div class="callout note"><strong>Compose comparison:</strong> SwiftUI and Compose share declarative state-driven rendering. SwiftUI uses property wrappers such as <code>@State</code> and <code>@Binding</code>, and view identity is especially important for preserving state and animations.</div>
+<div class="page-end"><span>SwiftUI fundamentals</span><strong>SwiftUI mental model</strong></div></div></section>
+
+<section class="doc-page" data-group="SwiftUI fundamentals" data-summary="Choose State, Binding, Observable, StateObject, Environment, and AppStorage correctly." data-title="SwiftUI state and data flow" id="swiftui-state"><div class="page-inner">
+<h1>SwiftUI state and data flow</h1><p class="lead">The most important SwiftUI skill is placing state at the right owner and passing only the access a child needs.</p>
+<table><thead><tr><th>Tool</th><th>Use it when</th><th>Compose analogy</th></tr></thead><tbody><tr><td><code>@State</code></td><td>This view owns simple local value state</td><td><code>remember { mutableStateOf(...) }</code></td></tr><tr><td><code>@Binding</code></td><td>A child edits state owned by a parent</td><td>State hoisting: value + callback</td></tr><tr><td><code>@Observable</code> + <code>@State</code></td><td>This view owns a reference model using Observation</td><td>State holder / observable model</td></tr><tr><td><code>@Environment</code></td><td>Read shared contextual dependencies or values</td><td>CompositionLocal</td></tr><tr><td><code>@AppStorage</code></td><td>Persist a small preference in UserDefaults</td><td>DataStore preference, conceptually</td></tr></tbody></table>
+<div class="comparison-label">Parent owns state; child receives a binding</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>// Traditional UI: parent receives listener
+toggle.setOnCheckedChangeListener(
+  (button, checked) -&gt; enabled = checked
+);</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN / COMPOSE</span><button class="copy-btn">Copy</button></div><pre><code>@Composable fun Toggle(
+  enabled: Boolean, onChange: (Boolean) -&gt; Unit
+) { Switch(enabled, onCheckedChange = onChange) }</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFTUI</span><button class="copy-btn">Copy</button></div><pre><code>struct SettingsView: View {
+    @State private var enabled = false
+    var body: some View {
+        ToggleRow(enabled: $enabled)
+    }
+}
+struct ToggleRow: View {
+    @Binding var enabled: Bool
+    var body: some View { Toggle("Enabled", isOn: $enabled) }
+}</code></pre></div></div>
+<div class="callout warning"><strong>Do not create model objects in <code>body</code>.</strong> A view's body can run often. Store owned observable reference state with an appropriate property wrapper so its lifetime follows view identity rather than one body evaluation.</div>
+<div class="page-end"><span>SwiftUI fundamentals</span><strong>SwiftUI state and data flow</strong></div></div></section>
+
+<section class="doc-page" data-group="SwiftUI fundamentals" data-summary="Compose layouts using stacks, modifiers, view builders, and custom layouts." data-title="Layout, modifiers, and composition" id="swiftui-layout"><div class="page-inner">
+<h1>Layout, modifiers, and composition</h1><p class="lead">SwiftUI layout starts with small composable containers. A modifier returns a new view value; modifier order changes the result.</p>
+<div class="comparison-label">A labeled card</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA / XML</span><button class="copy-btn">Copy</button></div><pre><code>&lt;LinearLayout
+  android:orientation="vertical"
+  android:padding="16dp"&gt;
+  &lt;TextView android:text="Score" /&gt;
+  &lt;TextView android:text="42" /&gt;
+&lt;/LinearLayout&gt;</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN / COMPOSE</span><button class="copy-btn">Copy</button></div><pre><code>Column(Modifier.padding(16.dp)) {
+  Text("Score")
+  Text("42", style = MaterialTheme.typography.titleLarge)
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFTUI</span><button class="copy-btn">Copy</button></div><pre><code>VStack(alignment: .leading, spacing: 4) {
+    Text("Score")
+    Text("42").font(.title)
+}
+.padding()</code></pre></div></div>
+<h2>Everyday layout vocabulary</h2><div class="card-grid"><article class="mini-card"><h3>Stacks</h3><p><code>VStack</code>, <code>HStack</code>, and <code>ZStack</code> arrange children vertically, horizontally, or in depth.</p></article><article class="mini-card"><h3>Space</h3><p><code>Spacer()</code>, <code>padding</code>, <code>frame</code>, and alignment guide placement. Avoid arbitrary fixed frames first.</p></article><article class="mini-card"><h3>Reusable views</h3><p>Extract a semantic subview when it has a purpose, not merely to shorten <code>body</code>.</p></article><article class="mini-card"><h3>Custom layout</h3><p>Use <code>Layout</code> for a reusable measurement and placement algorithm beyond stacks and grids.</p></article></div>
+<div class="callout note"><strong>Modifier order matters.</strong> <code>Text("Hi").padding().background(.blue)</code> draws a padded blue box; reversing them colors only the text's original bounds, then pads outside it.</div>
+<div class="page-end"><span>SwiftUI fundamentals</span><strong>Layout, modifiers, and composition</strong></div></div></section>
+
+<section class="doc-page" data-group="SwiftUI navigation and interaction" data-summary="Build lists, navigation stacks, forms, alerts, sheets, and focused controls." data-title="Lists, forms, and navigation" id="swiftui-navigation"><div class="page-inner">
+<h1>Lists, forms, and navigation</h1><p class="lead">Use data-driven navigation and stable item identity. Modern SwiftUI navigation is centered on <code>NavigationStack</code> and typed destinations.</p>
+<div class="comparison-label">A navigable data-driven list</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA / ANDROID</span><button class="copy-btn">Copy</button></div><pre><code>// RecyclerView adapter binds rows;
+// click listener opens a detail Activity
+adapter.setOnClick(player -&gt;
+  startActivity(DetailActivity.intent(this, player.id))
+);</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN / COMPOSE</span><button class="copy-btn">Copy</button></div><pre><code>LazyColumn {
+  items(players, key = { it.id }) { player -&gt;
+    Text(player.name, Modifier.clickable {
+      nav.navigate("player/${player.id}")
+    })
+  }
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFTUI</span><button class="copy-btn">Copy</button></div><pre><code>NavigationStack {
+    List(players) { player in
+        NavigationLink(player.name, value: player)
+    }
+    .navigationDestination(for: Player.self) {
+        PlayerDetail(player: $0)
+    }
+}</code></pre></div></div>
+<h2>Use the semantic container</h2><table><thead><tr><th>Container</th><th>Best use</th></tr></thead><tbody><tr><td><code>List</code></td><td>Platform-styled scrolling rows, editing, selection, sections</td></tr><tr><td><code>ScrollView</code> + <code>LazyVStack</code></td><td>More custom scrolling layout</td></tr><tr><td><code>Form</code></td><td>Grouped settings and editable fields</td></tr><tr><td><code>sheet</code>, <code>fullScreenCover</code></td><td>Temporary modal workflows</td></tr><tr><td><code>alert</code>, <code>confirmationDialog</code></td><td>Short decisions and destructive confirmations</td></tr></tbody></table>
+<div class="callout warning"><strong>Identity preserves state.</strong> Make collection elements conform to <code>Identifiable</code> or provide a stable <code>id</code>. Avoid using offsets or generated UUIDs that change during every render.</div>
+<div class="page-end"><span>SwiftUI navigation and interaction</span><strong>Lists, forms, and navigation</strong></div></div></section>
+
+<section class="doc-page" data-group="SwiftUI navigation and interaction" data-summary="Animate state changes and build inclusive, accessible platform-native interfaces." data-title="Animation, accessibility, and previews" id="swiftui-polish"><div class="page-inner">
+<h1>Animation, accessibility, and previews</h1><p class="lead">SwiftUI animations describe how a state transition should be interpolated. Accessibility is not a final pass: build semantic labels and scalable layout from the first view.</p>
+<div class="comparison-label">Animate a state change</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA / ANDROID</span><button class="copy-btn">Copy</button></div><pre><code>view.animate()
+    .alpha(expanded ? 1f : 0f)
+    .setDuration(200)
+    .start();</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN / COMPOSE</span><button class="copy-btn">Copy</button></div><pre><code>val alpha by animateFloatAsState(
+  if (expanded) 1f else 0f
+)</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFTUI</span><button class="copy-btn">Copy</button></div><pre><code>Button("Toggle") {
+    withAnimation(.easeInOut) {
+        expanded.toggle()
+    }
+}
+Details().opacity(expanded ? 1 : 0)</code></pre></div></div>
+<h2>Accessibility checklist</h2><ul class="checklist"><li>Use native controls before custom gestures; they provide labels, roles, focus, and behavior.</li><li>Add <code>accessibilityLabel</code> when visible text is absent or unclear; do not repeat obvious labels.</li><li>Support Dynamic Type: prefer flexible stacks, wrapping, and scalable text over fixed height and tiny fonts.</li><li>Do not convey state only through color; test contrast and VoiceOver reading order.</li><li>Respect Reduce Motion for nonessential, attention-heavy animation.</li><li>Test with Xcode Previews across sizes, color schemes, accessibility text sizes, and device types.</li></ul>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFTUI</span><button class="copy-btn">Copy</button></div><pre><code>#Preview("Large type") {
+    SettingsView()
+        .environment(\.sizeCategory, .accessibilityExtraExtraExtraLarge)
+}</code></pre></div>
+<div class="page-end"><span>SwiftUI navigation and interaction</span><strong>Animation, accessibility, and previews</strong></div></div></section>
+
+<section class="doc-page" data-group="Apple ecosystem" data-summary="Connect SwiftUI to URLSession, Codable, persistence, and platform services." data-title="Networking, data, and persistence" id="apple-data"><div class="page-inner">
+<h1>Networking, data, and persistence</h1><p class="lead">Apple frameworks favor explicit types and async APIs. A common SwiftUI architecture keeps networking and persistence outside views, exposes a small observable model, and renders state.</p>
+<div class="comparison-label">Decode JSON with an async request</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>var request = HttpRequest.newBuilder(uri).build();
+var body = client.send(request,
+    BodyHandlers.ofString()).body();
+var player = mapper.readValue(body, Player.class);</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>val body = client.get(url).bodyAsText()
+val player = json.decodeFromString&lt;Player&gt;(body)</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>struct Player: Decodable, Identifiable {
+    let id: UUID
+    let name: String
+}
+let (data, _) = try await URLSession.shared.data(from: url)
+let player = try JSONDecoder().decode(Player.self, from: data)</code></pre></div></div>
+<h2>Choose storage by data shape</h2><table><thead><tr><th>Need</th><th>Apple technology</th><th>Guidance</th></tr></thead><tbody><tr><td>Small settings</td><td><code>UserDefaults</code>, <code>@AppStorage</code></td><td>Preferences, not a database</td></tr><tr><td>Structured local models</td><td>SwiftData</td><td>Modern Swift-first persistence; assess deployment targets</td></tr><tr><td>Established object graph / sync needs</td><td>Core Data / CloudKit</td><td>Mature ecosystem and iCloud options</td></tr><tr><td>Secrets</td><td>Keychain</td><td>Tokens and credentials; never UserDefaults</td></tr><tr><td>Files</td><td>FileManager, document APIs</td><td>Use app support/cache/document directories intentionally</td></tr></tbody></table>
+<div class="callout warning"><strong>Keep decoding models and UI models separate when their responsibilities diverge.</strong> Server payloads change for server reasons; UI state changes for user-experience reasons. A mapping boundary protects the rest of the app.</div>
+<div class="page-end"><span>Apple ecosystem</span><strong>Networking, data, and persistence</strong></div></div></section>
+
+<section class="doc-page" data-group="Apple ecosystem" data-summary="Understand platform families, lifecycle, capabilities, testing, distribution, and observability." data-title="The Apple platform ecosystem" id="apple-ecosystem"><div class="page-inner">
+<h1>The Apple platform ecosystem</h1><p class="lead">SwiftUI is shared across Apple platforms, but a good app respects platform conventions. Share domain logic and many view components; specialize navigation, input, windows, and interaction where the platform differs.</p>
+<h2>Platform map</h2><table><thead><tr><th>Platform</th><th>Typical SwiftUI differences</th></tr></thead><tbody><tr><td>iOS / iPadOS</td><td>Touch-first navigation, scenes, sheets, split views, widgets, app intents</td></tr><tr><td>macOS</td><td>Windows, menus, keyboard shortcuts, toolbar commands, pointer interactions</td></tr><tr><td>watchOS</td><td>Short focused flows, complications, Digital Crown, health/fitness integrations</td></tr><tr><td>tvOS</td><td>Focus engine, remote interaction, large-screen layout</td></tr><tr><td>visionOS</td><td>Windows, volumes, immersive spaces, spatial interaction</td></tr></tbody></table>
+<h2>Frameworks to recognize</h2><div class="card-grid"><article class="mini-card"><h3>SwiftUI</h3><p>Declarative UI and app scenes.</p></article><article class="mini-card"><h3>Foundation</h3><p>Dates, URLs, JSON, files, localization, networking primitives.</p></article><article class="mini-card"><h3>UIKit / AppKit</h3><p>Imperative platform UI; integrate when SwiftUI lacks a needed component.</p></article><article class="mini-card"><h3>Combine / Observation</h3><p>Event streams and state observation. Prefer modern Observation for new SwiftUI state where applicable.</p></article><article class="mini-card"><h3>OSLog</h3><p>Structured privacy-aware logging and signposts.</p></article><article class="mini-card"><h3>XCTest / Swift Testing</h3><p>Unit and UI testing frameworks; use the project-standard tool.</p></article></div>
+<h2>Ship-quality workflow</h2><div class="pipeline"><span>build</span><b>→</b><span>run on simulator</span><b>→</b><span>test on device</span><b>→</b><span>profile with Instruments</span><b>→</b><span>archive</span><b>→</b><span>TestFlight</span><b>→</b><span>App Store review</span></div>
+<div class="page-end"><span>Apple ecosystem</span><strong>The Apple platform ecosystem</strong></div></div></section>
+
+<section class="doc-page" data-group="Modern Swift tools" data-summary="Organize code with SwiftPM and write reliable unit tests." data-title="Packages, modules, and testing" id="packages-testing"><div class="page-inner">
+<h1>Packages, modules, and testing</h1><p class="lead">Swift Package Manager keeps package configuration in a typed Swift manifest. Modules are the main encapsulation and import boundary, similar to Gradle modules plus Java packages.</p>
+<div class="code-shell"><div class="code-toolbar"><span>PACKAGE.SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>// swift-tools-version: 6.0
+import PackageDescription
+
+let package = Package(
+    name: "ScoreKit",
+    products: [.library(name: "ScoreKit", targets: ["ScoreKit"])],
+    targets: [
+        .target(name: "ScoreKit"),
+        .testTarget(name: "ScoreKitTests", dependencies: ["ScoreKit"])
+    ]
+)</code></pre></div>
+<h2>Test the behavior, not framework implementation</h2><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA / JUNIT</span><button class="copy-btn">Copy</button></div><pre><code>@Test void clampsHighValue() {
+  assertEquals(10, clamp(30, 0, 10));
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN / JUNIT</span><button class="copy-btn">Copy</button></div><pre><code>@Test fun clampsHighValue() {
+  assertEquals(10, clamp(30, 0, 10))
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT TESTING</span><button class="copy-btn">Copy</button></div><pre><code>import Testing
+
+@Test func clampsHighValue() {
+    #expect(clamp(30, low: 0, high: 10) == 10)
+}</code></pre></div></div>
+<p>Use dependency injection through initializer parameters or protocol-typed dependencies to make network, time, persistence, and platform services testable. Prefer small pure functions for complicated business rules.</p>
+<div class="page-end"><span>Modern Swift tools</span><strong>Packages, modules, and testing</strong></div></div></section>
+
+<section class="doc-page" data-group="Advanced Swift" data-summary="Use macros deliberately for boilerplate reduction and compile-time code generation." data-title="Macros and metaprogramming" id="macros"><div class="page-inner">
+<h1>Macros and metaprogramming</h1><p class="lead">Swift macros generate Swift code at compile time. They are not runtime reflection and are more constrained than annotation processors or Kotlin compiler plugins, which makes generated behavior inspectable and type-checked.</p>
+<div class="comparison-label">A declaration macro in use</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>// Lombok annotation processor
+@Getter @AllArgsConstructor
+class User {
+  private final String name;
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>// Compiler-plugin/code-generation
+// approach varies (KSP, compiler plugin)
+data class User(val name: String)</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>@Observable
+final class Session {
+    var signedIn = false
+}</code></pre></div></div>
+<h2>Macro categories</h2><table><thead><tr><th>Category</th><th>What it does</th></tr></thead><tbody><tr><td>Freestanding expression / declaration</td><td>Expands at a marked site, such as a compiler directive-like expression or generated declaration</td></tr><tr><td>Attached peer/member/accessor</td><td>Adds declarations next to, inside, or around an annotated declaration</td></tr><tr><td>Conformance / extension</td><td>Can synthesize protocol conformance or an extension under declared rules</td></tr></tbody></table>
+<div class="callout warning"><strong>Use macros for repeated, mechanical source transformations—not hidden business logic.</strong> Review macro expansion in Xcode, document generated members, and keep diagnostics understandable. A protocol, generic function, or property wrapper is often the simpler tool.</div>
+<div class="page-end"><span>Advanced Swift</span><strong>Macros and metaprogramming</strong></div></div></section>
+
+<section class="doc-page" data-group="Advanced Swift" data-summary="Measure before optimizing and learn common Swift performance costs." data-title="Performance and profiling" id="performance"><div class="page-inner">
+<h1>Performance and profiling</h1><p class="lead">Swift can be very fast, but elegant code can still allocate, copy, hash, bridge, or hop between actors more than intended. Measure on a realistic device and workload before optimizing.</p>
+<h2>High-value rules</h2><table><thead><tr><th>Area</th><th>Guidance</th></tr></thead><tbody><tr><td>Collections</td><td>Reserve capacity for known growth; avoid repeatedly rebuilding large arrays or strings in hot paths.</td></tr><tr><td>Value types</td><td>CoW makes passing collections cheap until mutation; avoid accidental uniqueness breaks and unnecessary mutation after copying.</td></tr><tr><td>Abstraction</td><td>Use generics for hot, type-preserving paths; assess <code>any Protocol</code> only if profiling identifies existential overhead.</td></tr><tr><td>SwiftUI</td><td>Keep <code>body</code> cheap and deterministic; use stable identity; avoid expensive work in view evaluation; move work to models/tasks.</td></tr><tr><td>Concurrency</td><td>Do not create a task per tiny operation; batch work and avoid unnecessary actor hops.</td></tr><tr><td>Bridging</td><td>Repeated conversions between Swift collections/strings and Foundation or Objective-C types can cost time and allocations.</td></tr></tbody></table>
+<h2>Instruments first</h2><div class="pipeline"><span>Time Profiler: CPU hotspots</span><b>→</b><span>Allocations: churn</span><b>→</b><span>Leaks: cycles</span><b>→</b><span>SwiftUI: render behavior</span><b>→</b><span>Points of Interest: signposts</span></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>import OSLog
+
+let log = Logger(subsystem: "com.example.score", category: "network")
+log.info("Refreshing scores for \(teamID, privacy: .public)")
+// Use signposts around measurable operations when profiling.</code></pre></div>
+<div class="callout note"><strong>Optimize representation only after evidence.</strong> Replacing a struct with a class, adding caching, or erasing types prematurely can make correctness and concurrency harder. First capture a baseline and identify the limiting cost.</div>
+<div class="page-end"><span>Advanced Swift</span><strong>Performance and profiling</strong></div></div></section>
+
+<section class="doc-page" data-group="Advanced Swift" data-summary="Design stored and computed properties, initialization, access control, and property wrappers." data-title="Properties, initialization, and access control" id="properties-access"><div class="page-inner">
+<h1>Properties, initialization, and access control</h1><p class="lead">Swift makes initialization and stored-property ownership explicit. This avoids partially initialized objects and helps preserve value invariants.</p>
+<div class="comparison-label">A computed property with controlled mutation</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>final class Temperature {
+  private double celsius;
+  double fahrenheit() {
+    return celsius * 9 / 5 + 32;
+  }
+  void setCelsius(double value) {
+    if (value &lt; -273.15) throw new IllegalArgumentException();
+    celsius = value;
+  }
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>class Temperature(celsius: Double) {
+  var celsius = celsius
+    set(value) {
+      require(value &gt;= -273.15)
+      field = value
+    }
+  val fahrenheit get() = celsius * 9 / 5 + 32
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>struct Temperature {
+    var celsius: Double {
+        didSet { precondition(celsius &gt;= -273.15) }
+    }
+    var fahrenheit: Double { celsius * 9 / 5 + 32 }
+    init(celsius: Double) {
+        precondition(celsius &gt;= -273.15)
+        self.celsius = celsius
+    }
+}</code></pre></div></div>
+<h2>Property vocabulary</h2><table><thead><tr><th>Feature</th><th>Use</th></tr></thead><tbody><tr><td>Stored property</td><td>Persists a value in each instance: <code>var score: Int</code>.</td></tr><tr><td>Computed property</td><td>Derives a value with <code>get</code> and optionally <code>set</code>; it has no independent storage.</td></tr><tr><td>Observers</td><td><code>willSet</code> and <code>didSet</code> react after initialization; use sparingly for local consistency, not hidden I/O.</td></tr><tr><td><code>lazy var</code></td><td>Defers creation until first access. It must be a variable because first access mutates storage.</td></tr><tr><td>Property wrapper</td><td>Packages storage behavior behind <code>@Wrapper</code>; SwiftUI's <code>@State</code> is the most visible example.</td></tr></tbody></table>
+<h2>Access control</h2><p>Swift access levels are <code>open</code>, <code>public</code>, <code>package</code>, <code>internal</code> (default), <code>fileprivate</code>, and <code>private</code>. Use <code>public</code> for an API visible to importing modules; use <code>open</code> only when external modules may subclass or override a class API. Prefer the narrowest level that supports the API.</p>
+<div class="page-end"><span>Advanced Swift</span><strong>Properties, initialization, and access control</strong></div></div></section>
+
+<section class="doc-page" data-group="SwiftUI architecture" data-summary="Model screen state, inject dependencies, and make SwiftUI features testable." data-title="SwiftUI architecture and dependency injection" id="swiftui-architecture"><div class="page-inner">
+<h1>SwiftUI architecture and dependency injection</h1><p class="lead">SwiftUI does not require a named architecture, but successful apps consistently separate rendering, screen state, domain rules, and I/O. Keep the view declarative and make effects explicit.</p>
+<h2>A practical feature shape</h2><div class="pipeline"><span>View: renders state and sends intent</span><b>→</b><span>Model: coordinates feature state</span><b>→</b><span>Service protocol: defines I/O</span><b>→</b><span>Implementation: URLSession, persistence, platform API</span></div>
+<div class="comparison-label">Inject an interface/protocol instead of creating a global service</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>final class ScoreController {
+  private final ScoreService service;
+  ScoreController(ScoreService service) {
+    this.service = service;
+  }
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>class ScoreModel(
+  private val service: ScoreService
+)</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFT</span><button class="copy-btn">Copy</button></div><pre><code>protocol ScoreService: Sendable {
+    func scores() async throws -&gt; [Int]
+}
+@Observable @MainActor
+final class ScoreModel {
+    private let service: any ScoreService
+    init(service: any ScoreService) {
+        self.service = service
+    }
+}</code></pre></div></div>
+<h2>State design rules</h2><ul><li>Represent screen states explicitly: loading, content, empty, and error should be visible in the model instead of inferred from several unrelated booleans.</li><li>Make the view's inputs obvious. Use initializer injection for required dependencies; use environment injection for shared app-level services.</li><li>Keep business logic out of <code>body</code>. Views can format and compose; services and models perform I/O and decisions.</li><li>Use a fake conformer in previews and tests. A preview that reaches the network is neither reliable nor fast.</li><li>Do not force every feature into a giant global store. State should live at the lowest owner that needs to coordinate it.</li></ul>
+<div class="page-end"><span>SwiftUI architecture</span><strong>SwiftUI architecture and dependency injection</strong></div></div></section>
+
+<section class="doc-page" data-group="SwiftUI architecture" data-summary="Handle task lifetimes, scene phases, deep links, and platform lifecycle events." data-title="Tasks, scenes, and app lifecycle" id="lifecycle"><div class="page-inner">
+<h1>Tasks, scenes, and app lifecycle</h1><p class="lead">SwiftUI connects work to view identity through task modifiers and groups windows into scenes. Treat lifecycle events as signals to reconcile state, not as a substitute for a durable data model.</p>
+<div class="comparison-label">Load when a screen becomes active</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA / ANDROID</span><button class="copy-btn">Copy</button></div><pre><code>@Override protected void onStart() {
+  super.onStart();
+  viewModel.load();
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN / COMPOSE</span><button class="copy-btn">Copy</button></div><pre><code>LaunchedEffect(Unit) {
+  model.load()
+}</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFTUI</span><button class="copy-btn">Copy</button></div><pre><code>var body: some View {
+    Content(state: model.state)
+        .task { await model.load() }
+        .task(id: query) {
+            await model.search(for: query)
+        }
+}</code></pre></div></div>
+<h2>Lifecycle tools</h2><table><thead><tr><th>Tool</th><th>When to use it</th></tr></thead><tbody><tr><td><code>.task</code></td><td>Start async work associated with a visible view; SwiftUI cancels it when that identity disappears.</td></tr><tr><td><code>.task(id:)</code></td><td>Restart work when the identifier changes, such as a search query or selected account.</td></tr><tr><td><code>@Environment(\.scenePhase)</code></td><td>Observe active, inactive, and background scene state; persist or refresh responsibly.</td></tr><tr><td><code>.onOpenURL</code></td><td>Receive deep links and custom URL scheme events.</td></tr><tr><td><code>App</code> and <code>Scene</code></td><td>Define windows, commands, settings, document scenes, and platform-specific app structure.</td></tr></tbody></table>
+<div class="callout warning"><strong><code>onAppear</code> is not “exactly once.”</strong> A view may appear repeatedly as navigation and identity change. Use idempotent loading, cache appropriately, or use <code>.task(id:)</code> to tie behavior to a clear input.</div>
+<div class="page-end"><span>SwiftUI architecture</span><strong>Tasks, scenes, and app lifecycle</strong></div></div></section>
+
+<section class="doc-page" data-group="Apple ecosystem" data-summary="Integrate SwiftUI with UIKit, AppKit, Objective-C APIs, and Foundation." data-title="Interop with UIKit, AppKit, and Objective-C" id="interop"><div class="page-inner">
+<h1>Interop with UIKit, AppKit, and Objective-C</h1><p class="lead">SwiftUI coexists with Apple's mature imperative UI frameworks. Interoperability is a normal engineering tool, not a failure to “do pure SwiftUI.”</p>
+<div class="comparison-label">Wrap a platform-native view for SwiftUI</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA / ANDROID</span><button class="copy-btn">Copy</button></div><pre><code>// Compose can host a classic Android View:
+AndroidView(factory = { context -&gt;
+  MapView(context)
+})</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN / COMPOSE</span><button class="copy-btn">Copy</button></div><pre><code>AndroidView(
+  factory = { context -&gt; MapView(context) },
+  update = { map -&gt; map.zoom = zoom }
+)</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFTUI / IOS</span><button class="copy-btn">Copy</button></div><pre><code>struct MapHost: UIViewRepresentable {
+    func makeUIView(context: Context) -&gt; MKMapView {
+        MKMapView()
+    }
+    func updateUIView(_ view: MKMapView, context: Context) {
+        // Synchronize SwiftUI state to the UIKit view.
+    }
+}</code></pre></div></div>
+<h2>Bridging map</h2><table><thead><tr><th>Direction</th><th>Tool</th></tr></thead><tbody><tr><td>Use UIKit in SwiftUI (iOS)</td><td><code>UIViewRepresentable</code> or <code>UIViewControllerRepresentable</code></td></tr><tr><td>Use AppKit in SwiftUI (macOS)</td><td><code>NSViewRepresentable</code> or <code>NSViewControllerRepresentable</code></td></tr><tr><td>Host SwiftUI in UIKit/AppKit</td><td><code>UIHostingController</code> or <code>NSHostingController</code></td></tr><tr><td>Call Objective-C</td><td>Import its module/header; Objective-C-compatible APIs bridge to Swift types where possible</td></tr><tr><td>Expose Swift to Objective-C</td><td>Use <code>@objc</code> and Objective-C-compatible types where required; avoid it for Swift-only APIs</td></tr></tbody></table>
+<div class="callout note"><strong>Keep one source of truth.</strong> The representable's <code>updateUIView</code> / <code>updateNSView</code> synchronizes SwiftUI state to the imperative view. Delegate callbacks should update bindings or a model, not establish a competing state store inside the wrapped view.</div>
+<div class="page-end"><span>Apple ecosystem</span><strong>Interop with UIKit, AppKit, and Objective-C</strong></div></div></section>
+
+<section class="doc-page" data-group="Apple ecosystem" data-summary="Prepare an Apple app for privacy, localization, diagnostics, and release." data-title="Privacy, localization, and release readiness" id="release-readiness"><div class="page-inner">
+<h1>Privacy, localization, and release readiness</h1><p class="lead">An app that works in a simulator is not yet a production Apple app. Privacy declarations, permission text, localization, accessibility, diagnostics, and store metadata are product requirements.</p>
+<h2>Privacy rules</h2><ul><li>Request the minimum capability and explain the user benefit at the moment it is needed.</li><li>Provide the corresponding usage-description strings for protected resources such as camera, microphone, photos, location, Bluetooth, contacts, and health data; the system can terminate an app missing a required description.</li><li>Store secrets in Keychain and apply platform privacy manifests, data-use declarations, and third-party SDK requirements accurately.</li><li>Use <code>Logger</code>'s privacy interpolation. Treat dynamic strings as private by default unless they are safe to expose.</li></ul>
+<div class="comparison-label">Localize a user-facing message</div><div class="compare-grid">
+<div class="code-shell"><div class="code-toolbar"><span>JAVA</span><button class="copy-btn">Copy</button></div><pre><code>var message = bundle.getString(
+  R.string.score_message, score
+);</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>KOTLIN</span><button class="copy-btn">Copy</button></div><pre><code>val message = context.getString(
+  R.string.score_message, score
+)</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>SWIFTUI</span><button class="copy-btn">Copy</button></div><pre><code>Text("Score: \(score)")
+// Add "Score: %lld" to String Catalogs
+// and localize it per supported language.</code></pre></div></div>
+<h2>Before TestFlight and App Store submission</h2><ul class="checklist"><li>Test real-device permissions, offline recovery, and account deletion/sign-out flows.</li><li>Check every supported language, right-to-left behavior where relevant, Dynamic Type, VoiceOver, and contrast.</li><li>Set version/build numbers, signing, capabilities, app icons, launch behavior, and crash-symbol upload correctly.</li><li>Use TestFlight feedback and crash reports to validate the release candidate outside development conditions.</li><li>Document privacy nutrition labels, support URL, review notes, age rating, and demo-account instructions accurately.</li></ul>
+<div class="page-end"><span>Apple ecosystem</span><strong>Privacy, localization, and release readiness</strong></div></div></section>
+
+<section class="doc-page" data-group="Reference" data-summary="A compact lookup table for daily Swift syntax and concepts." data-title="Swift 6 cheat sheet" id="cheat-sheet"><div class="page-inner">
+<h1>Swift 6 cheat sheet</h1><p class="lead">Use this after completing the tutorial; it is a lookup aid, not a substitute for the design and ownership rules in earlier chapters.</p>
+<table><thead><tr><th>Task</th><th>Swift</th></tr></thead><tbody>
+<tr><td>Constant / variable</td><td><code>let name = "Ada"</code> / <code>var score = 0</code></td></tr>
+<tr><td>Optional</td><td><code>let value: Int?</code>; unwrap with <code>if let value</code></td></tr>
+<tr><td>Default</td><td><code>let title = input ?? "Untitled"</code></td></tr>
+<tr><td>Array / dictionary</td><td><code>[Int]</code>, <code>[String: Int]</code></td></tr>
+<tr><td>Range</td><td><code>0..&lt;count</code> half-open; <code>1...5</code> closed</td></tr>
+<tr><td>Function</td><td><code>func f(_ x: Int, label y: Int) -&gt; Int</code></td></tr>
+<tr><td>Closure</td><td><code>{ value in value * 2 }</code>; shorthand input <code>$0</code></td></tr>
+<tr><td>Struct / class</td><td><code>struct</code> for values; <code>final class</code> for shared identity without inheritance</td></tr>
+<tr><td>Enum</td><td><code>enum Result { case success(Int), failure(any Error) }</code></td></tr>
+<tr><td>Protocol</td><td><code>protocol P { func run() }</code>; conform with <code>struct X: P</code></td></tr>
+<tr><td>Generic constraint</td><td><code>func f&lt;T: Hashable&gt;(_ value: T)</code></td></tr>
+<tr><td>Async / errors</td><td><code>func load() async throws -&gt; Data</code>; call <code>try await load()</code></td></tr>
+<tr><td>Actor</td><td><code>actor Store { var items = [Item]() }</code></td></tr>
+<tr><td>Main UI isolation</td><td><code>@MainActor final class ViewModel { ... }</code></td></tr>
+<tr><td>SwiftUI state</td><td><code>@State private var value = 0</code>; pass <code>$value</code> as a binding</td></tr>
+<tr><td>SwiftUI list</td><td><code>List(items) { item in ... }</code> for <code>Identifiable</code> items</td></tr>
+</tbody></table>
+<h2>Common compiler messages</h2><table><thead><tr><th>Message</th><th>Usually means</th></tr></thead><tbody><tr><td>“Value of optional type must be unwrapped”</td><td>Handle <code>nil</code> with binding, chaining, default, or a deliberate force unwrap.</td></tr><tr><td>“Main actor-isolated ... cannot be used”</td><td>Access UI-isolated state from the main actor or design a safe data transfer.</td></tr><tr><td>“Sending ... risks causing data races”</td><td>A non-Sendable value crosses an isolation boundary; redesign ownership or make the type safely Sendable.</td></tr><tr><td>“Cannot use mutating member on immutable value”</td><td>Change <code>let</code> to <code>var</code> only if mutation belongs to this owner.</td></tr></tbody></table>
+<div class="page-end"><span>Reference</span><strong>Swift 6 cheat sheet</strong></div></div></section>
+
+<section class="doc-page" data-group="Reference" data-summary="A practical step-by-step plan for porting Java and Kotlin applications to Swift and SwiftUI." data-title="Java and Kotlin migration guide" id="migration"><div class="page-inner">
+<h1>Java and Kotlin migration guide</h1><p class="lead">Do not transliterate classes and callbacks line by line. Port behavior while adopting Swift's value semantics, optionals, protocol-oriented boundaries, and structured concurrency.</p>
+<h2>Recommended migration sequence</h2><ol><li><strong>Extract domain rules.</strong> Port pure models and calculations first. Make simple data <code>struct</code>s and use enums for finite state.</li><li><strong>Replace null contracts.</strong> Turn nullable Java/Kotlin values into <code>T?</code>; decide at each use site whether absence is valid, defaultable, or an error.</li><li><strong>Redesign service boundaries.</strong> Replace interface-heavy inheritance trees with focused protocols, generic algorithms, and injected dependencies.</li><li><strong>Adopt async APIs.</strong> Convert callback/future/coroutine boundaries to <code>async throws</code>; introduce actors around shared mutable services.</li><li><strong>Build state-driven UI.</strong> Model screen state, then render it in SwiftUI. Do not keep a mutable tree of views.</li><li><strong>Validate on platform.</strong> Test Dynamic Type, VoiceOver, lifecycle events, offline behavior, background constraints, and real devices.</li></ol>
+<h2>Translation table</h2><table><thead><tr><th>Java / Kotlin habit</th><th>Swift / SwiftUI direction</th></tr></thead><tbody><tr><td>DTO class with getters</td><td>Immutable <code>struct</code> with stored <code>let</code> properties; conform to <code>Codable</code> if appropriate</td></tr><tr><td>Nullable field checked later</td><td><code>Optional</code>; unwrap at the boundary where you can make a useful decision</td></tr><tr><td>Abstract base class</td><td>Protocol plus extension; use a class only for shared identity/lifecycle</td></tr><tr><td>Singleton with locks</td><td>Dependency-injected actor when mutable shared state is necessary</td></tr><tr><td>Coroutine scope / executor</td><td>Structured child tasks, task groups, actor isolation, <code>@MainActor</code></td></tr><tr><td>RecyclerView / Compose lazy list</td><td><code>List</code>, <code>ForEach</code>, or lazy stack with stable <code>Identifiable</code> identity</td></tr><tr><td>Mutable UI widget references</td><td>State plus declarative view description; mutate state, not the view</td></tr></tbody></table>
+<div class="callout success"><strong>A reliable first project:</strong> build a small offline-first list-and-detail app. It exercises models, optionals, collections, navigation, state, persistence, async loading, errors, accessibility, and testing without hiding the language behind a large architecture.</div>
+<h2>Final checklist</h2><ul class="checklist"><li>Prefer <code>struct</code> until shared identity is a real requirement.</li><li>Model absence and failure explicitly with optionals and errors.</li><li>Use protocol boundaries where testing or variation requires them; do not create interfaces by reflex.</li><li>Make concurrency isolation part of the design, not a compiler-warning cleanup task.</li><li>Keep SwiftUI views declarative and state-driven.</li><li>Profile before optimizing and test on the Apple platforms you ship.</li></ul>
+<div class="page-end"><span>Reference</span><strong>Java and Kotlin migration guide</strong></div></div></section>
+</main>
+<div aria-label="Page controls" class="mobile-bottom"><button id="mobilePrev" type="button">← Previous</button><button id="mobileNext" type="button">Next →</button><button aria-label="Open settings" id="mobileSettings" type="button">⚙</button></div>
+<div aria-label="Search results" class="search-results" id="searchResults" role="listbox"></div>
+<dialog id="settingsDialog"><div class="modal-head"><h2>Reader settings</h2><button aria-label="Close settings" class="icon-btn" id="closeSettings" type="button">×</button></div><div class="modal-body"><div class="setting-row"><label>Theme</label><div aria-label="Theme" class="segmented"><button data-theme-choice="light" id="lightTheme" type="button">☀ Light</button><button data-theme-choice="dark" id="darkTheme" type="button">☾ Dark</button></div></div><div class="setting-row"><label for="textSize">Text size</label><div class="range-row"><span>A</span><input id="textSize" max="130" min="85" step="5" type="range" value="100"><span style="font-size:1.25em">A</span></div><p id="textSizeLabel" style="margin:.5rem 0 0;color:var(--muted);font-size:.85rem;">100%</p></div></div><div class="modal-foot"><button class="primary-btn" id="doneSettings" type="button">Done</button></div></dialog>
+</div>
+<script>
+(() => {
+  "use strict";
+  const pages = [...document.querySelectorAll(".doc-page")];
+  const sections = pages.map(page => ({ id: page.id, title: page.dataset.title, group: page.dataset.group, summary: page.dataset.summary }));
+  const navTree = document.getElementById("navTree");
+  const groups = [...new Set(sections.map(section => section.group))];
+  groups.forEach(group => {
+    const groupItem = document.createElement("li");
+    groupItem.className = "nav-group";
+    const label = document.createElement("span"); label.textContent = group; groupItem.append(label);
+    const list = document.createElement("ul");
+    sections.filter(section => section.group === group).forEach(section => {
+      const item = document.createElement("li"), button = document.createElement("button");
+      button.className = "nav-link"; button.type = "button"; button.dataset.target = section.id; button.textContent = section.title;
+      item.append(button); list.append(item);
+    });
+    groupItem.append(list); navTree.append(groupItem);
+  });
+  const navLinks = [...document.querySelectorAll(".nav-link")];
+  const sidebar = document.getElementById("sidebar"), sidebarTab = document.getElementById("sidebarTab");
+  const navSearch = document.getElementById("navSearch"), searchResults = document.getElementById("searchResults");
+  const crumbGroup = document.getElementById("crumbGroup"), crumbTitle = document.getElementById("crumbTitle");
+  const progressLabel = document.getElementById("progressLabel"), progressPercent = document.getElementById("progressPercent"), progressBar = document.getElementById("progressBar");
+  const prevButtons = [document.getElementById("prevBtn"), document.getElementById("mobilePrev")];
+  const nextButtons = [document.getElementById("nextBtn"), document.getElementById("mobileNext")];
+  const settingsDialog = document.getElementById("settingsDialog"), settingsButtons = [document.getElementById("settingsBtn"), document.getElementById("mobileSettings")];
+  const themeButtons = [...document.querySelectorAll("[data-theme-choice]")], textSize = document.getElementById("textSize"), textSizeLabel = document.getElementById("textSizeLabel");
+  let currentIndex = 0, searchSelection = -1;
+  const storage = { get(key) { try { return localStorage.getItem(key); } catch { return null; } }, set(key, value) { try { localStorage.setItem(key, value); } catch {} } };
+  const isMobile = () => window.matchMedia("(max-width: 900px)").matches;
+  function showPage(index, updateHash = true) {
+    currentIndex = Math.max(0, Math.min(index, pages.length - 1));
+    pages.forEach((page, i) => page.classList.toggle("active", i === currentIndex));
+    navLinks.forEach(link => link.classList.toggle("active", link.dataset.target === sections[currentIndex].id));
+    const meta = sections[currentIndex]; crumbGroup.textContent = meta.group; crumbTitle.textContent = meta.title;
+    document.title = `${meta.title} — Swift 6 + SwiftUI`;
+    prevButtons.forEach(button => button.disabled = currentIndex === 0); nextButtons.forEach(button => button.disabled = currentIndex === pages.length - 1);
+    const percent = Math.round((currentIndex + 1) / pages.length * 100);
+    progressLabel.textContent = `${currentIndex + 1} of ${pages.length}`; progressPercent.textContent = `${percent}%`; progressBar.style.width = `${percent}%`;
+    if (updateHash) history.replaceState(null, "", `#${meta.id}`);
+    storage.set("swift6-current-page", meta.id); window.scrollTo({ top: 0, behavior: "instant" });
+    if (isMobile()) { sidebar.classList.remove("open"); sidebarTab.setAttribute("aria-expanded", "false"); }
+  }
+  navLinks.forEach((link, index) => link.addEventListener("click", () => showPage(sections.findIndex(section => section.id === link.dataset.target))));
+  prevButtons.forEach(button => button.addEventListener("click", () => showPage(currentIndex - 1)));
+  nextButtons.forEach(button => button.addEventListener("click", () => showPage(currentIndex + 1)));
+  sidebarTab.addEventListener("click", () => { const open = isMobile() ? sidebar.classList.toggle("open") : !sidebar.classList.toggle("collapsed"); sidebarTab.setAttribute("aria-expanded", String(open)); });
+  document.getElementById("focusSearchBtn").addEventListener("click", () => { sidebar.classList.remove("collapsed"); if (isMobile()) sidebar.classList.add("open"); navSearch.focus(); });
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+  function setTheme(theme) { document.documentElement.dataset.theme = theme; themeButtons.forEach(button => button.classList.toggle("active", button.dataset.themeChoice === theme)); storage.set("swift6-theme", theme); }
+  function setTextSize(value) { document.documentElement.style.setProperty("--font-scale", Number(value) / 100); textSize.value = value; textSizeLabel.textContent = `${value}%`; storage.set("swift6-text-size", value); }
+  settingsButtons.forEach(button => button.addEventListener("click", () => settingsDialog.showModal()));
+  [document.getElementById("closeSettings"), document.getElementById("doneSettings")].forEach(button => button.addEventListener("click", () => settingsDialog.close()));
+  themeButtons.forEach(button => button.addEventListener("click", () => setTheme(button.dataset.themeChoice)));
+  textSize.addEventListener("input", () => setTextSize(textSize.value));
+  const escapeHtml = text => text.replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[char]);
+  const keywords = new Set("abstract actor any as async await break case catch class continue default defer do else enum extension false fallthrough final for func guard if import in init internal is let nil nonisolated open operator package private protocol public repeat return self some static struct subscript super switch throw throws true try typealias var weak where while".split(" "));
+  const types = new Set("Any AnyObject Array Bool Character Data Date Decimal Dictionary Double Error Float Hashable Identifiable Int Int8 Int16 Int32 Int64 Optional Result Set String URL UUID Void".split(" "));
+  function classifyWord(word, next) {
+    if (keywords.has(word)) return "tok-keyword";
+    if (types.has(word) || /^[A-Z][A-Za-z0-9_]*$/.test(word)) return "tok-type";
+    if (next === "(") return "tok-function";
+    return "";
+  }
+  function highlightCode(source, language) {
+    if (language.includes("XML")) {
+      return source.replace(/(\x3C\/?)([\w:-]+)([^\x3E]*?)(\x3E)/g, (_, open, tag, attributes, close) =>
+        `<span class="tok-tag">${escapeHtml(open)}${escapeHtml(tag)}</span>${attributes.replace(/([\w:-]+)(=)("[^"]*")/g, `<span class="tok-attribute">$1</span>$2<span class="tok-string">$3</span>`)}<span class="tok-tag">${escapeHtml(close)}</span>`);
+    }
+    const token = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/|#[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|@\w+|\b\d+(?:\.\d+)?\b|\b[A-Za-z_][A-Za-z0-9_]*\b|[{}()[\].,;:+\-*/=!&|\x3C\x3E]+)/g;
+    let output = "", last = 0, match;
+    while ((match = token.exec(source))) {
+      output += escapeHtml(source.slice(last, match.index));
+      const value = match[0];
+      const after = source.slice(token.lastIndex).trimStart()[0];
+      let klass = "";
+      if (/^(\/\/|\/\*|#)/.test(value)) klass = "tok-comment";
+      else if (/^["']/.test(value)) klass = "tok-string";
+      else if (/^@/.test(value)) klass = "tok-annotation";
+      else if (/^\d/.test(value)) klass = "tok-number";
+      else if (/^[A-Za-z_]/.test(value)) klass = classifyWord(value, after);
+      else if (/^[+\-*/=!&|\x3C\x3E:]+$/.test(value)) klass = "tok-operator";
+      output += klass ? `<span class="${klass}">${escapeHtml(value)}</span>` : escapeHtml(value);
+      last = token.lastIndex;
+    }
+    return output + escapeHtml(source.slice(last));
+  }
+  document.querySelectorAll(".code-shell").forEach(shell => {
+    const code = shell.querySelector("pre code");
+    const language = shell.querySelector(".code-toolbar span")?.textContent || "";
+    const source = code.textContent;
+    code.dataset.source = source;
+    code.innerHTML = highlightCode(source, language);
+  });
+  document.querySelectorAll(".copy-btn").forEach(button => button.addEventListener("click", async () => { const code = button.closest(".code-shell").querySelector("code"); try { await navigator.clipboard.writeText(code.dataset.source || code.textContent); const old = button.textContent; button.textContent = "Copied"; setTimeout(() => button.textContent = old, 1200); } catch { button.textContent = "Select manually"; } }));
+  function matches(query) { const term = query.trim().toLowerCase(); if (!term) return []; return sections.map((section, index) => { const body = pages[index].innerText.toLowerCase(); const score = (section.title.toLowerCase().includes(term) ? 8 : 0) + (section.group.toLowerCase().includes(term) ? 3 : 0) + (section.summary.toLowerCase().includes(term) ? 4 : 0) + (body.includes(term) ? 1 : 0); return { ...section, index, score }; }).filter(result => result.score).sort((a, b) => b.score - a.score || a.index - b.index).slice(0, 10); }
+  function renderResults(results) { searchResults.innerHTML = ""; searchSelection = -1; if (!navSearch.value.trim()) return searchResults.classList.remove("open"); if (!results.length) { searchResults.innerHTML = '<div style="padding:14px;color:var(--muted)">No matching sections.</div>'; return searchResults.classList.add("open"); } results.forEach(result => { const button = document.createElement("button"); button.className = "search-result"; button.type = "button"; button.innerHTML = `<strong>${escapeHtml(result.title)}</strong><span>${escapeHtml(result.group)} · ${escapeHtml(result.summary)}</span>`; button.addEventListener("click", () => { showPage(result.index); navSearch.value = ""; searchResults.classList.remove("open"); }); searchResults.append(button); }); searchResults.classList.add("open"); }
+  navSearch.addEventListener("input", () => { const term = navSearch.value.trim().toLowerCase(); renderResults(matches(term)); document.querySelectorAll(".nav-group").forEach(group => { let visible = false; group.querySelectorAll(".nav-link").forEach(link => { const show = !term || link.textContent.toLowerCase().includes(term); link.hidden = !show; visible ||= show; }); group.hidden = !visible; }); });
+  navSearch.addEventListener("keydown", event => { const results = [...searchResults.querySelectorAll(".search-result")]; if (event.key === "ArrowDown" && results.length) { event.preventDefault(); searchSelection = Math.min(searchSelection + 1, results.length - 1); } else if (event.key === "ArrowUp" && results.length) { event.preventDefault(); searchSelection = Math.max(searchSelection - 1, 0); } else if (event.key === "Enter" && searchSelection >= 0) { results[searchSelection].click(); } else if (event.key === "Escape") { searchResults.classList.remove("open"); } results.forEach((result, index) => result.classList.toggle("active", index === searchSelection)); });
+  document.addEventListener("click", event => { if (!searchResults.contains(event.target) && event.target !== navSearch) searchResults.classList.remove("open"); });
+  document.addEventListener("keydown", event => { if (event.key === "/" && !/input|textarea|select/i.test(document.activeElement.tagName)) { event.preventDefault(); document.getElementById("focusSearchBtn").click(); } if (event.altKey && event.key === "ArrowLeft") showPage(currentIndex - 1); if (event.altKey && event.key === "ArrowRight") showPage(currentIndex + 1); });
+  window.addEventListener("hashchange", () => { const index = sections.findIndex(section => section.id === location.hash.slice(1)); if (index >= 0) showPage(index, false); });
+  setTheme(storage.get("swift6-theme") || "light"); setTextSize(storage.get("swift6-text-size") || "100");
+  const saved = location.hash.slice(1) || storage.get("swift6-current-page"); showPage(Math.max(0, sections.findIndex(section => section.id === saved)));
+})();
+</script>
+</body>
+</html>

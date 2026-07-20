@@ -1,0 +1,4010 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="A comprehensive documentation-style guide to learning C and modern C++.">
+<title>C &amp; C++ Learning Guide</title>
+<style>
+:root {
+  --font-scale: 1;
+  --sidebar-width: 310px;
+  --content-max: 980px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 12px 30px rgba(15, 23, 42, .12);
+  --transition: 180ms ease;
+}
+html[data-theme="light"] {
+  --bg: #f7f8fb;
+  --surface: #ffffff;
+  --surface-2: #f0f3f8;
+  --surface-3: #e7ebf2;
+  --text: #172033;
+  --muted: #5c667a;
+  --border: #d9deea;
+  --accent: #1d5fd1;
+  --accent-2: #12489f;
+  --accent-soft: #eaf1ff;
+  --code-bg: #111827;
+  --code-text: #e5e7eb;
+  --code-border: #273449;
+  --sidebar-bg: #111827;
+  --sidebar-text: #e5e7eb;
+  --sidebar-muted: #9ca3af;
+  --sidebar-hover: #1f2937;
+  --sidebar-active: #284b82;
+  --note-bg: #eef6ff;
+  --note-border: #8ec5ff;
+  --warn-bg: #fff7e8;
+  --warn-border: #f5ba55;
+  --danger-bg: #fff0f0;
+  --danger-border: #f18787;
+  --success-bg: #edfbf2;
+  --success-border: #68c489;
+}
+html[data-theme="dark"] {
+  --bg: #0b1020;
+  --surface: #121a2c;
+  --surface-2: #182238;
+  --surface-3: #22304c;
+  --text: #e7ecf5;
+  --muted: #aeb8cb;
+  --border: #2c3956;
+  --accent: #7eb1ff;
+  --accent-2: #a9caff;
+  --accent-soft: #182c4f;
+  --code-bg: #080c16;
+  --code-text: #e6edf7;
+  --code-border: #2b3852;
+  --sidebar-bg: #070b14;
+  --sidebar-text: #eef2f8;
+  --sidebar-muted: #9aa8be;
+  --sidebar-hover: #131d31;
+  --sidebar-active: #17386a;
+  --note-bg: #142741;
+  --note-border: #377ec9;
+  --warn-bg: #302616;
+  --warn-border: #a87523;
+  --danger-bg: #321a20;
+  --danger-border: #a94e60;
+  --success-bg: #142b20;
+  --success-border: #3d8b5a;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: calc(16px * var(--font-scale));
+  line-height: 1.68;
+  transition: background var(--transition), color var(--transition);
+}
+button, input, select { font: inherit; }
+button { color: inherit; }
+a { color: var(--accent); }
+kbd {
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--surface-2);
+  padding: .05rem .38rem;
+  font-size: .84em;
+}
+.app-shell { min-height: 100vh; }
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  z-index: 30;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  transform: translateX(0);
+  transition: transform var(--transition), background var(--transition);
+  box-shadow: 10px 0 30px rgba(0,0,0,.15);
+}
+.sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-width))); }
+.sidebar-head {
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.09);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.brand-mark {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: grid; place-items: center;
+  background: linear-gradient(145deg, #2f6fda, #6aa8ff);
+  color: white;
+  font-weight: 800;
+  letter-spacing: -.05em;
+}
+.brand-title { font-weight: 760; line-height: 1.2; }
+.brand-sub { color: var(--sidebar-muted); font-size: .78rem; margin-top: 2px; }
+.search-wrap { padding: 12px 16px 8px; }
+.search {
+  width: 100%;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.07);
+  color: white;
+  border-radius: 9px;
+  padding: 10px 12px;
+  outline: none;
+}
+.search::placeholder { color: #9aa7ba; }
+.search:focus { border-color: #74a9ff; box-shadow: 0 0 0 3px rgba(93,155,255,.18); }
+.nav-scroll { overflow: auto; padding: 8px 12px 18px; }
+.nav-tree, .nav-tree ul { list-style: none; padding: 0; margin: 0; }
+.nav-group > span {
+  display: block;
+  color: var(--sidebar-muted);
+  padding: 15px 10px 6px;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  font-size: .68rem;
+  font-weight: 800;
+}
+.nav-group ul { padding-left: 10px; border-left: 1px solid rgba(255,255,255,.1); margin-left: 8px; }
+.nav-link {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--sidebar-text);
+  padding: 8px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: .84rem;
+  line-height: 1.35;
+  transition: background var(--transition), color var(--transition);
+}
+.nav-link:hover { background: var(--sidebar-hover); }
+.nav-link.active { background: var(--sidebar-active); color: white; font-weight: 700; }
+.nav-link[hidden], .nav-group[hidden] { display: none; }
+.sidebar-footer {
+  border-top: 1px solid rgba(255,255,255,.1);
+  padding: 10px;
+  background: color-mix(in srgb, var(--sidebar-bg) 94%, white);
+}
+.progress-row {
+  display: flex; justify-content: space-between; align-items: center;
+  color: var(--sidebar-muted); font-size: .74rem; padding: 0 4px 7px;
+}
+.progress-track {
+  height: 3px; background: rgba(255,255,255,.12); border-radius: 99px; overflow: hidden; margin-bottom: 9px;
+}
+.progress-bar { height: 100%; width: 0; background: #74a9ff; transition: width var(--transition); }
+.footer-buttons { display: grid; grid-template-columns: 1fr 1fr 42px; gap: 8px; }
+.side-action {
+  border: 1px solid rgba(255,255,255,.13);
+  background: rgba(255,255,255,.06);
+  color: white;
+  min-height: 40px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.side-action:hover { background: rgba(255,255,255,.12); }
+.side-action:disabled { opacity: .35; cursor: not-allowed; }
+.sidebar-tab {
+  position: fixed;
+  left: var(--sidebar-width);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 31;
+  border: 1px solid var(--border);
+  border-left: 0;
+  background: var(--surface);
+  color: var(--text);
+  writing-mode: vertical-rl;
+  padding: 12px 8px;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  box-shadow: 6px 0 18px rgba(0,0,0,.10);
+  transition: left var(--transition), background var(--transition), color var(--transition);
+}
+.sidebar.collapsed + .sidebar-tab { left: 0; }
+.main {
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  transition: margin-left var(--transition);
+}
+.sidebar.collapsed ~ .main { margin-left: 0; }
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  backdrop-filter: blur(16px);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+.topbar-inner {
+  max-width: calc(var(--content-max) + 80px);
+  margin: 0 auto;
+  padding: 12px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.crumb { color: var(--muted); font-size: .82rem; }
+.crumb strong { color: var(--text); }
+.top-actions { display: flex; gap: 8px; }
+.icon-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 8px;
+  min-width: 38px;
+  min-height: 38px;
+  cursor: pointer;
+}
+.icon-btn:hover { background: var(--surface-2); }
+.doc-page { display: none; }
+.doc-page.active { display: block; animation: page-in 220ms ease; }
+@keyframes page-in { from { opacity: .25; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.page-inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 54px 34px 90px;
+}
+h1, h2, h3 { line-height: 1.2; letter-spacing: -.025em; }
+h1 { font-size: 2.55rem; margin: 0 0 18px; }
+h2 { font-size: 1.55rem; margin: 42px 0 14px; padding-top: 4px; }
+h3 { font-size: 1.05rem; margin: 18px 0 8px; }
+p { margin: 0 0 16px; }
+.lead { font-size: 1.14rem; color: var(--muted); max-width: 78ch; }
+ul, ol { padding-left: 1.35rem; }
+li { margin: .34rem 0; }
+code:not(pre code) {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: .08em .35em;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: .88em;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0 28px;
+  display: block;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+thead { background: var(--surface-2); }
+th, td { padding: 11px 13px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font-size: .83rem; text-transform: uppercase; letter-spacing: .04em; }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin: 18px 0 26px;
+}
+.mini-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.mini-card h3 { margin-top: 0; }
+.callout {
+  border-left: 4px solid;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 20px 0;
+}
+.callout.note { background: var(--note-bg); border-color: var(--note-border); }
+.callout.warning { background: var(--warn-bg); border-color: var(--warn-border); }
+.callout.danger { background: var(--danger-bg); border-color: var(--danger-border); }
+.callout.success { background: var(--success-bg); border-color: var(--success-border); }
+.pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 18px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius);
+  margin: 20px 0 28px;
+}
+.pipeline span {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 11px;
+  font-family: monospace;
+}
+.steps li { padding-left: .3rem; margin: .75rem 0; }
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { position: relative; padding-left: 1.7rem; }
+.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--accent); font-weight: 900; }
+.command-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.code-shell {
+  border: 1px solid var(--code-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin: 16px 0 24px;
+  background: var(--code-bg);
+  box-shadow: 0 8px 22px rgba(0,0,0,.10);
+}
+.code-toolbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--code-border);
+  color: #aab7c9;
+  font-size: .72rem;
+  letter-spacing: .06em;
+  background: color-mix(in srgb, var(--code-bg) 88%, white);
+}
+.copy-btn {
+  border: 1px solid #3a475c;
+  background: transparent;
+  color: #cbd5e1;
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+  letter-spacing: 0;
+}
+.copy-btn:hover { background: rgba(255,255,255,.08); }
+pre {
+  margin: 0;
+  overflow: auto;
+  padding: 16px 18px;
+  background: var(--code-bg);
+  color: var(--code-text);
+  tab-size: 4;
+}
+pre code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: .86rem;
+  line-height: 1.58;
+  white-space: pre;
+}
+.tok-keyword { color: #ff7ab2; }
+.tok-type { color: #8bd5ca; }
+.tok-string { color: #a6da95; }
+.tok-number { color: #f5a97f; }
+.tok-comment { color: #7f8c9f; font-style: italic; }
+.tok-preproc { color: #c6a0f6; }
+.tok-fn { color: #8aadf4; }
+.tok-operator { color: #91d7e3; }
+.tabs {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface);
+  margin: 18px 0 28px;
+}
+.tab-list { display: flex; gap: 2px; background: var(--surface-2); padding: 6px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tab-list button {
+  border: 0; background: transparent; padding: 8px 12px; border-radius: 7px; cursor: pointer; white-space: nowrap;
+}
+.tab-list button[aria-selected="true"] { background: var(--surface); color: var(--accent); font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.tab-panel { padding: 14px 16px 2px; }
+.page-end {
+  margin-top: 56px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: .82rem;
+}
+.mobile-bottom {
+  display: none;
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border);
+  padding: 9px;
+  grid-template-columns: 1fr 1fr 44px;
+  gap: 8px;
+}
+.mobile-bottom button {
+  min-height: 42px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 8px;
+  cursor: pointer;
+}
+dialog {
+  width: min(460px, calc(100vw - 28px));
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 0;
+  box-shadow: var(--shadow);
+}
+dialog::backdrop { background: rgba(3, 8, 20, .58); backdrop-filter: blur(3px); }
+.modal-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-head h2 { margin: 0; font-size: 1.2rem; }
+.modal-body { padding: 20px; }
+.setting-row { margin-bottom: 24px; }
+.setting-row label { display: block; font-weight: 700; margin-bottom: 8px; }
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.segmented button {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+}
+.segmented button.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-2); font-weight: 700; }
+.range-row { display: grid; grid-template-columns: 38px 1fr 38px; gap: 10px; align-items: center; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.modal-foot { padding: 14px 20px 20px; display: flex; justify-content: flex-end; }
+.primary-btn {
+  border: 0;
+  background: var(--accent);
+  color: white;
+  border-radius: 8px;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+.search-results {
+  position: fixed;
+  top: 76px;
+  left: calc(var(--sidebar-width) + 22px);
+  width: min(580px, calc(100vw - var(--sidebar-width) - 44px));
+  z-index: 40;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: none;
+}
+.search-results.open { display: block; }
+.search-result {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.search-result:last-child { border-bottom: 0; }
+.search-result:hover, .search-result.active { background: var(--surface-2); }
+.search-result strong { display: block; }
+.search-result span { color: var(--muted); font-size: .82rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(calc(-1 * var(--sidebar-width))); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-tab { left: 0; }
+  .sidebar.open + .sidebar-tab { left: var(--sidebar-width); }
+  .main, .sidebar.collapsed ~ .main { margin-left: 0; }
+  .mobile-bottom { display: grid; }
+  .page-inner { padding: 36px 20px 104px; }
+  .topbar-inner { padding: 10px 16px; }
+  h1 { font-size: 2rem; }
+  .search-results { left: 14px; width: calc(100vw - 28px); }
+}
+@media (max-width: 520px) {
+  :root { --sidebar-width: min(88vw, 330px); }
+  .command-grid { grid-template-columns: 1fr; }
+  .page-end { flex-direction: column; gap: 4px; }
+}
+@media print {
+  .sidebar, .sidebar-tab, .topbar, .mobile-bottom, dialog { display: none !important; }
+  .main { margin: 0; }
+  .doc-page { display: block !important; page-break-before: always; }
+  .doc-page:first-child { page-break-before: avoid; }
+  body { background: white; color: black; font-size: 11pt; }
+  .page-inner { max-width: none; padding: 24px; }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" aria-label="Documentation navigation">
+    <div class="sidebar-head">
+      <div class="brand">
+        <div class="brand-mark">C++</div>
+        <div>
+          <div class="brand-title">C &amp; C++ Guide</div>
+          <div class="brand-sub">From systems basics to modern C++</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <label class="sr-only" for="navSearch">Search documentation</label>
+      <input id="navSearch" class="search" type="search" placeholder="Search topics…  /" autocomplete="off">
+    </div>
+
+    <nav class="nav-scroll">
+      <ul class="nav-tree">
+        <li class="nav-group"><span>Start here</span><ul>
+<li><button type="button" class="nav-link" data-target="welcome">Welcome &amp; learning path</button></li>
+</ul></li>
+<li class="nav-group"><span>Foundations</span><ul>
+<li><button type="button" class="nav-link" data-target="setup">Setup: compilers, editors, and commands</button></li>
+<li><button type="button" class="nav-link" data-target="build-model">How compilation and linking work</button></li>
+</ul></li>
+<li class="nav-group"><span>C core</span><ul>
+<li><button type="button" class="nav-link" data-target="program-structure">Program structure and conventions</button></li>
+<li><button type="button" class="nav-link" data-target="types">Types, variables, literals, and conversions</button></li>
+<li><button type="button" class="nav-link" data-target="operators">Operators, expressions, and evaluation</button></li>
+<li><button type="button" class="nav-link" data-target="control-flow">Conditionals, loops, and control flow</button></li>
+<li><button type="button" class="nav-link" data-target="functions">Functions, parameters, scope, and linkage</button></li>
+<li><button type="button" class="nav-link" data-target="arrays-strings">Arrays, C strings, and C++ strings</button></li>
+<li><button type="button" class="nav-link" data-target="pointers">Pointers, references, and const correctness</button></li>
+<li><button type="button" class="nav-link" data-target="aggregates">Structs, enums, unions, and data layout</button></li>
+<li><button type="button" class="nav-link" data-target="memory">Memory management and object lifetimes</button></li>
+<li><button type="button" class="nav-link" data-target="preprocessor">Preprocessor, headers, macros, and conditional compilation</button></li>
+<li><button type="button" class="nav-link" data-target="io-errors">I/O, files, parsing, and C error handling</button></li>
+</ul></li>
+<li class="nav-group"><span>Reliability</span><ul>
+<li><button type="button" class="nav-link" data-target="debug-test">Debugging, testing, warnings, and sanitizers</button></li>
+<li><button type="button" class="nav-link" data-target="make-cmake">Build systems: Make and CMake</button></li>
+</ul></li>
+<li class="nav-group"><span>Modern C++</span><ul>
+<li><button type="button" class="nav-link" data-target="cpp-raii">C++ classes, constructors, destructors, and RAII</button></li>
+<li><button type="button" class="nav-link" data-target="stl">STL containers, iterators, and algorithms</button></li>
+<li><button type="button" class="nav-link" data-target="templates">Templates, generic programming, and concepts</button></li>
+<li><button type="button" class="nav-link" data-target="ownership-move">Smart pointers, value categories, and move semantics</button></li>
+<li><button type="button" class="nav-link" data-target="exceptions">Exceptions, optional values, and error design</button></li>
+<li><button type="button" class="nav-link" data-target="lambdas">Lambdas, callable objects, and functional techniques</button></li>
+<li><button type="button" class="nav-link" data-target="cpp-advanced">Modern C++ language tools</button></li>
+<li><button type="button" class="nav-link" data-target="concurrency">Concurrency and synchronization</button></li>
+</ul></li>
+<li class="nav-group"><span>Systems topics</span><ul>
+<li><button type="button" class="nav-link" data-target="low-level">Low-level topics: bytes, endianness, aliasing, and interop</button></li>
+<li><button type="button" class="nav-link" data-target="performance">Performance, profiling, and data-oriented design</button></li>
+<li><button type="button" class="nav-link" data-target="undefined">Undefined behavior and portability</button></li>
+<li><button type="button" class="nav-link" data-target="style-api">API design and coding practices</button></li>
+</ul></li>
+<li class="nav-group"><span>Practice</span><ul>
+<li><button type="button" class="nav-link" data-target="projects">Practice projects and study plan</button></li>
+<li><button type="button" class="nav-link" data-target="cheatsheet">Cheat sheet and further references</button></li>
+</ul></li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="progress-row">
+        <span id="progressLabel">1 of 30</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="footer-buttons">
+        <button class="side-action" id="prevBtn" type="button" aria-label="Previous page">← Previous</button>
+        <button class="side-action" id="nextBtn" type="button" aria-label="Next page">Next →</button>
+        <button class="side-action" id="settingsBtn" type="button" aria-label="Open settings">⚙</button>
+      </div>
+    </div>
+  </aside>
+
+  <button class="sidebar-tab" id="sidebarTab" type="button" aria-expanded="true" aria-controls="sidebar">Contents</button>
+
+  <main class="main" id="main">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="crumb"><span id="crumbGroup">Start here</span> / <strong id="crumbTitle">Welcome &amp; learning path</strong></div>
+        <div class="top-actions">
+          <button class="icon-btn" id="focusSearchBtn" type="button" title="Search">⌕</button>
+          <button class="icon-btn" id="printBtn" type="button" title="Print or save as PDF">⎙</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="doc-page" id="welcome" data-title="Welcome &amp; learning path" data-summary="Orientation, scope, and the recommended learning path.">
+      <div class="page-inner">
+        
+<h1>C and C++ for Experienced Programmers</h1>
+<p class="lead">A practical, documentation-style guide to the C language and modern C++. It assumes you already understand programming fundamentals and focuses on the concepts that are distinctive, subtle, or especially important in C-family systems programming.</p>
+
+<div class="callout note">
+  <strong>Scope.</strong> The guide teaches C first, then builds modern C++ on top of it. Examples target C17 and C++20 where practical, while noting compatibility considerations.
+</div>
+
+<h2>How to use this guide</h2>
+<div class="card-grid">
+  <article class="mini-card"><h3>Read sequentially</h3><p>Use the Previous and Next buttons to follow the intended progression.</p></article>
+  <article class="mini-card"><h3>Jump by topic</h3><p>Use the indented contents tree in the left panel or press <kbd>/</kbd> to search.</p></article>
+  <article class="mini-card"><h3>Practice continuously</h3><p>Compile every example with warnings enabled. Change it, break it, inspect the error, and fix it.</p></article>
+</div>
+
+<h2>Mental model</h2>
+<p>C gives you a thin, explicit abstraction over machine memory, data layout, and control flow. C++ keeps that power while adding stronger abstraction mechanisms, deterministic resource management, generic programming, and a broad standard library.</p>
+
+<table>
+<thead><tr><th>Area</th><th>C</th><th>C++</th></tr></thead>
+<tbody>
+<tr><td>Primary style</td><td>Procedural and data-oriented</td><td>Multi-paradigm: procedural, object-oriented, generic, functional</td></tr>
+<tr><td>Resource management</td><td>Manual conventions</td><td>RAII and ownership types</td></tr>
+<tr><td>Strings</td><td>Null-terminated character arrays</td><td><code>std::string</code>, views, and C strings</td></tr>
+<tr><td>Collections</td><td>Arrays and custom structures</td><td>Standard containers and algorithms</td></tr>
+<tr><td>Error handling</td><td>Status codes, <code>errno</code></td><td>Exceptions, status types, optional values</td></tr>
+<tr><td>Compilation</td><td>Translation units + linker</td><td>Same model, plus templates and modules</td></tr>
+</tbody>
+</table>
+
+<h2>Recommended sequence</h2>
+<ol class="steps">
+<li><strong>Toolchain and compilation model.</strong> Understand what the compiler and linker actually do.</li>
+<li><strong>C core.</strong> Types, pointers, arrays, functions, memory, structs, headers, and I/O.</li>
+<li><strong>Reliability.</strong> Warnings, sanitizers, debugging, testing, and undefined behavior.</li>
+<li><strong>Modern C++.</strong> RAII, classes, STL, templates, smart pointers, move semantics, and concurrency.</li>
+<li><strong>Projects.</strong> Build small command-line tools, a reusable library, and one performance-sensitive program.</li>
+</ol>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Welcome &amp; learning path</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="setup" data-title="Setup: compilers, editors, and commands" data-summary="Install a toolchain and compile C and C++ programs with useful warnings.">
+      <div class="page-inner">
+        
+<h1>Setup: compilers, editors, and commands</h1>
+<p class="lead">You need a compiler, a debugger, and preferably a build system. The terminal commands below are intentionally explicit so you can see every stage.</p>
+
+<h2>Compiler choices</h2>
+<ul>
+<li><strong>GCC:</strong> <code>gcc</code> for C and <code>g++</code> for C++.</li>
+<li><strong>Clang/LLVM:</strong> <code>clang</code> for C and <code>clang++</code> for C++.</li>
+<li><strong>MSVC:</strong> <code>cl</code> from a Visual Studio Developer Command Prompt on Windows.</li>
+</ul>
+
+<h2>Install</h2>
+<div class="tabs" data-tabs>
+  <div class="tab-list" role="tablist">
+    <button role="tab" aria-selected="true">macOS</button>
+    <button role="tab">Ubuntu/Debian</button>
+    <button role="tab">Windows</button>
+  </div>
+  <div class="tab-panel">
+    
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">BASH</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-bash">xcode-select --install
+clang --version
+clang++ --version</code></pre>
+</div>
+
+  </div>
+  <div class="tab-panel" hidden>
+    
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">BASH</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-bash">sudo apt update
+sudo apt install build-essential gdb cmake ninja-build
+gcc --version
+g++ --version</code></pre>
+</div>
+
+  </div>
+  <div class="tab-panel" hidden>
+    <p>Install Visual Studio Community or Visual Studio Build Tools and select the <em>Desktop development with C++</em> workload. Open a Developer Command Prompt and verify:</p>
+    
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">POWERSHELL</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-powershell">cl
+cmake --version</code></pre>
+</div>
+
+  </div>
+</div>
+
+<h2>Compile your first files</h2>
+
+<div class="code-shell" data-title="hello.c">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main(void) {
+    puts(&quot;Hello from C&quot;);
+    return 0;
+}</code></pre>
+</div>
+
+
+<div class="code-shell" data-title="hello.cpp">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;iostream&gt;
+
+int main() {
+    std::cout &lt;&lt; &quot;Hello from C++\n&quot;;
+}</code></pre>
+</div>
+
+
+<div class="command-grid">
+<div>
+<h3>GCC or Clang</h3>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">BASH</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-bash">gcc -std=c17 -Wall -Wextra -Wpedantic -O0 -g hello.c -o hello_c
+g++ -std=c++20 -Wall -Wextra -Wpedantic -O0 -g hello.cpp -o hello_cpp
+
+./hello_c
+./hello_cpp</code></pre>
+</div>
+
+</div>
+<div>
+<h3>MSVC</h3>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">POWERSHELL</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-powershell">cl /std:c17 /W4 /Zi hello.c
+cl /std:c++20 /W4 /EHsc /Zi hello.cpp
+
+hello.exe</code></pre>
+</div>
+
+</div>
+</div>
+
+<h2>Recommended development flags</h2>
+<table>
+<thead><tr><th>Flag</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>-Wall -Wextra -Wpedantic</code></td><td>Enable a strong baseline of diagnostics.</td></tr>
+<tr><td><code>-Wconversion -Wshadow</code></td><td>Catch implicit conversion and name-shadowing hazards.</td></tr>
+<tr><td><code>-O0 -g</code></td><td>Easy debugging during development.</td></tr>
+<tr><td><code>-O2</code></td><td>Typical optimized release build.</td></tr>
+<tr><td><code>-fsanitize=address,undefined</code></td><td>Detect memory and undefined-behavior errors at runtime.</td></tr>
+</tbody>
+</table>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">BASH</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-bash"># Debug build with runtime diagnostics
+clang++ -std=c++20 -Wall -Wextra -Wpedantic \
+  -fsanitize=address,undefined -fno-omit-frame-pointer \
+  -g main.cpp -o app</code></pre>
+</div>
+
+
+<div class="callout warning"><strong>Do not learn with warnings disabled.</strong> Treat warnings as evidence that your program may not mean what you think it means.</div>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Setup: compilers, editors, and commands</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="build-model" data-title="How compilation and linking work" data-summary="Understand preprocessing, translation units, object files, headers, and linking.">
+      <div class="page-inner">
+        
+<h1>How compilation and linking work</h1>
+<p class="lead">C and C++ are usually compiled ahead of time. Each source file becomes an object file; the linker combines object files and libraries into an executable or shared library.</p>
+
+<div class="pipeline">
+<span>source</span><b>→</b><span>preprocessor</span><b>→</b><span>compiler</span><b>→</b><span>assembler</span><b>→</b><span>object file</span><b>→</b><span>linker</span><b>→</b><span>program</span>
+</div>
+
+<h2>Translation units</h2>
+<p>A <em>translation unit</em> is roughly one source file after all included headers and preprocessor directives have been expanded. Names can be visible within one translation unit yet unavailable to another unless declared with appropriate linkage.</p>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">// math_utils.h
+#ifndef MATH_UTILS_H
+#define MATH_UTILS_H
+
+int square(int x);
+
+#endif</code></pre>
+</div>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">// math_utils.c
+#include &quot;math_utils.h&quot;
+
+int square(int x) {
+    return x * x;
+}</code></pre>
+</div>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">// main.c
+#include &lt;stdio.h&gt;
+#include &quot;math_utils.h&quot;
+
+int main(void) {
+    printf(&quot;%d\n&quot;, square(12));
+    return 0;
+}</code></pre>
+</div>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">BASH</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-bash">gcc -std=c17 -Wall -Wextra -c math_utils.c -o math_utils.o
+gcc -std=c17 -Wall -Wextra -c main.c -o main.o
+gcc main.o math_utils.o -o demo</code></pre>
+</div>
+
+
+<h2>Declaration vs. definition</h2>
+<ul>
+<li>A <strong>declaration</strong> introduces a name and type to the compiler.</li>
+<li>A <strong>definition</strong> creates the function body or allocates storage for an object.</li>
+<li>Multiple compatible declarations are often allowed; multiple external definitions usually cause linker errors.</li>
+</ul>
+
+<h2>Common failure categories</h2>
+<table>
+<thead><tr><th>Stage</th><th>Typical problem</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>Preprocessing</td><td>Missing header or malformed macro</td><td><code>fatal error: file.h not found</code></td></tr>
+<tr><td>Compilation</td><td>Syntax or type error</td><td>Passing <code>char*</code> where <code>int</code> is required</td></tr>
+<tr><td>Linking</td><td>Missing or duplicate definition</td><td><code>undefined reference</code></td></tr>
+<tr><td>Runtime</td><td>Logic, memory, or environment problem</td><td>Out-of-bounds access</td></tr>
+</tbody>
+</table>
+
+<h2>Headers, imports, and modules</h2>
+<p>Traditional C and C++ use textual inclusion with <code>#include</code>. C++20 also defines modules, which can reduce repeated parsing and improve dependency boundaries, but toolchain support and build integration vary. Learn headers first because they remain ubiquitous.</p>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;stdio.h&gt;      // C standard header
+#include &lt;vector&gt;       // C++ standard header
+#include &quot;my_api.hpp&quot;   // project header</code></pre>
+</div>
+
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>How compilation and linking work</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="program-structure" data-title="Program structure and conventions" data-summary="Learn entry points, project organization, namespaces, and coding conventions.">
+      <div class="page-inner">
+        
+<h1>Program structure and conventions</h1>
+
+<h2>The entry point</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main(int argc, char *argv[]) {
+    printf(&quot;Program: %s\n&quot;, argv[0]);
+
+    for (int i = 1; i &lt; argc; ++i) {
+        printf(&quot;arg[%d] = %s\n&quot;, i, argv[i]);
+    }
+
+    return 0;
+}</code></pre>
+</div>
+
+
+<p><code>main</code> returns an integer status to the environment. By convention, zero means success. Use <code>EXIT_SUCCESS</code> and <code>EXIT_FAILURE</code> from <code>&lt;stdlib.h&gt;</code> when that improves clarity.</p>
+
+<h2>Typical project layout</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">TEXT</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-text">project/
+├── CMakeLists.txt
+├── include/
+│   └── project/
+│       └── parser.hpp
+├── src/
+│   ├── main.cpp
+│   └── parser.cpp
+└── tests/
+    └── parser_tests.cpp</code></pre>
+</div>
+
+
+<h2>Naming and formatting</h2>
+<p>The language does not prescribe one naming style. Consistency matters more than choosing snake_case versus camelCase. Distinguish types, constants, functions, and private members in a predictable way.</p>
+
+<h2>Namespaces in C++</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+namespace telemetry {
+
+struct Reading {
+    std::string sensor;
+    double value;
+};
+
+void print(const Reading&amp; reading) {
+    std::cout &lt;&lt; reading.sensor &lt;&lt; &quot;: &quot; &lt;&lt; reading.value &lt;&lt; &#x27;\n&#x27;;
+}
+
+} // namespace telemetry
+
+int main() {
+    telemetry::Reading r{&quot;temperature&quot;, 21.5};
+    telemetry::print(r);
+}</code></pre>
+</div>
+
+
+<div class="callout warning"><strong>Avoid <code>using namespace std;</code> in headers.</strong> It injects many names into every file that includes the header and can create collisions.</div>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Program structure and conventions</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="types" data-title="Types, variables, literals, and conversions" data-summary="Learn primitive types, initialization, fixed-width integers, deduction, and conversion rules.">
+      <div class="page-inner">
+        
+<h1>Types, variables, literals, and conversions</h1>
+
+<h2>Fundamental types</h2>
+<table>
+<thead><tr><th>Category</th><th>C/C++ examples</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Boolean</td><td><code>_Bool</code>, <code>bool</code></td><td>C uses <code>&lt;stdbool.h&gt;</code> for <code>bool</code>; C++ has built-in <code>bool</code>.</td></tr>
+<tr><td>Characters</td><td><code>char</code>, <code>signed char</code>, <code>unsigned char</code></td><td><code>char</code> signedness is implementation-defined.</td></tr>
+<tr><td>Integers</td><td><code>short</code>, <code>int</code>, <code>long</code>, <code>long long</code></td><td>Exact widths vary by implementation.</td></tr>
+<tr><td>Floating point</td><td><code>float</code>, <code>double</code>, <code>long double</code></td><td>Precision and range are implementation-dependent within standard constraints.</td></tr>
+<tr><td>Void</td><td><code>void</code></td><td>No value; <code>void*</code> is a generic object pointer in C.</td></tr>
+</tbody>
+</table>
+
+<h2>Prefer fixed-width integers for binary formats</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#include &lt;stdint.h&gt;
+#include &lt;inttypes.h&gt;
+#include &lt;stdio.h&gt;
+
+int main(void) {
+    int32_t temperature_milli_c = 21500;
+    uint64_t packet_id = UINT64_C(9000000000);
+
+    printf(&quot;%&quot; PRId32 &quot;\n&quot;, temperature_milli_c);
+    printf(&quot;%&quot; PRIu64 &quot;\n&quot;, packet_id);
+}</code></pre>
+</div>
+
+
+<h2>Initialization</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">int count = 0;          // copy initialization
+double rate = 2.5;
+const int limit = 100;  // read-only after initialization
+
+// C++:
+int retries{3};         // brace initialization
+auto total = 0LL;       // deduced as long long
+const auto name = std::string{&quot;Ada&quot;};</code></pre>
+</div>
+
+
+<p>In C++, brace initialization rejects many narrowing conversions. <code>auto</code> asks the compiler to deduce the type from the initializer; it does not make the variable dynamically typed.</p>
+
+<h2>Integer promotions and signed/unsigned traps</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#include &lt;stddef.h&gt;
+
+void example(size_t n) {
+    for (size_t i = 0; i &lt; n; ++i) {
+        // correct: i and n have compatible unsigned types
+    }
+
+    // Avoid: int i compared with size_t n can produce warnings
+}</code></pre>
+</div>
+
+
+<div class="callout danger"><strong>Signed integer overflow is undefined behavior.</strong> Unsigned arithmetic wraps modulo 2<sup>N</sup>. Neither rule should be used accidentally.</div>
+
+<h2>Casts</h2>
+<p>C has one general cast syntax. C++ provides named casts that make intent reviewable:</p>
+<ul>
+<li><code>static_cast&lt;T&gt;</code> for checked compile-time conversions.</li>
+<li><code>const_cast&lt;T&gt;</code> for changing const qualification.</li>
+<li><code>dynamic_cast&lt;T&gt;</code> for runtime-checked polymorphic downcasts.</li>
+<li><code>reinterpret_cast&lt;T&gt;</code> for low-level representation conversions.</li>
+</ul>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">double average = 9.7;
+int truncated = static_cast&lt;int&gt;(average);
+
+const unsigned char* bytes =
+    reinterpret_cast&lt;const unsigned char*&gt;(&amp;average);</code></pre>
+</div>
+
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Types, variables, literals, and conversions</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="operators" data-title="Operators, expressions, and evaluation" data-summary="Use arithmetic, logical, bitwise, and access operators without evaluation-order mistakes.">
+      <div class="page-inner">
+        
+<h1>Operators, expressions, and evaluation</h1>
+
+<h2>Major operator groups</h2>
+<table>
+<thead><tr><th>Group</th><th>Examples</th></tr></thead>
+<tbody>
+<tr><td>Arithmetic</td><td><code>+ - * / %</code></td></tr>
+<tr><td>Comparison</td><td><code>== != &lt; &lt;= &gt; &gt;=</code></td></tr>
+<tr><td>Logical</td><td><code>&amp;&amp; || !</code></td></tr>
+<tr><td>Bitwise</td><td><code>&amp; | ^ ~ &lt;&lt; &gt;&gt;</code></td></tr>
+<tr><td>Assignment</td><td><code>= += -= *= /=</code></td></tr>
+<tr><td>Access</td><td><code>.</code>, <code>-&gt;</code>, <code>[]</code>, <code>*</code>, <code>&amp;</code></td></tr>
+<tr><td>Conditional</td><td><code>condition ? a : b</code></td></tr>
+</tbody>
+</table>
+
+<h2>Short-circuit evaluation</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">if (ptr != NULL &amp;&amp; ptr-&gt;ready) {
+    // ptr-&gt;ready is evaluated only when ptr is non-null
+}</code></pre>
+</div>
+
+
+<h2>Bit flags</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+enum Permission {
+    PERM_READ  = 1u &lt;&lt; 0,
+    PERM_WRITE = 1u &lt;&lt; 1,
+    PERM_EXEC  = 1u &lt;&lt; 2
+};
+
+bool can_write(uint32_t mask) {
+    return (mask &amp; PERM_WRITE) != 0;
+}</code></pre>
+</div>
+
+
+<h2>Precedence is not a readability tool</h2>
+<p>Even when you know precedence rules, parenthesize mixed operations when the grouping is not obvious.</p>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">int result = (a + b) * c;
+bool in_range = (x &gt;= low) &amp;&amp; (x &lt;= high);</code></pre>
+</div>
+
+
+<div class="callout danger"><strong>Do not modify and read the same scalar object multiple times in an expression unless sequencing is guaranteed.</strong> Split complex expressions into named steps.</div>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Operators, expressions, and evaluation</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="control-flow" data-title="Conditionals, loops, and control flow" data-summary="Apply conditionals, switches, loops, and early exits clearly.">
+      <div class="page-inner">
+        
+<h1>Conditionals, loops, and control flow</h1>
+
+<h2>Branching</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">if (score &gt;= 90) {
+    grade = &#x27;A&#x27;;
+} else if (score &gt;= 80) {
+    grade = &#x27;B&#x27;;
+} else {
+    grade = &#x27;C&#x27;;
+}</code></pre>
+</div>
+
+
+<h2>Switch</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">enum State { STATE_IDLE, STATE_RUNNING, STATE_ERROR };
+
+switch (state) {
+case STATE_IDLE:
+    start_work();
+    break;
+case STATE_RUNNING:
+    poll();
+    break;
+case STATE_ERROR:
+    recover();
+    break;
+default:
+    /* defensive fallback */
+    break;
+}</code></pre>
+</div>
+
+
+<p>Case labels fall through unless control exits. In C++17, use <code>[[fallthrough]]</code> to document intentional fallthrough.</p>
+
+<h2>Loops</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">for (int i = 0; i &lt; 10; ++i) {
+    printf(&quot;%d\n&quot;, i);
+}
+
+while (has_more()) {
+    process_next();
+}
+
+do {
+    response = read_response();
+} while (!valid(response));</code></pre>
+</div>
+
+
+<h2>Range-based loop in C++</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;vector&gt;
+
+std::vector&lt;int&gt; values{2, 4, 6};
+
+for (int value : values) {
+    // value is a copy
+}
+
+for (int&amp; value : values) {
+    value *= 2; // modifies the container
+}
+
+for (const int&amp; value : values) {
+    // read without copying
+}</code></pre>
+</div>
+
+
+<h2><code>break</code>, <code>continue</code>, and early return</h2>
+<p>Early return often reduces nesting. <code>continue</code> can clarify a loop when exceptional cases are handled first.</p>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">int parse_positive(const char* text, int* out) {
+    if (text == NULL || out == NULL) {
+        return 0;
+    }
+
+    // parse...
+    *out = 42;
+    return 1;
+}</code></pre>
+</div>
+
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Conditionals, loops, and control flow</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="functions" data-title="Functions, parameters, scope, and linkage" data-summary="Understand calling conventions, arrays as parameters, callbacks, overloading, scope, and linkage.">
+      <div class="page-inner">
+        
+<h1>Functions, parameters, scope, and linkage</h1>
+
+<h2>Function declarations and calls</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">double mean(const double values[], size_t count);
+
+double mean(const double values[], size_t count) {
+    double total = 0.0;
+
+    for (size_t i = 0; i &lt; count; ++i) {
+        total += values[i];
+    }
+
+    return count == 0 ? 0.0 : total / count;
+}</code></pre>
+</div>
+
+
+<p>Array parameters decay to pointers. The function does not know the length unless you pass it separately or use a richer abstraction.</p>
+
+<h2>Pass-by-value, pointer, and reference</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">// C: output parameter through pointer
+int divide(int numerator, int denominator, int* result) {
+    if (denominator == 0 || result == NULL) {
+        return 0;
+    }
+    *result = numerator / denominator;
+    return 1;
+}</code></pre>
+</div>
+
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">// C++: reference parameters
+void increment(int&amp; value) {
+    ++value;
+}
+
+double magnitude(const Vector&amp; v) {
+    // const reference avoids copying and prohibits mutation
+    return /* ... */;
+}</code></pre>
+</div>
+
+
+<h2>Function pointers and callbacks in C</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#include &lt;stdlib.h&gt;
+
+int compare_ints(const void* lhs, const void* rhs) {
+    const int a = *(const int*)lhs;
+    const int b = *(const int*)rhs;
+    return (a &gt; b) - (a &lt; b);
+}
+
+int main(void) {
+    int values[] = {4, 1, 8, 2};
+    qsort(values, 4, sizeof(values[0]), compare_ints);
+}</code></pre>
+</div>
+
+
+<h2>Overloading and default arguments in C++</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">int clamp(int value, int low, int high);
+double clamp(double value, double low, double high);
+
+void log(std::string_view message, int level = 1);</code></pre>
+</div>
+
+
+<h2>Scope and storage duration</h2>
+<ul>
+<li><strong>Automatic:</strong> local variables usually exist until the block exits.</li>
+<li><strong>Static:</strong> objects exist for the entire program.</li>
+<li><strong>Dynamic:</strong> objects exist from allocation until explicit release or owner destruction.</li>
+<li><strong>Thread-local:</strong> one instance per thread.</li>
+</ul>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">static int file_private_counter = 0; // internal linkage in C
+
+void tick(void) {
+    static int call_count = 0;       // static storage duration
+    ++call_count;
+    ++file_private_counter;
+}</code></pre>
+</div>
+
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Functions, parameters, scope, and linkage</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="arrays-strings" data-title="Arrays, C strings, and C++ strings" data-summary="Work with arrays, null-terminated strings, bounded formatting, std::string, and string_view.">
+      <div class="page-inner">
+        
+<h1>Arrays, C strings, and C++ strings</h1>
+
+<h2>Fixed-size arrays</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">int values[5] = {10, 20, 30, 40, 50};
+size_t count = sizeof(values) / sizeof(values[0]);
+
+for (size_t i = 0; i &lt; count; ++i) {
+    printf(&quot;%d\n&quot;, values[i]);
+}</code></pre>
+</div>
+
+
+<div class="callout danger"><strong>No automatic bounds checking.</strong> Accessing outside an array is undefined behavior, even if it appears to work.</div>
+
+<h2>C strings</h2>
+<p>A C string is a sequence of <code>char</code> terminated by a zero byte. The terminator consumes space and must be preserved.</p>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+int main(void) {
+    char name[32] = &quot;Grace&quot;;
+    size_t length = strlen(name);
+
+    printf(&quot;%s has %zu characters\n&quot;, name, length);
+}</code></pre>
+</div>
+
+
+<h2>Safe formatted output</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">char buffer[64];
+int written = snprintf(buffer, sizeof buffer, &quot;id=%d&quot;, 42);
+
+if (written &lt; 0) {
+    // encoding or formatting error
+} else if ((size_t)written &gt;= sizeof buffer) {
+    // output was truncated
+}</code></pre>
+</div>
+
+
+<h2><code>std::string</code> and <code>std::string_view</code></h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+bool starts_with(std::string_view text, std::string_view prefix) {
+    return text.starts_with(prefix); // C++20
+}
+
+int main() {
+    std::string message = &quot;hello&quot;;
+    message += &quot; world&quot;;
+
+    std::string_view view = message;
+    std::cout &lt;&lt; view &lt;&lt; &#x27;\n&#x27;;
+}</code></pre>
+</div>
+
+
+<div class="callout warning"><strong>Views do not own data.</strong> A <code>std::string_view</code> becomes invalid when the underlying character storage is destroyed or reallocated.</div>
+
+<h2>Multidimensional arrays</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">enum { ROWS = 3, COLS = 4 };
+int matrix[ROWS][COLS] = {0};
+
+for (size_t r = 0; r &lt; ROWS; ++r) {
+    for (size_t c = 0; c &lt; COLS; ++c) {
+        matrix[r][c] = (int)(r * COLS + c);
+    }
+}</code></pre>
+</div>
+
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Arrays, C strings, and C++ strings</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="pointers" data-title="Pointers, references, and const correctness" data-summary="Build a precise mental model for addresses, dereferencing, pointer arithmetic, references, and const.">
+      <div class="page-inner">
+        
+<h1>Pointers, references, and const correctness</h1>
+
+<h2>Pointer fundamentals</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">int value = 42;
+int* ptr = &amp;value;
+
+printf(&quot;%d\n&quot;, *ptr); // dereference
+*ptr = 99;             // modifies value</code></pre>
+</div>
+
+
+<p>A pointer stores an address. Dereferencing requires that the pointer be non-null, correctly aligned, and pointing to a live object of a compatible type.</p>
+
+<h2>Null pointers</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">int* c_pointer = NULL;       // C
+int* cpp_pointer = nullptr;  // C++</code></pre>
+</div>
+
+
+<h2>Pointer arithmetic</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">int values[] = {10, 20, 30};
+int* begin = values;
+int* end = values + 3;
+
+for (int* p = begin; p != end; ++p) {
+    printf(&quot;%d\n&quot;, *p);
+}</code></pre>
+</div>
+
+
+<p>Pointer arithmetic is only defined within one array object and one-past its end. You may form a one-past pointer, but you may not dereference it.</p>
+
+<h2>Const combinations</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">const int* p1;       // pointer to const int
+int* const p2 = &amp;x;  // const pointer to int
+const int* const p3 = &amp;x; // const pointer to const int</code></pre>
+</div>
+
+
+<h2>C++ references</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">int score = 7;
+int&amp; alias = score;
+const int&amp; read_only = score;
+
+alias = 9; // score becomes 9</code></pre>
+</div>
+
+
+<p>A reference is an alias that must be initialized. In normal code it cannot be reseated. References still have lifetime requirements: a reference to a destroyed object dangles just like a pointer.</p>
+
+<h2>Prefer richer pointer abstractions in C++</h2>
+<ul>
+<li>Use references for required non-owning access.</li>
+<li>Use raw pointers for nullable non-owning access.</li>
+<li>Use <code>std::unique_ptr</code> or <code>std::shared_ptr</code> to express ownership.</li>
+<li>Use <code>std::span</code> for contiguous ranges with a known size.</li>
+</ul>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;span&gt;
+
+int sum(std::span&lt;const int&gt; values) {
+    int total = 0;
+    for (int value : values) {
+        total += value;
+    }
+    return total;
+}</code></pre>
+</div>
+
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Pointers, references, and const correctness</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="aggregates" data-title="Structs, enums, unions, and data layout" data-summary="Model grouped data, state, variant values, padding, alignment, and scoped enums.">
+      <div class="page-inner">
+        
+<h1>Structs, enums, unions, and data layout</h1>
+
+<h2>Structures</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">typedef struct {
+    double x;
+    double y;
+} Point;
+
+double squared_distance(Point a, Point b) {
+    const double dx = a.x - b.x;
+    const double dy = a.y - b.y;
+    return dx * dx + dy * dy;
+}</code></pre>
+</div>
+
+
+<h2>Enums</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">enum Color {
+    COLOR_RED,
+    COLOR_GREEN,
+    COLOR_BLUE
+};</code></pre>
+</div>
+
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">enum class Color : unsigned char {
+    red,
+    green,
+    blue
+};
+
+Color c = Color::green;</code></pre>
+</div>
+
+
+<p>C++ scoped enums avoid implicit conversion to integers and keep enumerator names scoped.</p>
+
+<h2>Unions</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">union Number {
+    int as_int;
+    float as_float;
+};</code></pre>
+</div>
+
+
+<p>A union overlays members in the same storage. Reading a member other than the active one is restricted and often non-portable. Prefer explicit serialization, <code>memcpy</code> for representation transfer, or <code>std::variant</code> in C++.</p>
+
+<h2>Tagged union in C</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">enum ValueKind { VALUE_INT, VALUE_DOUBLE };
+
+struct Value {
+    enum ValueKind kind;
+    union {
+        int as_int;
+        double as_double;
+    } data;
+};</code></pre>
+</div>
+
+
+<h2>Layout, padding, and alignment</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#include &lt;stddef.h&gt;
+#include &lt;stdio.h&gt;
+
+struct Record {
+    char tag;
+    int count;
+    double value;
+};
+
+int main(void) {
+    printf(&quot;size=%zu\n&quot;, sizeof(struct Record));
+    printf(&quot;count offset=%zu\n&quot;, offsetof(struct Record, count));
+}</code></pre>
+</div>
+
+
+<div class="callout warning"><strong>Do not assume a struct's in-memory layout is a portable file or network format.</strong> Padding, endianness, widths, and alignment can differ.</div>
+
+<h2>C++ structured bindings</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;tuple&gt;
+
+auto [x, y, z] = std::tuple{1, 2.5, &quot;three&quot;};</code></pre>
+</div>
+
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Structs, enums, unions, and data layout</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="memory" data-title="Memory management and object lifetimes" data-summary="Allocate, resize, release, and reason about object lifetime without leaks or dangling access.">
+      <div class="page-inner">
+        
+<h1>Memory management and object lifetimes</h1>
+
+<h2>Stack-like automatic storage</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">void process(void) {
+    int local = 0;      // lifetime ends at block exit
+    int values[128];    // fixed-size automatic array
+}</code></pre>
+</div>
+
+
+<h2>Dynamic allocation in C</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#include &lt;stdlib.h&gt;
+
+size_t count = 100;
+int* values = malloc(count * sizeof *values);
+
+if (values == NULL) {
+    /* allocation failed */
+    return;
+}
+
+for (size_t i = 0; i &lt; count; ++i) {
+    values[i] = 0;
+}
+
+free(values);
+values = NULL;</code></pre>
+</div>
+
+
+<h2>Resizable allocation</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">size_t new_count = count * 2;
+int* grown = realloc(values, new_count * sizeof *values);
+
+if (grown == NULL) {
+    free(values);  // original block still exists
+    return;
+}
+
+values = grown;
+count = new_count;</code></pre>
+</div>
+
+
+<h2>Common memory failures</h2>
+<div class="card-grid">
+<article class="mini-card"><h3>Leak</h3><p>Allocated memory is never released.</p></article>
+<article class="mini-card"><h3>Use after free</h3><p>A pointer is used after its object's lifetime ends.</p></article>
+<article class="mini-card"><h3>Double free</h3><p>The same allocation is released twice.</p></article>
+<article class="mini-card"><h3>Buffer overflow</h3><p>A write crosses the bounds of an object.</p></article>
+</div>
+
+<h2>Dynamic objects in C++</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">Widget* raw = new Widget{/*...*/};
+delete raw;</code></pre>
+</div>
+
+
+<p>Direct <code>new</code>/<code>delete</code> are legal but rarely the best ownership interface. Prefer automatic objects, containers, and smart pointers.</p>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;memory&gt;
+#include &lt;vector&gt;
+
+auto widget = std::make_unique&lt;Widget&gt;();
+std::vector&lt;Widget&gt; widgets;
+widgets.emplace_back(/* constructor args */);</code></pre>
+</div>
+
+
+<h2>Lifetime rule of thumb</h2>
+<p>Every pointer, reference, iterator, span, and view is valid only while its referenced object remains alive and has not been invalidated by reallocation or structural modification.</p>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Memory management and object lifetimes</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="preprocessor" data-title="Preprocessor, headers, macros, and conditional compilation" data-summary="Use headers, guards, macros, and compile-time conditions while minimizing preprocessor hazards.">
+      <div class="page-inner">
+        
+<h1>Preprocessor, headers, macros, and conditional compilation</h1>
+
+<h2>Header guards</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#ifndef PROJECT_BUFFER_H
+#define PROJECT_BUFFER_H
+
+#include &lt;stddef.h&gt;
+
+struct Buffer {
+    unsigned char* data;
+    size_t size;
+};
+
+#endif</code></pre>
+</div>
+
+
+<p><code>#pragma once</code> is widely supported but not formally standardized. Header guards are fully portable.</p>
+
+<h2>Object-like and function-like macros</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#define ARRAY_COUNT(a) (sizeof(a) / sizeof((a)[0]))
+#define MAX_RETRIES 5</code></pre>
+</div>
+
+
+<div class="callout danger"><strong>Macros are token substitution, not functions.</strong> Arguments can be evaluated more than once, names ignore scope, and type checking happens only after expansion.</div>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#define BAD_SQUARE(x) ((x) * (x))
+
+int i = 3;
+int result = BAD_SQUARE(i++); // undefined behavior / multiple modification</code></pre>
+</div>
+
+
+<h2>Prefer language features</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">// C
+static inline int square(int x) {
+    return x * x;
+}
+
+// C++
+constexpr int square_cpp(int x) {
+    return x * x;
+}</code></pre>
+</div>
+
+
+<h2>Conditional compilation</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#if defined(_WIN32)
+    #include &lt;windows.h&gt;
+#elif defined(__APPLE__)
+    #include &lt;TargetConditionals.h&gt;
+#else
+    #include &lt;unistd.h&gt;
+#endif</code></pre>
+</div>
+
+
+<h2>Feature flags</h2>
+<p>Use compile-time flags for platform or build configuration, not as a substitute for normal runtime control flow.</p>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#ifdef ENABLE_TRACE
+#define TRACE(msg) fprintf(stderr, &quot;[trace] %s\n&quot;, (msg))
+#else
+#define TRACE(msg) ((void)0)
+#endif</code></pre>
+</div>
+
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Preprocessor, headers, macros, and conditional compilation</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="io-errors" data-title="I/O, files, parsing, and C error handling" data-summary="Read and write streams, copy files, parse input robustly, and design C-style error contracts.">
+      <div class="page-inner">
+        
+<h1>I/O, files, parsing, and C error handling</h1>
+
+<h2>Standard streams</h2>
+<ul>
+<li><code>stdin</code>: input</li>
+<li><code>stdout</code>: normal output</li>
+<li><code>stderr</code>: diagnostics</li>
+</ul>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#include &lt;stdio.h&gt;
+
+fprintf(stdout, &quot;result=%d\n&quot;, result);
+fprintf(stderr, &quot;error: invalid input\n&quot;);</code></pre>
+</div>
+
+
+<h2>File I/O</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int copy_file(const char* source_path, const char* dest_path) {
+    FILE* in = fopen(source_path, &quot;rb&quot;);
+    if (in == NULL) {
+        return 0;
+    }
+
+    FILE* out = fopen(dest_path, &quot;wb&quot;);
+    if (out == NULL) {
+        fclose(in);
+        return 0;
+    }
+
+    unsigned char buffer[4096];
+    size_t n;
+    int ok = 1;
+
+    while ((n = fread(buffer, 1, sizeof buffer, in)) &gt; 0) {
+        if (fwrite(buffer, 1, n, out) != n) {
+            ok = 0;
+            break;
+        }
+    }
+
+    if (ferror(in)) {
+        ok = 0;
+    }
+
+    if (fclose(out) != 0) {
+        ok = 0;
+    }
+    fclose(in);
+
+    return ok;
+}</code></pre>
+</div>
+
+
+<h2>Parsing integers robustly</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#include &lt;errno.h&gt;
+#include &lt;limits.h&gt;
+#include &lt;stdlib.h&gt;
+
+int parse_int(const char* text, int* out) {
+    char* end = NULL;
+    errno = 0;
+    long value = strtol(text, &amp;end, 10);
+
+    if (errno != 0 || end == text || *end != &#x27;\0&#x27;) {
+        return 0;
+    }
+    if (value &lt; INT_MIN || value &gt; INT_MAX) {
+        return 0;
+    }
+
+    *out = (int)value;
+    return 1;
+}</code></pre>
+</div>
+
+
+<h2>Error conventions</h2>
+<p>C libraries commonly use return codes, sentinel values, output parameters, and <code>errno</code>. Document whether a function leaves resources open, whether partial output is valid, and who owns returned memory.</p>
+
+<h2>C++ stream example</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;fstream&gt;
+#include &lt;stdexcept&gt;
+#include &lt;string&gt;
+
+std::string read_all(const std::string&amp; path) {
+    std::ifstream input(path, std::ios::binary);
+    if (!input) {
+        throw std::runtime_error(&quot;cannot open &quot; + path);
+    }
+
+    return {std::istreambuf_iterator&lt;char&gt;(input),
+            std::istreambuf_iterator&lt;char&gt;()};
+}</code></pre>
+</div>
+
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>I/O, files, parsing, and C error handling</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="debug-test" data-title="Debugging, testing, warnings, and sanitizers" data-summary="Use debuggers, warnings, sanitizers, assertions, static analysis, and regression tests.">
+      <div class="page-inner">
+        
+<h1>Debugging, testing, warnings, and sanitizers</h1>
+
+<h2>Debugging workflow</h2>
+<ol class="steps">
+<li>Reproduce the failure with the smallest stable input.</li>
+<li>Compile with warnings, debug symbols, and sanitizers.</li>
+<li>Inspect the first reported error, not only the final crash.</li>
+<li>Use a debugger to inspect state and control flow.</li>
+<li>Add a regression test before or alongside the fix.</li>
+</ol>
+
+<h2>GDB essentials</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">BASH</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-bash">gdb ./app
+(gdb) break main
+(gdb) run input.txt
+(gdb) next
+(gdb) step
+(gdb) print variable
+(gdb) backtrace
+(gdb) continue</code></pre>
+</div>
+
+
+<h2>LLDB equivalents</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">BASH</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-bash">lldb ./app
+(lldb) breakpoint set --name main
+(lldb) run
+(lldb) next
+(lldb) step
+(lldb) frame variable
+(lldb) bt</code></pre>
+</div>
+
+
+<h2>Sanitizers</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">BASH</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-bash">clang -std=c17 -g -O1   -fsanitize=address,undefined   -fno-omit-frame-pointer   main.c -o app</code></pre>
+</div>
+
+
+<table>
+<thead><tr><th>Tool</th><th>Finds</th></tr></thead>
+<tbody>
+<tr><td>AddressSanitizer</td><td>Out-of-bounds, use-after-free, some leaks</td></tr>
+<tr><td>UndefinedBehaviorSanitizer</td><td>Many invalid arithmetic, alignment, and type operations</td></tr>
+<tr><td>ThreadSanitizer</td><td>Data races in multithreaded programs</td></tr>
+<tr><td>MemorySanitizer</td><td>Use of uninitialized memory on supported platforms</td></tr>
+</tbody>
+</table>
+
+<h2>Small C test harness</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#include &lt;assert.h&gt;
+
+int add(int a, int b) {
+    return a + b;
+}
+
+int main(void) {
+    assert(add(2, 3) == 5);
+    assert(add(-2, 2) == 0);
+}</code></pre>
+</div>
+
+
+<h2>Static analysis</h2>
+<p>Use tools such as <code>clang-tidy</code>, <code>clang-analyzer</code>, or platform-specific analyzers. They complement compiler warnings and runtime tests; none replaces the others.</p>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Debugging, testing, warnings, and sanitizers</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="make-cmake" data-title="Build systems: Make and CMake" data-summary="Automate incremental builds with Make and organize portable projects with target-based CMake.">
+      <div class="page-inner">
+        
+<h1>Build systems: Make and CMake</h1>
+
+<h2>Minimal Makefile</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">MAKEFILE</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-makefile">CC := cc
+CFLAGS := -std=c17 -Wall -Wextra -Wpedantic -O0 -g
+
+app: main.o math_utils.o
+	$(CC) main.o math_utils.o -o app
+
+main.o: main.c math_utils.h
+	$(CC) $(CFLAGS) -c main.c
+
+math_utils.o: math_utils.c math_utils.h
+	$(CC) $(CFLAGS) -c math_utils.c
+
+clean:
+	rm -f app *.o
+
+.PHONY: clean</code></pre>
+</div>
+
+
+<p>Make uses timestamps and dependency rules to rebuild only what changed. Recipe lines traditionally begin with a tab.</p>
+
+<h2>Minimal CMake project</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CMAKE</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cmake">cmake_minimum_required(VERSION 3.20)
+project(guide_demo LANGUAGES C CXX)
+
+set(CMAKE_C_STANDARD 17)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_library(math_utils src/math_utils.c)
+target_include_directories(math_utils PUBLIC include)
+
+add_executable(app src/main.cpp)
+target_link_libraries(app PRIVATE math_utils)
+
+if (MSVC)
+    target_compile_options(app PRIVATE /W4)
+else()
+    target_compile_options(app PRIVATE -Wall -Wextra -Wpedantic)
+endif()</code></pre>
+</div>
+
+
+<h2>Configure, build, and test</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">BASH</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-bash">cmake -S . -B build -G Ninja
+cmake --build build
+ctest --test-dir build --output-on-failure</code></pre>
+</div>
+
+
+<h2>Target-based thinking</h2>
+<p>Modern CMake works best when usage requirements belong to targets. Include directories, compile definitions, language features, and linked libraries should propagate through target relationships rather than global flags.</p>
+
+<div class="callout note"><strong>Keep generated files out of the source tree.</strong> Use an out-of-source build directory such as <code>build/</code>.</div>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Build systems: Make and CMake</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="cpp-raii" data-title="C++ classes, constructors, destructors, and RAII" data-summary="Design classes with invariants, deterministic cleanup, ownership, and safe polymorphism.">
+      <div class="page-inner">
+        
+<h1>C++ classes, constructors, destructors, and RAII</h1>
+
+<h2>Encapsulation</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;stdexcept&gt;
+#include &lt;string&gt;
+
+class BankAccount {
+public:
+    explicit BankAccount(std::string owner, double balance = 0.0)
+        : owner_(std::move(owner)), balance_(balance) {
+        if (balance &lt; 0.0) {
+            throw std::invalid_argument(&quot;negative initial balance&quot;);
+        }
+    }
+
+    void deposit(double amount) {
+        if (amount &lt;= 0.0) {
+            throw std::invalid_argument(&quot;deposit must be positive&quot;);
+        }
+        balance_ += amount;
+    }
+
+    [[nodiscard]] double balance() const noexcept {
+        return balance_;
+    }
+
+private:
+    std::string owner_;
+    double balance_;
+};</code></pre>
+</div>
+
+
+<h2>RAII</h2>
+<p><strong>Resource Acquisition Is Initialization</strong> binds a resource to an object's lifetime. Construction establishes ownership; destruction releases it. Stack unwinding and early returns then become safe by default.</p>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;cstdio&gt;
+#include &lt;stdexcept&gt;
+
+class File {
+public:
+    explicit File(const char* path, const char* mode)
+        : handle_(std::fopen(path, mode)) {
+        if (!handle_) {
+            throw std::runtime_error(&quot;fopen failed&quot;);
+        }
+    }
+
+    ~File() {
+        std::fclose(handle_);
+    }
+
+    File(const File&amp;) = delete;
+    File&amp; operator=(const File&amp;) = delete;
+
+    FILE* get() const noexcept { return handle_; }
+
+private:
+    FILE* handle_;
+};</code></pre>
+</div>
+
+
+<h2>Rule of zero, three, and five</h2>
+<ul>
+<li><strong>Rule of zero:</strong> prefer members that manage themselves, so your class needs no custom destructor, copy, or move operations.</li>
+<li><strong>Rule of three:</strong> if you define destructor, copy constructor, or copy assignment, you often need all three.</li>
+<li><strong>Rule of five:</strong> in modern C++, also consider move constructor and move assignment.</li>
+</ul>
+
+<h2>Inheritance and polymorphism</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">struct Shape {
+    virtual ~Shape() = default;
+    virtual double area() const = 0;
+};
+
+struct Circle final : Shape {
+    explicit Circle(double radius) : radius(radius) {}
+    double area() const override { return 3.141592653589793 * radius * radius; }
+    double radius;
+};</code></pre>
+</div>
+
+
+<p>Use inheritance for substitutable interfaces. Prefer composition when one object merely uses or contains another.</p>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>C++ classes, constructors, destructors, and RAII</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="stl" data-title="STL containers, iterators, and algorithms" data-summary="Choose standard containers, understand iterator validity, and express transformations with algorithms and ranges.">
+      <div class="page-inner">
+        
+<h1>STL containers, iterators, and algorithms</h1>
+
+<h2>Container selection</h2>
+<table>
+<thead><tr><th>Container</th><th>Best fit</th></tr></thead>
+<tbody>
+<tr><td><code>std::vector</code></td><td>Default contiguous sequence; fast iteration and random access</td></tr>
+<tr><td><code>std::array</code></td><td>Fixed-size array with value semantics</td></tr>
+<tr><td><code>std::deque</code></td><td>Efficient insertion/removal at both ends</td></tr>
+<tr><td><code>std::list</code></td><td>Stable nodes and frequent middle splicing; rarely the default</td></tr>
+<tr><td><code>std::map</code></td><td>Ordered key/value tree</td></tr>
+<tr><td><code>std::unordered_map</code></td><td>Hash-based key/value lookup</td></tr>
+<tr><td><code>std::set</code></td><td>Unique ordered keys</td></tr>
+</tbody>
+</table>
+
+<h2>Vector and algorithms</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+#include &lt;numeric&gt;
+#include &lt;vector&gt;
+
+int main() {
+    std::vector&lt;int&gt; values{7, 2, 9, 2, 4};
+
+    std::sort(values.begin(), values.end());
+    values.erase(std::unique(values.begin(), values.end()), values.end());
+
+    const int total = std::accumulate(values.begin(), values.end(), 0);
+
+    for (int value : values) {
+        std::cout &lt;&lt; value &lt;&lt; &#x27; &#x27;;
+    }
+    std::cout &lt;&lt; &quot;\ntotal=&quot; &lt;&lt; total &lt;&lt; &#x27;\n&#x27;;
+}</code></pre>
+</div>
+
+
+<h2>Iterator invalidation</h2>
+<p>Container operations may invalidate pointers, references, and iterators. For example, growing a vector can reallocate its storage and invalidate all references into it. Consult the specific container's guarantees.</p>
+
+<h2>Ranges in C++20</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;algorithm&gt;
+#include &lt;ranges&gt;
+#include &lt;vector&gt;
+
+std::vector&lt;int&gt; values{5, 1, 4, 3, 2};
+std::ranges::sort(values);
+
+auto evens = values
+           | std::views::filter([](int x) { return x % 2 == 0; })
+           | std::views::transform([](int x) { return x * x; });</code></pre>
+</div>
+
+
+<h2>Prefer algorithms over hand-written index loops</h2>
+<p>Algorithms make intent visible and reduce boundary mistakes. Use a loop when it is genuinely clearer, not merely familiar.</p>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>STL containers, iterators, and algorithms</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="templates" data-title="Templates, generic programming, and concepts" data-summary="Write reusable generic code with function templates, class templates, constraints, and compile-time evaluation.">
+      <div class="page-inner">
+        
+<h1>Templates, generic programming, and concepts</h1>
+
+<h2>Function templates</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">template &lt;typename T&gt;
+T maximum(const T&amp; a, const T&amp; b) {
+    return (a &lt; b) ? b : a;
+}</code></pre>
+</div>
+
+
+<h2>Class templates</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;cstddef&gt;
+#include &lt;stdexcept&gt;
+
+template &lt;typename T, std::size_t N&gt;
+class FixedBuffer {
+public:
+    T&amp; at(std::size_t index) {
+        if (index &gt;= N) {
+            throw std::out_of_range(&quot;index&quot;);
+        }
+        return data_[index];
+    }
+
+    constexpr std::size_t size() const noexcept { return N; }
+
+private:
+    T data_[N]{};
+};</code></pre>
+</div>
+
+
+<h2>Compile-time behavior</h2>
+<p>Templates are instantiated with concrete arguments. Definitions usually need to be visible where instantiation occurs, which is why template implementations often live in headers.</p>
+
+<h2>Concepts</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;concepts&gt;
+
+template &lt;std::totally_ordered T&gt;
+const T&amp; clamp_value(const T&amp; value, const T&amp; low, const T&amp; high) {
+    if (value &lt; low) return low;
+    if (high &lt; value) return high;
+    return value;
+}</code></pre>
+</div>
+
+
+<h2><code>constexpr</code></h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">constexpr unsigned factorial(unsigned n) {
+    return n &lt;= 1 ? 1 : n * factorial(n - 1);
+}
+
+static_assert(factorial(5) == 120);</code></pre>
+</div>
+
+
+<h2>Variadic templates</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;iostream&gt;
+
+template &lt;typename... Args&gt;
+void print_line(Args&amp;&amp;... args) {
+    (std::cout &lt;&lt; ... &lt;&lt; std::forward&lt;Args&gt;(args)) &lt;&lt; &#x27;\n&#x27;;
+}</code></pre>
+</div>
+
+
+<div class="callout note"><strong>Generic code should constrain what it needs.</strong> Concepts make requirements explicit and improve diagnostics.</div>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Templates, generic programming, and concepts</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="ownership-move" data-title="Smart pointers, value categories, and move semantics" data-summary="Express ownership explicitly and understand move selection, moved-from states, and forwarding.">
+      <div class="page-inner">
+        
+<h1>Smart pointers, value categories, and move semantics</h1>
+
+<h2>Unique ownership</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;memory&gt;
+
+auto item = std::make_unique&lt;Item&gt;(42);
+process(*item);
+
+auto transferred = std::move(item);
+// item is now empty; transferred owns the Item</code></pre>
+</div>
+
+
+<h2>Shared ownership</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">auto shared = std::make_shared&lt;Node&gt;();
+std::weak_ptr&lt;Node&gt; observer = shared;
+
+if (auto locked = observer.lock()) {
+    use(*locked);
+}</code></pre>
+</div>
+
+
+<p>Use <code>shared_ptr</code> only when ownership is genuinely shared. Cycles of shared owners leak; use <code>weak_ptr</code> for non-owning back-references.</p>
+
+<h2>Copy vs. move</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">std::string make_message() {
+    std::string result = &quot;large result&quot;;
+    return result; // usually elided; otherwise movable
+}
+
+std::string a = make_message();
+std::string b = std::move(a);</code></pre>
+</div>
+
+
+<p><code>std::move</code> does not move anything by itself. It casts an expression to an rvalue category so a move operation may be selected. A moved-from object remains valid but its value is usually unspecified.</p>
+
+<h2>Perfect forwarding</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">template &lt;typename T, typename... Args&gt;
+std::unique_ptr&lt;T&gt; make_owned(Args&amp;&amp;... args) {
+    return std::unique_ptr&lt;T&gt;(
+        new T(std::forward&lt;Args&gt;(args)...)
+    );
+}</code></pre>
+</div>
+
+
+<h2>Ownership design</h2>
+<table>
+<thead><tr><th>Meaning</th><th>Preferred expression</th></tr></thead>
+<tbody>
+<tr><td>Owned local value</td><td>Automatic object</td></tr>
+<tr><td>Owned dynamic object, one owner</td><td><code>std::unique_ptr&lt;T&gt;</code></td></tr>
+<tr><td>Owned dynamic object, shared owners</td><td><code>std::shared_ptr&lt;T&gt;</code></td></tr>
+<tr><td>Required borrowed object</td><td><code>T&amp;</code> or <code>const T&amp;</code></td></tr>
+<tr><td>Optional borrowed object</td><td><code>T*</code> or an optional reference wrapper</td></tr>
+<tr><td>Borrowed contiguous sequence</td><td><code>std::span&lt;T&gt;</code></td></tr>
+</tbody>
+</table>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Smart pointers, value categories, and move semantics</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="exceptions" data-title="Exceptions, optional values, and error design" data-summary="Choose between exceptions, optional values, variants, and status-oriented APIs.">
+      <div class="page-inner">
+        
+<h1>Exceptions, optional values, and error design</h1>
+
+<h2>Throwing and catching</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;stdexcept&gt;
+
+double divide(double a, double b) {
+    if (b == 0.0) {
+        throw std::domain_error(&quot;division by zero&quot;);
+    }
+    return a / b;
+}
+
+try {
+    auto value = divide(10.0, 0.0);
+} catch (const std::exception&amp; ex) {
+    std::cerr &lt;&lt; ex.what() &lt;&lt; &#x27;\n&#x27;;
+}</code></pre>
+</div>
+
+
+<h2>Exception safety levels</h2>
+<ul>
+<li><strong>No-throw guarantee:</strong> operation does not emit exceptions.</li>
+<li><strong>Strong guarantee:</strong> failure leaves state unchanged.</li>
+<li><strong>Basic guarantee:</strong> invariants remain valid and no resources leak.</li>
+</ul>
+
+<h2><code>std::optional</code></h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;optional&gt;
+#include &lt;string_view&gt;
+
+std::optional&lt;int&gt; find_port(std::string_view name) {
+    if (name == &quot;http&quot;) return 80;
+    if (name == &quot;https&quot;) return 443;
+    return std::nullopt;
+}</code></pre>
+</div>
+
+
+<h2><code>std::variant</code></h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;string&gt;
+#include &lt;variant&gt;
+
+using Result = std::variant&lt;int, std::string&gt;;
+
+Result parse_count(std::string_view text) {
+    // return parsed integer or error text
+    return std::string{&quot;not implemented&quot;};
+}</code></pre>
+</div>
+
+
+<h2>When to use which mechanism</h2>
+<table>
+<thead><tr><th>Situation</th><th>Typical choice</th></tr></thead>
+<tbody>
+<tr><td>Expected absence</td><td><code>std::optional</code></td></tr>
+<tr><td>Expected recoverable failure with details</td><td>Status/result type</td></tr>
+<tr><td>Cannot satisfy normal contract</td><td>Exception, when project policy allows</td></tr>
+<tr><td>Programmer contract violation</td><td>Assertion, exception, or termination depending on boundary</td></tr>
+<tr><td>Destructor cleanup</td><td>Never allow exceptions to escape during stack unwinding</td></tr>
+</tbody>
+</table>
+
+<div class="callout note"><strong>Error strategy is architectural.</strong> Be consistent across API boundaries and document which failures are expected.</div>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Exceptions, optional values, and error design</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="lambdas" data-title="Lambdas, callable objects, and functional techniques" data-summary="Use lambdas safely, understand capture lifetime, and pass behavior to algorithms and APIs.">
+      <div class="page-inner">
+        
+<h1>Lambdas, callable objects, and functional techniques</h1>
+
+<h2>Lambda syntax</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">auto add = [](int a, int b) {
+    return a + b;
+};
+
+int bias = 5;
+auto add_bias = [bias](int x) {
+    return x + bias;
+};</code></pre>
+</div>
+
+
+<h2>Capture modes</h2>
+<ul>
+<li><code>[]</code>: capture nothing.</li>
+<li><code>[x]</code>: capture <code>x</code> by value.</li>
+<li><code>[&x]</code>: capture <code>x</code> by reference.</li>
+<li><code>[=]</code>: implicitly capture used locals by value.</li>
+<li><code>[&]</code>: implicitly capture used locals by reference.</li>
+<li><code>[item = std::move(item)]</code>: init-capture.</li>
+</ul>
+
+<div class="callout warning"><strong>Reference captures can dangle.</strong> This is especially dangerous when a callback outlives the creating scope.</div>
+
+<h2>Algorithms with predicates</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">std::vector&lt;int&gt; values{1, 2, 3, 4, 5, 6};
+
+auto new_end = std::remove_if(
+    values.begin(),
+    values.end(),
+    [](int value) { return value % 2 != 0; }
+);
+
+values.erase(new_end, values.end());</code></pre>
+</div>
+
+
+<h2><code>std::function</code></h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;functional&gt;
+
+void run_task(const std::function&lt;void()&gt;&amp; task) {
+    task();
+}</code></pre>
+</div>
+
+
+<p><code>std::function</code> type-erases callable objects and may allocate. For high-performance generic code, prefer a templated callable parameter when practical.</p>
+
+<h2>Generic lambda</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">auto twice = [](auto value) {
+    return value + value;
+};</code></pre>
+</div>
+
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Lambdas, callable objects, and functional techniques</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="cpp-advanced" data-title="Modern C++ language tools" data-summary="Apply type deduction, structured bindings, attributes, comparisons, designated initialization, and modules.">
+      <div class="page-inner">
+        
+<h1>Modern C++ language tools</h1>
+
+<h2><code>auto</code>, <code>decltype</code>, and type deduction</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">auto count = values.size();
+decltype(count) another_count = 0;
+
+const auto&amp; first = values.front();</code></pre>
+</div>
+
+
+<h2>Structured bindings</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">std::map&lt;std::string, int&gt; counts;
+
+for (const auto&amp; [word, count] : counts) {
+    std::cout &lt;&lt; word &lt;&lt; &quot;: &quot; &lt;&lt; count &lt;&lt; &#x27;\n&#x27;;
+}</code></pre>
+</div>
+
+
+<h2>Attributes</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">[[nodiscard]] int open_resource();
+[[maybe_unused]] int debug_only = 0;
+
+[[deprecated(&quot;use parse_v2&quot;)]]
+int parse_v1();</code></pre>
+</div>
+
+
+<h2>Three-way comparison</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;compare&gt;
+
+struct Version {
+    int major;
+    int minor;
+    int patch;
+
+    auto operator&lt;=&gt;(const Version&amp;) const = default;
+};</code></pre>
+</div>
+
+
+<h2>Designated initializers</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">struct Config {
+    int port;
+    bool verbose;
+};
+
+Config config{
+    .port = 8080,
+    .verbose = true
+};</code></pre>
+</div>
+
+
+<h2>Modules overview</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">// math.ixx — compiler commands vary by toolchain
+export module math;
+
+export int square(int x) {
+    return x * x;
+}</code></pre>
+</div>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">import math;
+
+int main() {
+    return square(4) == 16 ? 0 : 1;
+}</code></pre>
+</div>
+
+
+<p>Modules provide named interfaces rather than textual inclusion. They can improve isolation and build performance, but adoption depends on compiler and build-system support. Headers remain essential knowledge.</p>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Modern C++ language tools</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="concurrency" data-title="Concurrency and synchronization" data-summary="Create threads and tasks, protect shared state, wait on conditions, and avoid data races.">
+      <div class="page-inner">
+        
+<h1>Concurrency and synchronization</h1>
+
+<h2>Threads</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;thread&gt;
+
+void worker(int id) {
+    std::cout &lt;&lt; &quot;worker &quot; &lt;&lt; id &lt;&lt; &#x27;\n&#x27;;
+}
+
+int main() {
+    std::thread t(worker, 1);
+    t.join();
+}</code></pre>
+</div>
+
+
+<h2>Mutex and scoped locking</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;mutex&gt;
+
+class Counter {
+public:
+    void increment() {
+        std::lock_guard&lt;std::mutex&gt; lock(mutex_);
+        ++value_;
+    }
+
+    int value() const {
+        std::lock_guard&lt;std::mutex&gt; lock(mutex_);
+        return value_;
+    }
+
+private:
+    mutable std::mutex mutex_;
+    int value_ = 0;
+};</code></pre>
+</div>
+
+
+<h2>Condition variables</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">std::unique_lock&lt;std::mutex&gt; lock(mutex);
+condition.wait(lock, [&amp;] { return ready; });
+// predicate handles spurious wakeups</code></pre>
+</div>
+
+
+<h2>Atomics</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;atomic&gt;
+
+std::atomic&lt;bool&gt; stop_requested{false};
+
+// thread A
+stop_requested.store(true, std::memory_order_release);
+
+// thread B
+if (stop_requested.load(std::memory_order_acquire)) {
+    // observe stop
+}</code></pre>
+</div>
+
+
+<h2>Async tasks</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">#include &lt;future&gt;
+
+auto future = std::async(std::launch::async, [] {
+    return expensive_computation();
+});
+
+auto result = future.get();</code></pre>
+</div>
+
+
+<div class="callout danger"><strong>A data race is undefined behavior.</strong> Synchronize every shared mutable object, or redesign to avoid sharing it.</div>
+
+<h2>Practical rule</h2>
+<p>Prefer immutable data, message passing, task systems, and ownership transfer over fine-grained shared-state synchronization. Measure before adding concurrency.</p>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Concurrency and synchronization</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="low-level" data-title="Low-level topics: bytes, endianness, aliasing, and interop" data-summary="Reason about byte order, object representation, aliasing, volatile, and stable C/C++ boundaries.">
+      <div class="page-inner">
+        
+<h1>Low-level topics: bytes, endianness, aliasing, and interop</h1>
+
+<h2>Object representation</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">#include &lt;stdint.h&gt;
+#include &lt;string.h&gt;
+
+uint32_t bits_of_float(float value) {
+    uint32_t bits;
+    memcpy(&amp;bits, &amp;value, sizeof bits);
+    return bits;
+}</code></pre>
+</div>
+
+
+<p><code>memcpy</code> is the portable C technique for moving object representations between same-sized storage. In C++20, <code>std::bit_cast</code> can express the same intent at compile time when constraints are met.</p>
+
+<h2>Endianness</h2>
+<p>Multi-byte numbers can be stored least-significant byte first or most-significant byte first. Network and file formats must define byte order explicitly.</p>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">uint32_t read_u32_be(const unsigned char bytes[4]) {
+    return ((uint32_t)bytes[0] &lt;&lt; 24) |
+           ((uint32_t)bytes[1] &lt;&lt; 16) |
+           ((uint32_t)bytes[2] &lt;&lt; 8)  |
+           ((uint32_t)bytes[3]);
+}</code></pre>
+</div>
+
+
+<h2>Strict aliasing</h2>
+<p>The optimizer assumes most unrelated pointer types do not refer to the same object. Violating the language's aliasing rules can produce optimized builds that behave differently from debug builds.</p>
+
+<h2><code>volatile</code></h2>
+<p><code>volatile</code> is for certain memory-mapped I/O and externally changing objects. It is not a thread-synchronization primitive and does not make operations atomic.</p>
+
+<h2>C and C++ interoperability</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">// api.h
+#ifdef __cplusplus
+extern &quot;C&quot; {
+#endif
+
+int library_version(void);
+
+#ifdef __cplusplus
+}
+#endif</code></pre>
+</div>
+
+
+<p><code>extern "C"</code> gives C linkage to declarations when included from C++. Keep cross-language interfaces simple: fixed-width scalars, explicit ownership, opaque handles, and stable calling conventions.</p>
+
+<h2>Opaque handle pattern</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">typedef struct Database Database;
+
+Database* database_open(const char* path);
+void database_close(Database* db);
+int database_query(Database* db, const char* sql);</code></pre>
+</div>
+
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Low-level topics: bytes, endianness, aliasing, and interop</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="performance" data-title="Performance, profiling, and data-oriented design" data-summary="Profile before optimizing and reason about locality, allocation, algorithms, and release builds.">
+      <div class="page-inner">
+        
+<h1>Performance, profiling, and data-oriented design</h1>
+
+<h2>Measure before optimizing</h2>
+<ol class="steps">
+<li>Define the metric: latency, throughput, memory, startup, binary size, or power.</li>
+<li>Build a repeatable benchmark with representative data.</li>
+<li>Profile to identify the actual hot path.</li>
+<li>Change one significant factor at a time.</li>
+<li>Verify correctness and remeasure.</li>
+</ol>
+
+<h2>Optimization levels</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">BASH</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-bash"># Debug
+clang++ -O0 -g app.cpp -o app_debug
+
+# Typical release
+clang++ -O2 -DNDEBUG app.cpp -o app_release
+
+# Aggressive; measure carefully
+clang++ -O3 -DNDEBUG app.cpp -o app_fast</code></pre>
+</div>
+
+
+<h2>Data locality</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">struct ParticleAoS {
+    float x, y, z;
+    float vx, vy, vz;
+};
+
+struct ParticlesSoA {
+    std::vector&lt;float&gt; x, y, z;
+    std::vector&lt;float&gt; vx, vy, vz;
+};</code></pre>
+</div>
+
+
+<p>Array-of-structures is natural for per-object work. Structure-of-arrays can improve cache behavior and vectorization when processing one field across many objects.</p>
+
+<h2>Allocation awareness</h2>
+<ul>
+<li>Reserve vector capacity when the approximate size is known.</li>
+<li>Avoid repeated string concatenation in tight loops.</li>
+<li>Prefer value semantics and contiguous storage.</li>
+<li>Do not replace clear code with custom memory pools without evidence.</li>
+</ul>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">std::vector&lt;Record&gt; records;
+records.reserve(expected_count);</code></pre>
+</div>
+
+
+<h2>Complexity and constants</h2>
+<p>Asymptotic complexity matters, but cache misses, allocation, branching, and representation often dominate at real input sizes. Choose algorithms and data layout together.</p>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Performance, profiling, and data-oriented design</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="undefined" data-title="Undefined behavior and portability" data-summary="Recognize undefined, implementation-defined, and unspecified behavior and write portable code.">
+      <div class="page-inner">
+        
+<h1>Undefined behavior and portability</h1>
+
+<p class="lead">Undefined behavior means the language standard imposes no requirements on the result. Compilers may optimize under the assumption that undefined behavior never occurs.</p>
+
+<h2>Frequent sources</h2>
+<ul>
+<li>Out-of-bounds access</li>
+<li>Dereferencing null, dangling, or misaligned pointers</li>
+<li>Use of uninitialized values</li>
+<li>Signed integer overflow</li>
+<li>Invalid shifts</li>
+<li>Data races</li>
+<li>Multiple unsequenced modifications</li>
+<li>Violating object lifetime or aliasing rules</li>
+<li>Incorrect format specifiers</li>
+</ul>
+
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">int bad(int* values, size_t count) {
+    return values[count]; // one past the final valid element
+}</code></pre>
+</div>
+
+
+<h2>Implementation-defined and unspecified behavior</h2>
+<ul>
+<li><strong>Implementation-defined:</strong> implementation chooses and documents a behavior, such as whether plain <code>char</code> is signed.</li>
+<li><strong>Unspecified:</strong> one of several valid behaviors may occur without documentation, such as some evaluation orders.</li>
+</ul>
+
+<h2>Portability checklist</h2>
+<ul class="checklist">
+<li>Use fixed-width integers for serialized data.</li>
+<li>Specify byte order.</li>
+<li>Avoid assuming padding or alignment.</li>
+<li>Compile on more than one compiler.</li>
+<li>Run 32-bit or alternate-architecture tests when relevant.</li>
+<li>Avoid platform APIs behind a narrow abstraction layer.</li>
+<li>Keep warnings clean under GCC, Clang, and MSVC when possible.</li>
+</ul>
+
+<h2>Defensive compile options</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">BASH</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-bash">-Wall -Wextra -Wpedantic -Wconversion -Wshadow
+-fsanitize=address,undefined</code></pre>
+</div>
+
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Undefined behavior and portability</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="style-api" data-title="API design and coding practices" data-summary="Design explicit contracts and write maintainable, ownership-aware C and C++ APIs.">
+      <div class="page-inner">
+        
+<h1>API design and coding practices</h1>
+
+<h2>Design contracts explicitly</h2>
+<p>For every public function, define valid input, ownership, lifetime, thread safety, failure reporting, and side effects.</p>
+
+<h2>C interface example</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">C</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-c">/*
+ * Parses one record.
+ *
+ * input:  borrowed null-terminated string; must not be NULL.
+ * output: required pointer; receives parsed value on success.
+ * returns: 1 on success, 0 on invalid input.
+ * thread safety: reentrant.
+ */
+int record_parse(const char* input, struct Record* output);</code></pre>
+</div>
+
+
+<h2>C++ interface example</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">CPP</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-cpp">class Parser {
+public:
+    [[nodiscard]]
+    std::optional&lt;Record&gt; parse(std::string_view input) const;
+};</code></pre>
+</div>
+
+
+<h2>Core practices</h2>
+<ul class="checklist">
+<li>Initialize objects immediately.</li>
+<li>Keep ownership visible in types and names.</li>
+<li>Keep functions focused and testable.</li>
+<li>Prefer immutable state where practical.</li>
+<li>Minimize global mutable data.</li>
+<li>Use <code>const</code> aggressively but meaningfully.</li>
+<li>Compile with strong warnings.</li>
+<li>Prefer the rule of zero in C++.</li>
+<li>Use standard library facilities before inventing replacements.</li>
+<li>Document invariants, units, and boundary conditions.</li>
+</ul>
+
+<h2>What not to overdo</h2>
+<ul>
+<li>Do not create a class for every noun.</li>
+<li>Do not template code that only ever needs one type.</li>
+<li>Do not use inheritance when composition is clearer.</li>
+<li>Do not expose raw owning pointers.</li>
+<li>Do not compress logic into clever expressions that resist debugging.</li>
+</ul>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>API design and coding practices</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="projects" data-title="Practice projects and study plan" data-summary="Apply the material through progressively richer C and C++ projects.">
+      <div class="page-inner">
+        
+<h1>Practice projects and study plan</h1>
+
+<h2>Project 1: C command-line log analyzer</h2>
+<p>Read a text file line by line, parse timestamp/severity/message fields, compute counts, and write a summary.</p>
+<ul>
+<li>Practice: file I/O, <code>strtol</code>, dynamic arrays, structs, error paths.</li>
+<li>Stretch: sort by frequency using <code>qsort</code>; add CSV output.</li>
+</ul>
+
+<h2>Project 2: C reusable ring buffer library</h2>
+<p>Implement a fixed-capacity or dynamically allocated circular queue with a public header, private source file, tests, and CMake.</p>
+<ul>
+<li>Practice: opaque types, ownership, modular builds, invariants.</li>
+<li>Stretch: generic byte storage, overwrite mode, thread-safe wrapper.</li>
+</ul>
+
+<h2>Project 3: C++ file indexer</h2>
+<p>Walk a directory, index file metadata, and support queries by extension, size, and modified time.</p>
+<ul>
+<li>Practice: <code>std::filesystem</code>, containers, algorithms, error handling.</li>
+<li>Stretch: parallel indexing and a persistent cache.</li>
+</ul>
+
+<h2>Project 4: C++ expression evaluator</h2>
+<p>Tokenize arithmetic expressions, build an AST, evaluate it, and report precise syntax errors.</p>
+<ul>
+<li>Practice: variants, smart pointers, recursive data structures, visitors.</li>
+<li>Stretch: variables, functions, bytecode, benchmarks.</li>
+</ul>
+
+<h2>Six-week plan</h2>
+<table>
+<thead><tr><th>Week</th><th>Focus</th><th>Deliverable</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Compiler, build model, C types/control/functions</td><td>CLI utility with clean warnings</td></tr>
+<tr><td>2</td><td>Pointers, arrays, strings, memory</td><td>Dynamic collection + sanitizer tests</td></tr>
+<tr><td>3</td><td>Structs, headers, I/O, CMake</td><td>Small C library</td></tr>
+<tr><td>4</td><td>Classes, RAII, STL</td><td>Resource-safe C++ rewrite</td></tr>
+<tr><td>5</td><td>Templates, smart pointers, lambdas</td><td>Generic component + tests</td></tr>
+<tr><td>6</td><td>Concurrency, profiling, polish</td><td>Measured project and write-up</td></tr>
+</tbody>
+</table>
+
+<div class="callout note"><strong>Best practice loop:</strong> write, compile with warnings, test edge cases, run sanitizers, inspect generated behavior, and refactor.</div>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Practice projects and study plan</strong>
+        </div>
+      </div>
+    </section>
+<section class="doc-page" id="cheatsheet" data-title="Cheat sheet and further references" data-summary="Keep essential commands, headers, formatting rules, and review checks close at hand.">
+      <div class="page-inner">
+        
+<h1>Cheat sheet and further references</h1>
+
+<h2>Compile commands</h2>
+
+<div class="code-shell">
+  <div class="code-toolbar">
+    <span class="code-lang">BASH</span>
+    <button class="copy-btn" type="button" aria-label="Copy code">Copy</button>
+  </div>
+  <pre><code class="language-bash"># C
+cc -std=c17 -Wall -Wextra -Wpedantic -O0 -g main.c -o app
+
+# C++
+c++ -std=c++20 -Wall -Wextra -Wpedantic -O0 -g main.cpp -o app
+
+# Sanitized C++
+c++ -std=c++20 -Wall -Wextra -Wpedantic   -fsanitize=address,undefined -fno-omit-frame-pointer   -g main.cpp -o app</code></pre>
+</div>
+
+
+<h2>Common headers</h2>
+<table>
+<thead><tr><th>C</th><th>Purpose</th><th>C++</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>&lt;stdio.h&gt;</code></td><td>I/O</td><td><code>&lt;iostream&gt;</code></td><td>Stream I/O</td></tr>
+<tr><td><code>&lt;stdlib.h&gt;</code></td><td>Allocation, conversions</td><td><code>&lt;memory&gt;</code></td><td>Smart pointers</td></tr>
+<tr><td><code>&lt;string.h&gt;</code></td><td>Byte/string operations</td><td><code>&lt;string&gt;</code></td><td>Owned strings</td></tr>
+<tr><td><code>&lt;stdint.h&gt;</code></td><td>Fixed-width integers</td><td><code>&lt;cstdint&gt;</code></td><td>Fixed-width integers</td></tr>
+<tr><td><code>&lt;stddef.h&gt;</code></td><td>Size and offsets</td><td><code>&lt;vector&gt;</code></td><td>Dynamic contiguous sequence</td></tr>
+<tr><td><code>&lt;assert.h&gt;</code></td><td>Assertions</td><td><code>&lt;algorithm&gt;</code></td><td>Algorithms</td></tr>
+</tbody>
+</table>
+
+<h2>Format specifiers</h2>
+<table>
+<thead><tr><th>Type</th><th><code>printf</code></th></tr></thead>
+<tbody>
+<tr><td><code>int</code></td><td><code>%d</code></td></tr>
+<tr><td><code>unsigned int</code></td><td><code>%u</code></td></tr>
+<tr><td><code>long</code></td><td><code>%ld</code></td></tr>
+<tr><td><code>size_t</code></td><td><code>%zu</code></td></tr>
+<tr><td><code>double</code></td><td><code>%f</code></td></tr>
+<tr><td><code>char*</code></td><td><code>%s</code></td></tr>
+<tr><td><code>void*</code></td><td><code>%p</code> with cast to <code>void*</code></td></tr>
+</tbody>
+</table>
+
+<h2>Review checklist</h2>
+<ul class="checklist">
+<li>Every resource has one clear owner or documented shared ownership.</li>
+<li>Every pointer/view/reference stays within a live object's lifetime.</li>
+<li>All array and buffer lengths are explicit.</li>
+<li>Every allocation and I/O operation is checked.</li>
+<li>No compiler warnings are ignored without a documented reason.</li>
+<li>Debug tests run with sanitizers.</li>
+<li>Public APIs document failure and ownership.</li>
+<li>C++ classes prefer value semantics and the rule of zero.</li>
+</ul>
+
+<h2>Reference categories to keep nearby</h2>
+<p>Use your compiler documentation for options and diagnostics, your debugger manual for commands, a current C/C++ language reference for exact wording, and your standard library implementation documentation for platform details.</p>
+
+<div class="callout success"><strong>You are ready to build.</strong> Start with a small real program, keep the warnings clean, and let the compiler, tests, and sanitizers teach you the edges of the language.</div>
+
+        <div class="page-end">
+          <span>End of section</span>
+          <strong>Cheat sheet and further references</strong>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="mobile-bottom" aria-label="Page controls">
+    <button id="mobilePrev" type="button">← Previous</button>
+    <button id="mobileNext" type="button">Next →</button>
+    <button id="mobileSettings" type="button" aria-label="Open settings">⚙</button>
+  </div>
+
+  <div class="search-results" id="searchResults" role="listbox" aria-label="Search results"></div>
+
+  <dialog id="settingsDialog">
+    <div class="modal-head">
+      <h2>Reader settings</h2>
+      <button class="icon-btn" id="closeSettings" type="button" aria-label="Close settings">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="setting-row">
+        <label>Theme</label>
+        <div class="segmented" aria-label="Theme">
+          <button id="lightTheme" type="button" data-theme-choice="light">☀ Light</button>
+          <button id="darkTheme" type="button" data-theme-choice="dark">☾ Dark</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <label for="textSize">Text size</label>
+        <div class="range-row">
+          <span>A</span>
+          <input id="textSize" type="range" min="85" max="130" step="5" value="100">
+          <span style="font-size:1.25em">A</span>
+        </div>
+        <p id="textSizeLabel" style="margin:.5rem 0 0;color:var(--muted);font-size:.85rem;">100%</p>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="primary-btn" id="doneSettings" type="button">Done</button>
+    </div>
+  </dialog>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const sections = [{"id": "welcome", "title": "Welcome & learning path", "group": "Start here", "summary": "Orientation, scope, and the recommended learning path."}, {"id": "setup", "title": "Setup: compilers, editors, and commands", "group": "Foundations", "summary": "Install a toolchain and compile C and C++ programs with useful warnings."}, {"id": "build-model", "title": "How compilation and linking work", "group": "Foundations", "summary": "Understand preprocessing, translation units, object files, headers, and linking."}, {"id": "program-structure", "title": "Program structure and conventions", "group": "C core", "summary": "Learn entry points, project organization, namespaces, and coding conventions."}, {"id": "types", "title": "Types, variables, literals, and conversions", "group": "C core", "summary": "Learn primitive types, initialization, fixed-width integers, deduction, and conversion rules."}, {"id": "operators", "title": "Operators, expressions, and evaluation", "group": "C core", "summary": "Use arithmetic, logical, bitwise, and access operators without evaluation-order mistakes."}, {"id": "control-flow", "title": "Conditionals, loops, and control flow", "group": "C core", "summary": "Apply conditionals, switches, loops, and early exits clearly."}, {"id": "functions", "title": "Functions, parameters, scope, and linkage", "group": "C core", "summary": "Understand calling conventions, arrays as parameters, callbacks, overloading, scope, and linkage."}, {"id": "arrays-strings", "title": "Arrays, C strings, and C++ strings", "group": "C core", "summary": "Work with arrays, null-terminated strings, bounded formatting, std::string, and string_view."}, {"id": "pointers", "title": "Pointers, references, and const correctness", "group": "C core", "summary": "Build a precise mental model for addresses, dereferencing, pointer arithmetic, references, and const."}, {"id": "aggregates", "title": "Structs, enums, unions, and data layout", "group": "C core", "summary": "Model grouped data, state, variant values, padding, alignment, and scoped enums."}, {"id": "memory", "title": "Memory management and object lifetimes", "group": "C core", "summary": "Allocate, resize, release, and reason about object lifetime without leaks or dangling access."}, {"id": "preprocessor", "title": "Preprocessor, headers, macros, and conditional compilation", "group": "C core", "summary": "Use headers, guards, macros, and compile-time conditions while minimizing preprocessor hazards."}, {"id": "io-errors", "title": "I/O, files, parsing, and C error handling", "group": "C core", "summary": "Read and write streams, copy files, parse input robustly, and design C-style error contracts."}, {"id": "debug-test", "title": "Debugging, testing, warnings, and sanitizers", "group": "Reliability", "summary": "Use debuggers, warnings, sanitizers, assertions, static analysis, and regression tests."}, {"id": "make-cmake", "title": "Build systems: Make and CMake", "group": "Reliability", "summary": "Automate incremental builds with Make and organize portable projects with target-based CMake."}, {"id": "cpp-raii", "title": "C++ classes, constructors, destructors, and RAII", "group": "Modern C++", "summary": "Design classes with invariants, deterministic cleanup, ownership, and safe polymorphism."}, {"id": "stl", "title": "STL containers, iterators, and algorithms", "group": "Modern C++", "summary": "Choose standard containers, understand iterator validity, and express transformations with algorithms and ranges."}, {"id": "templates", "title": "Templates, generic programming, and concepts", "group": "Modern C++", "summary": "Write reusable generic code with function templates, class templates, constraints, and compile-time evaluation."}, {"id": "ownership-move", "title": "Smart pointers, value categories, and move semantics", "group": "Modern C++", "summary": "Express ownership explicitly and understand move selection, moved-from states, and forwarding."}, {"id": "exceptions", "title": "Exceptions, optional values, and error design", "group": "Modern C++", "summary": "Choose between exceptions, optional values, variants, and status-oriented APIs."}, {"id": "lambdas", "title": "Lambdas, callable objects, and functional techniques", "group": "Modern C++", "summary": "Use lambdas safely, understand capture lifetime, and pass behavior to algorithms and APIs."}, {"id": "cpp-advanced", "title": "Modern C++ language tools", "group": "Modern C++", "summary": "Apply type deduction, structured bindings, attributes, comparisons, designated initialization, and modules."}, {"id": "concurrency", "title": "Concurrency and synchronization", "group": "Modern C++", "summary": "Create threads and tasks, protect shared state, wait on conditions, and avoid data races."}, {"id": "low-level", "title": "Low-level topics: bytes, endianness, aliasing, and interop", "group": "Systems topics", "summary": "Reason about byte order, object representation, aliasing, volatile, and stable C/C++ boundaries."}, {"id": "performance", "title": "Performance, profiling, and data-oriented design", "group": "Systems topics", "summary": "Profile before optimizing and reason about locality, allocation, algorithms, and release builds."}, {"id": "undefined", "title": "Undefined behavior and portability", "group": "Systems topics", "summary": "Recognize undefined, implementation-defined, and unspecified behavior and write portable code."}, {"id": "style-api", "title": "API design and coding practices", "group": "Systems topics", "summary": "Design explicit contracts and write maintainable, ownership-aware C and C++ APIs."}, {"id": "projects", "title": "Practice projects and study plan", "group": "Practice", "summary": "Apply the material through progressively richer C and C++ projects."}, {"id": "cheatsheet", "title": "Cheat sheet and further references", "group": "Practice", "summary": "Keep essential commands, headers, formatting rules, and review checks close at hand."}];
+  const pages = [...document.querySelectorAll(".doc-page")];
+  const navLinks = [...document.querySelectorAll(".nav-link")];
+
+  const sidebar = document.getElementById("sidebar");
+  const sidebarTab = document.getElementById("sidebarTab");
+  const navSearch = document.getElementById("navSearch");
+  const searchResults = document.getElementById("searchResults");
+  const crumbGroup = document.getElementById("crumbGroup");
+  const crumbTitle = document.getElementById("crumbTitle");
+  const progressLabel = document.getElementById("progressLabel");
+  const progressPercent = document.getElementById("progressPercent");
+  const progressBar = document.getElementById("progressBar");
+
+  const prevButtons = [document.getElementById("prevBtn"), document.getElementById("mobilePrev")];
+  const nextButtons = [document.getElementById("nextBtn"), document.getElementById("mobileNext")];
+
+  const settingsDialog = document.getElementById("settingsDialog");
+  const settingsButtons = [document.getElementById("settingsBtn"), document.getElementById("mobileSettings")];
+  const closeSettings = document.getElementById("closeSettings");
+  const doneSettings = document.getElementById("doneSettings");
+  const textSize = document.getElementById("textSize");
+  const textSizeLabel = document.getElementById("textSizeLabel");
+  const themeButtons = [...document.querySelectorAll("[data-theme-choice]")];
+
+  let currentIndex = 0;
+  let searchSelection = -1;
+
+  const storage = {
+    get(key) {
+      try { return window.localStorage.getItem(key); } catch { return null; }
+    },
+    set(key, value) {
+      try { window.localStorage.setItem(key, value); } catch { /* preferences remain session-only */ }
+    }
+  };
+
+  function updateHash(id) {
+    try {
+      history.replaceState(null, "", "#" + id);
+    } catch {
+      try { location.hash = id; } catch { /* navigation still works without a hash */ }
+    }
+  }
+
+  function isMobile() {
+    return window.matchMedia("(max-width: 900px)").matches;
+  }
+
+  function showPage(index, pushHash = true) {
+    currentIndex = Math.max(0, Math.min(index, pages.length - 1));
+    pages.forEach((page, i) => page.classList.toggle("active", i === currentIndex));
+    navLinks.forEach((link, i) => link.classList.toggle("active", i === currentIndex));
+
+    const meta = sections[currentIndex];
+    crumbGroup.textContent = meta.group;
+    crumbTitle.textContent = meta.title;
+    document.title = meta.title + " — C & C++ Guide";
+
+    prevButtons.forEach(btn => btn.disabled = currentIndex === 0);
+    nextButtons.forEach(btn => btn.disabled = currentIndex === pages.length - 1);
+
+    const percent = Math.round(((currentIndex + 1) / pages.length) * 100);
+    progressLabel.textContent = `${currentIndex + 1} of ${pages.length}`;
+    progressPercent.textContent = `${percent}%`;
+    progressBar.style.width = `${percent}%`;
+
+    navLinks[currentIndex]?.scrollIntoView({ block: "nearest" });
+    window.scrollTo({ top: 0, behavior: "instant" });
+
+    if (pushHash) {
+      updateHash(meta.id);
+    }
+    storage.set("ccpp-current-page", meta.id);
+
+    if (isMobile()) {
+      sidebar.classList.remove("open");
+      sidebarTab.setAttribute("aria-expanded", "false");
+    }
+  }
+
+  function go(delta) {
+    showPage(currentIndex + delta);
+  }
+
+  navLinks.forEach((link, index) => {
+    link.addEventListener("click", () => showPage(index));
+  });
+
+  prevButtons.forEach(btn => btn.addEventListener("click", () => go(-1)));
+  nextButtons.forEach(btn => btn.addEventListener("click", () => go(1)));
+
+  sidebarTab.addEventListener("click", () => {
+    if (isMobile()) {
+      const open = sidebar.classList.toggle("open");
+      sidebarTab.setAttribute("aria-expanded", String(open));
+    } else {
+      const collapsed = sidebar.classList.toggle("collapsed");
+      sidebarTab.setAttribute("aria-expanded", String(!collapsed));
+      storage.set("ccpp-sidebar-collapsed", String(collapsed));
+    }
+  });
+
+  document.getElementById("focusSearchBtn").addEventListener("click", () => {
+    if (isMobile()) {
+      sidebar.classList.add("open");
+      sidebarTab.setAttribute("aria-expanded", "true");
+    } else {
+      sidebar.classList.remove("collapsed");
+      sidebarTab.setAttribute("aria-expanded", "true");
+    }
+    navSearch.focus();
+  });
+
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+
+  function setTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    themeButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.themeChoice === theme));
+    storage.set("ccpp-theme", theme);
+  }
+
+  function setTextSize(value) {
+    const numeric = Number(value);
+    document.documentElement.style.setProperty("--font-scale", numeric / 100);
+    textSize.value = String(numeric);
+    textSizeLabel.textContent = `${numeric}%`;
+    storage.set("ccpp-text-size", String(numeric));
+  }
+
+  settingsButtons.forEach(btn => btn.addEventListener("click", () => settingsDialog.showModal()));
+  [closeSettings, doneSettings].forEach(btn => btn.addEventListener("click", () => settingsDialog.close()));
+  themeButtons.forEach(btn => btn.addEventListener("click", () => setTheme(btn.dataset.themeChoice)));
+  textSize.addEventListener("input", () => setTextSize(textSize.value));
+
+  settingsDialog.addEventListener("click", event => {
+    const rect = settingsDialog.getBoundingClientRect();
+    const inside = event.clientX >= rect.left && event.clientX <= rect.right &&
+                   event.clientY >= rect.top && event.clientY <= rect.bottom;
+    if (!inside) settingsDialog.close();
+  });
+
+  function escapeHtml(value) {
+    return value.replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    })[char]);
+  }
+
+  function classifyToken(token, lang) {
+    const escaped = escapeHtml(token);
+    if (/^\/\//.test(token) || /^\/\*/.test(token) || /^#/.test(token) && (lang === "bash" || lang === "powershell")) {
+      return `<span class="tok-comment">${escaped}</span>`;
+    }
+    if (/^#/.test(token)) return `<span class="tok-preproc">${escaped}</span>`;
+    if (/^["']/.test(token)) return `<span class="tok-string">${escaped}</span>`;
+    if (/^\d/.test(token)) return `<span class="tok-number">${escaped}</span>`;
+
+    const keywords = new Set([
+      "alignas","alignof","and","asm","auto","bitand","bitor","bool","break","case","catch","char","char8_t","char16_t","char32_t",
+      "class","compl","concept","const","consteval","constexpr","constinit","const_cast","continue","co_await","co_return","co_yield",
+      "decltype","default","delete","do","double","dynamic_cast","else","enum","explicit","export","extern","false","float","for",
+      "friend","goto","if","inline","int","long","mutable","namespace","new","noexcept","not","nullptr","operator","or","override",
+      "private","protected","public","register","reinterpret_cast","requires","return","short","signed","sizeof","static","static_assert",
+      "static_cast","struct","switch","template","this","thread_local","throw","true","try","typedef","typeid","typename","union",
+      "unsigned","using","virtual","void","volatile","wchar_t","while","xor","_Bool","_Atomic","_Generic","_Noreturn","_Static_assert"
+    ]);
+    const types = new Set([
+      "size_t","ptrdiff_t","int8_t","int16_t","int32_t","int64_t","uint8_t","uint16_t","uint32_t","uint64_t",
+      "FILE","std","string","string_view","vector","array","map","unordered_map","set","optional","variant","unique_ptr","shared_ptr",
+      "weak_ptr","span","thread","mutex","lock_guard","unique_lock","atomic","future"
+    ]);
+
+    if (keywords.has(token)) return `<span class="tok-keyword">${escaped}</span>`;
+    if (types.has(token)) return `<span class="tok-type">${escaped}</span>`;
+    if (/^[+\-*\/%=&|!<>^~?:]+$/.test(token)) return `<span class="tok-operator">${escaped}</span>`;
+    return escaped;
+  }
+
+  function highlight(raw, lang) {
+    if (["text","makefile","cmake"].includes(lang)) {
+      const generic = /(#[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b\d+(?:\.\d+)?\b|\$\([^\)]+\)|\b(?:if|else|endif|set|project|add_library|add_executable|target_link_libraries|target_include_directories|target_compile_options)\b)/g;
+      return raw.replace(generic, token => classifyToken(token, lang));
+    }
+
+    if (lang === "bash" || lang === "powershell") {
+      const shell = /(#[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b\d+(?:\.\d+)?\b|\$[A-Za-z_][A-Za-z0-9_]*|\b(?:sudo|apt|install|cmake|gcc|g\+\+|clang|clang\+\+|cc|c\+\+|cl|gdb|lldb|run|break|print|continue|set|if|else|fi)\b)/g;
+      return raw.replace(shell, token => classifyToken(token, lang));
+    }
+
+    const tokenPattern = /(\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[ \t]*[A-Za-z_][^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?[uUlLfF]*\b|\b[A-Za-z_][A-Za-z0-9_]*\b|[+\-*\/%=&|!<>^~?:]+)/g;
+    return raw.replace(tokenPattern, token => classifyToken(token, lang));
+  }
+
+  document.querySelectorAll("pre code").forEach(code => {
+    const langClass = [...code.classList].find(name => name.startsWith("language-")) || "language-text";
+    const lang = langClass.replace("language-", "");
+    const raw = code.textContent;
+    code.dataset.raw = raw;
+    code.innerHTML = highlight(raw, lang);
+  });
+
+  document.querySelectorAll(".copy-btn").forEach(button => {
+    button.addEventListener("click", async () => {
+      const code = button.closest(".code-shell").querySelector("code");
+      try {
+        await navigator.clipboard.writeText(code.dataset.raw || code.textContent);
+        const previous = button.textContent;
+        button.textContent = "Copied";
+        setTimeout(() => button.textContent = previous, 1200);
+      } catch {
+        button.textContent = "Select manually";
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-tabs]").forEach(tabset => {
+    const buttons = [...tabset.querySelectorAll('[role="tab"]')];
+    const panels = [...tabset.querySelectorAll(".tab-panel")];
+
+    buttons.forEach((button, index) => {
+      button.addEventListener("click", () => {
+        buttons.forEach((b, i) => b.setAttribute("aria-selected", String(i === index)));
+        panels.forEach((panel, i) => panel.hidden = i !== index);
+      });
+    });
+  });
+
+  function getSearchMatches(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return sections
+      .map((section, index) => {
+        const text = pages[index].innerText.toLowerCase();
+        let score = 0;
+        if (section.title.toLowerCase().includes(q)) score += 8;
+        if (section.group.toLowerCase().includes(q)) score += 3;
+        if (section.summary.toLowerCase().includes(q)) score += 4;
+        if (text.includes(q)) score += 1;
+        return { ...section, index, score };
+      })
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score || a.index - b.index)
+      .slice(0, 10);
+  }
+
+  function renderSearchResults(matches) {
+    searchResults.innerHTML = "";
+    searchSelection = -1;
+
+    if (!navSearch.value.trim()) {
+      searchResults.classList.remove("open");
+      return;
+    }
+
+    if (!matches.length) {
+      searchResults.innerHTML = '<div style="padding:14px;color:var(--muted)">No matching sections.</div>';
+      searchResults.classList.add("open");
+      return;
+    }
+
+    matches.forEach(match => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "search-result";
+      button.dataset.index = String(match.index);
+      button.innerHTML = `<strong>${escapeHtml(match.title)}</strong><span>${escapeHtml(match.group)} · ${escapeHtml(match.summary)}</span>`;
+      button.addEventListener("click", () => {
+        showPage(match.index);
+        navSearch.value = "";
+        searchResults.classList.remove("open");
+      });
+      searchResults.appendChild(button);
+    });
+    searchResults.classList.add("open");
+  }
+
+  navSearch.addEventListener("input", () => {
+    const q = navSearch.value.trim().toLowerCase();
+    const matches = getSearchMatches(q);
+    renderSearchResults(matches);
+
+    document.querySelectorAll(".nav-group").forEach(group => {
+      let anyVisible = false;
+      group.querySelectorAll(".nav-link").forEach(link => {
+        const visible = !q || link.textContent.toLowerCase().includes(q);
+        link.hidden = !visible;
+        if (visible) anyVisible = true;
+      });
+      group.hidden = q ? !anyVisible : false;
+    });
+  });
+
+  navSearch.addEventListener("keydown", event => {
+    const results = [...searchResults.querySelectorAll(".search-result")];
+    if (event.key === "ArrowDown" && results.length) {
+      event.preventDefault();
+      searchSelection = Math.min(searchSelection + 1, results.length - 1);
+    } else if (event.key === "ArrowUp" && results.length) {
+      event.preventDefault();
+      searchSelection = Math.max(searchSelection - 1, 0);
+    } else if (event.key === "Enter" && searchSelection >= 0) {
+      event.preventDefault();
+      results[searchSelection].click();
+      return;
+    } else if (event.key === "Escape") {
+      searchResults.classList.remove("open");
+      navSearch.blur();
+      return;
+    }
+    results.forEach((r, i) => r.classList.toggle("active", i === searchSelection));
+  });
+
+  document.addEventListener("click", event => {
+    if (!searchResults.contains(event.target) && event.target !== navSearch) {
+      searchResults.classList.remove("open");
+    }
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "/" && !/input|textarea|select/i.test(document.activeElement.tagName)) {
+      event.preventDefault();
+      document.getElementById("focusSearchBtn").click();
+    }
+    if (event.altKey && event.key === "ArrowLeft") go(-1);
+    if (event.altKey && event.key === "ArrowRight") go(1);
+  });
+
+  window.addEventListener("hashchange", () => {
+    const id = location.hash.slice(1);
+    const index = sections.findIndex(section => section.id === id);
+    if (index >= 0) showPage(index, false);
+  });
+
+  const savedTheme = storage.get("ccpp-theme") || "light";
+  const savedSize = storage.get("ccpp-text-size") || "100";
+  setTheme(savedTheme);
+  setTextSize(savedSize);
+
+  if (!isMobile() && storage.get("ccpp-sidebar-collapsed") === "true") {
+    sidebar.classList.add("collapsed");
+    sidebarTab.setAttribute("aria-expanded", "false");
+  }
+
+  const initialId = location.hash.slice(1) || storage.get("ccpp-current-page") || sections[0].id;
+  const initialIndex = Math.max(0, sections.findIndex(section => section.id === initialId));
+  showPage(initialIndex, !location.hash);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="A comprehensive guide for creating documentation on any topic, with examples, templates, and code snippets." name="description"/>
+<title>Documentation Creation Guide</title>
+<style>
+:root {
+  --font-scale: 1;
+  --sidebar-width: 310px;
+  --content-max: 980px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 12px 30px rgba(15, 23, 42, .12);
+  --transition: 180ms ease;
+}
+html[data-theme="light"] {
+  --bg: #f7f8fb;
+  --surface: #ffffff;
+  --surface-2: #f0f3f8;
+  --surface-3: #e7ebf2;
+  --text: #172033;
+  --muted: #5c667a;
+  --border: #d9deea;
+  --accent: #1d5fd1;
+  --accent-2: #12489f;
+  --accent-soft: #eaf1ff;
+  --code-bg: #111827;
+  --code-text: #e5e7eb;
+  --code-border: #273449;
+  --sidebar-bg: #111827;
+  --sidebar-text: #e5e7eb;
+  --sidebar-muted: #9ca3af;
+  --sidebar-hover: #1f2937;
+  --sidebar-active: #284b82;
+  --note-bg: #eef6ff;
+  --note-border: #8ec5ff;
+  --warn-bg: #fff7e8;
+  --warn-border: #f5ba55;
+  --danger-bg: #fff0f0;
+  --danger-border: #f18787;
+  --success-bg: #edfbf2;
+  --success-border: #68c489;
+}
+html[data-theme="dark"] {
+  --bg: #0b1020;
+  --surface: #121a2c;
+  --surface-2: #182238;
+  --surface-3: #22304c;
+  --text: #e7ecf5;
+  --muted: #aeb8cb;
+  --border: #2c3956;
+  --accent: #7eb1ff;
+  --accent-2: #a9caff;
+  --accent-soft: #182c4f;
+  --code-bg: #080c16;
+  --code-text: #e6edf7;
+  --code-border: #2b3852;
+  --sidebar-bg: #070b14;
+  --sidebar-text: #eef2f8;
+  --sidebar-muted: #9aa8be;
+  --sidebar-hover: #131d31;
+  --sidebar-active: #17386a;
+  --note-bg: #142741;
+  --note-border: #377ec9;
+  --warn-bg: #302616;
+  --warn-border: #a87523;
+  --danger-bg: #321a20;
+  --danger-border: #a94e60;
+  --success-bg: #142b20;
+  --success-border: #3d8b5a;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: calc(16px * var(--font-scale));
+  line-height: 1.68;
+  transition: background var(--transition), color var(--transition);
+}
+button, input, select { font: inherit; }
+button { color: inherit; }
+a { color: var(--accent); }
+kbd {
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--surface-2);
+  padding: .05rem .38rem;
+  font-size: .84em;
+}
+.app-shell { min-height: 100vh; }
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  z-index: 30;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  transform: translateX(0);
+  transition: transform var(--transition), background var(--transition);
+  box-shadow: 10px 0 30px rgba(0,0,0,.15);
+}
+.sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-width))); }
+.sidebar-head {
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.09);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.brand-mark {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: grid; place-items: center;
+  background: linear-gradient(145deg, #2f6fda, #6aa8ff);
+  color: white;
+  font-weight: 800;
+  letter-spacing: -.05em;
+}
+.brand-title { font-weight: 760; line-height: 1.2; }
+.brand-sub { color: var(--sidebar-muted); font-size: .78rem; margin-top: 2px; }
+.search-wrap { padding: 12px 16px 8px; }
+.search {
+  width: 100%;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.07);
+  color: white;
+  border-radius: 9px;
+  padding: 10px 12px;
+  outline: none;
+}
+.search::placeholder { color: #9aa7ba; }
+.search:focus { border-color: #74a9ff; box-shadow: 0 0 0 3px rgba(93,155,255,.18); }
+.nav-scroll { overflow: auto; padding: 8px 12px 18px; }
+.nav-tree, .nav-tree ul { list-style: none; padding: 0; margin: 0; }
+.nav-group > span {
+  display: block;
+  color: var(--sidebar-muted);
+  padding: 15px 10px 6px;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  font-size: .68rem;
+  font-weight: 800;
+}
+.nav-group ul { padding-left: 10px; border-left: 1px solid rgba(255,255,255,.1); margin-left: 8px; }
+.nav-link {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--sidebar-text);
+  padding: 8px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: .84rem;
+  line-height: 1.35;
+  transition: background var(--transition), color var(--transition);
+}
+.nav-link:hover { background: var(--sidebar-hover); }
+.nav-link.active { background: var(--sidebar-active); color: white; font-weight: 700; }
+.nav-link[hidden], .nav-group[hidden] { display: none; }
+.sidebar-footer {
+  border-top: 1px solid rgba(255,255,255,.1);
+  padding: 10px;
+  background: color-mix(in srgb, var(--sidebar-bg) 94%, white);
+}
+.progress-row {
+  display: flex; justify-content: space-between; align-items: center;
+  color: var(--sidebar-muted); font-size: .74rem; padding: 0 4px 7px;
+}
+.progress-track {
+  height: 3px; background: rgba(255,255,255,.12); border-radius: 99px; overflow: hidden; margin-bottom: 9px;
+}
+.progress-bar { height: 100%; width: 0; background: #74a9ff; transition: width var(--transition); }
+.footer-buttons { display: grid; grid-template-columns: 1fr 1fr 42px; gap: 8px; }
+.side-action {
+  border: 1px solid rgba(255,255,255,.13);
+  background: rgba(255,255,255,.06);
+  color: white;
+  min-height: 40px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.side-action:hover { background: rgba(255,255,255,.12); }
+.side-action:disabled { opacity: .35; cursor: not-allowed; }
+.sidebar-tab {
+  position: fixed;
+  left: var(--sidebar-width);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 31;
+  border: 1px solid var(--border);
+  border-left: 0;
+  background: var(--surface);
+  color: var(--text);
+  writing-mode: vertical-rl;
+  padding: 12px 8px;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  box-shadow: 6px 0 18px rgba(0,0,0,.10);
+  transition: left var(--transition), background var(--transition), color var(--transition);
+}
+.sidebar.collapsed + .sidebar-tab { left: 0; }
+.main {
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  transition: margin-left var(--transition);
+}
+.sidebar.collapsed ~ .main { margin-left: 0; }
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  backdrop-filter: blur(16px);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+.topbar-inner {
+  max-width: calc(var(--content-max) + 80px);
+  margin: 0 auto;
+  padding: 12px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.crumb { color: var(--muted); font-size: .82rem; }
+.crumb strong { color: var(--text); }
+.top-actions { display: flex; gap: 8px; }
+.icon-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 8px;
+  min-width: 38px;
+  min-height: 38px;
+  cursor: pointer;
+}
+.icon-btn:hover { background: var(--surface-2); }
+.doc-page { display: none; }
+.doc-page.active { display: block; animation: page-in 220ms ease; }
+@keyframes page-in { from { opacity: .25; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.page-inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 54px 34px 90px;
+}
+h1, h2, h3 { line-height: 1.2; letter-spacing: -.025em; }
+h1 { font-size: 2.55rem; margin: 0 0 18px; }
+h2 { font-size: 1.55rem; margin: 42px 0 14px; padding-top: 4px; }
+h3 { font-size: 1.05rem; margin: 18px 0 8px; }
+p { margin: 0 0 16px; }
+.lead { font-size: 1.14rem; color: var(--muted); max-width: 78ch; }
+ul, ol { padding-left: 1.35rem; }
+li { margin: .34rem 0; }
+code:not(pre code) {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: .08em .35em;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: .88em;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0 28px;
+  display: block;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+thead { background: var(--surface-2); }
+th, td { padding: 11px 13px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font-size: .83rem; text-transform: uppercase; letter-spacing: .04em; }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin: 18px 0 26px;
+}
+.mini-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.mini-card h3 { margin-top: 0; }
+.callout {
+  border-left: 4px solid;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 20px 0;
+}
+.callout.note { background: var(--note-bg); border-color: var(--note-border); }
+.callout.warning { background: var(--warn-bg); border-color: var(--warn-border); }
+.callout.danger { background: var(--danger-bg); border-color: var(--danger-border); }
+.callout.success { background: var(--success-bg); border-color: var(--success-border); }
+.pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 18px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius);
+  margin: 20px 0 28px;
+}
+.pipeline span {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 11px;
+  font-family: monospace;
+}
+.steps li { padding-left: .3rem; margin: .75rem 0; }
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { position: relative; padding-left: 1.7rem; }
+.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--accent); font-weight: 900; }
+.command-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.code-shell {
+  border: 1px solid var(--code-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin: 16px 0 24px;
+  background: var(--code-bg);
+  box-shadow: 0 8px 22px rgba(0,0,0,.10);
+}
+.code-toolbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--code-border);
+  color: #aab7c9;
+  font-size: .72rem;
+  letter-spacing: .06em;
+  background: color-mix(in srgb, var(--code-bg) 88%, white);
+}
+.copy-btn {
+  border: 1px solid #3a475c;
+  background: transparent;
+  color: #cbd5e1;
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+  letter-spacing: 0;
+}
+.copy-btn:hover { background: rgba(255,255,255,.08); }
+pre {
+  margin: 0;
+  overflow: auto;
+  padding: 16px 18px;
+  background: var(--code-bg);
+  color: var(--code-text);
+  tab-size: 4;
+}
+pre code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: .86rem;
+  line-height: 1.58;
+  white-space: pre;
+}
+.tok-keyword { color: #ff7ab2; }
+.tok-type { color: #8bd5ca; }
+.tok-string { color: #a6da95; }
+.tok-number { color: #f5a97f; }
+.tok-comment { color: #7f8c9f; font-style: italic; }
+.tok-preproc { color: #c6a0f6; }
+.tok-fn { color: #8aadf4; }
+.tok-operator { color: #91d7e3; }
+.tabs {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface);
+  margin: 18px 0 28px;
+}
+.tab-list { display: flex; gap: 2px; background: var(--surface-2); padding: 6px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tab-list button {
+  border: 0; background: transparent; padding: 8px 12px; border-radius: 7px; cursor: pointer; white-space: nowrap;
+}
+.tab-list button[aria-selected="true"] { background: var(--surface); color: var(--accent); font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.tab-panel { padding: 14px 16px 2px; }
+.page-end {
+  margin-top: 56px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: .82rem;
+}
+.mobile-bottom {
+  display: none;
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border);
+  padding: 9px;
+  grid-template-columns: 1fr 1fr 44px;
+  gap: 8px;
+}
+.mobile-bottom button {
+  min-height: 42px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 8px;
+  cursor: pointer;
+}
+dialog {
+  width: min(460px, calc(100vw - 28px));
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 0;
+  box-shadow: var(--shadow);
+}
+dialog::backdrop { background: rgba(3, 8, 20, .58); backdrop-filter: blur(3px); }
+.modal-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-head h2 { margin: 0; font-size: 1.2rem; }
+.modal-body { padding: 20px; }
+.setting-row { margin-bottom: 24px; }
+.setting-row label { display: block; font-weight: 700; margin-bottom: 8px; }
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.segmented button {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+}
+.segmented button.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-2); font-weight: 700; }
+.range-row { display: grid; grid-template-columns: 38px 1fr 38px; gap: 10px; align-items: center; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.modal-foot { padding: 14px 20px 20px; display: flex; justify-content: flex-end; }
+.primary-btn {
+  border: 0;
+  background: var(--accent);
+  color: white;
+  border-radius: 8px;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+.search-results {
+  position: fixed;
+  top: 76px;
+  left: calc(var(--sidebar-width) + 22px);
+  width: min(580px, calc(100vw - var(--sidebar-width) - 44px));
+  z-index: 40;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: none;
+}
+.search-results.open { display: block; }
+.search-result {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.search-result:last-child { border-bottom: 0; }
+.search-result:hover, .search-result.active { background: var(--surface-2); }
+.search-result strong { display: block; }
+.search-result span { color: var(--muted); font-size: .82rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(calc(-1 * var(--sidebar-width))); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-tab { left: 0; }
+  .sidebar.open + .sidebar-tab { left: var(--sidebar-width); }
+  .main, .sidebar.collapsed ~ .main { margin-left: 0; }
+  .mobile-bottom { display: grid; }
+  .page-inner { padding: 36px 20px 104px; }
+  .topbar-inner { padding: 10px 16px; }
+  h1 { font-size: 2rem; }
+  .search-results { left: 14px; width: calc(100vw - 28px); }
+}
+@media (max-width: 520px) {
+  :root { --sidebar-width: min(88vw, 330px); }
+  .command-grid { grid-template-columns: 1fr; }
+  .page-end { flex-direction: column; gap: 4px; }
+}
+@media print {
+  .sidebar, .sidebar-tab, .topbar, .mobile-bottom, dialog { display: none !important; }
+  .main { margin: 0; }
+  .doc-page { display: block !important; page-break-before: always; }
+  .doc-page:first-child { page-break-before: avoid; }
+  body { background: white; color: black; font-size: 11pt; }
+  .page-inner { max-width: none; padding: 24px; }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+<aside aria-label="Documentation navigation" class="sidebar" id="sidebar">
+<div class="sidebar-head">
+<div class="brand">
+<div class="brand-mark">DOC</div>
+<div>
+<div class="brand-title">Documentation Guide</div>
+<div class="brand-sub">Plan, write, publish, maintain</div>
+</div>
+</div>
+</div>
+<div class="search-wrap">
+<label class="sr-only" for="navSearch">Search documentation</label>
+<input autocomplete="off" class="search" id="navSearch" placeholder="Search topics…  /" type="search"/>
+</div>
+<nav class="nav-scroll">
+<ul class="nav-tree"><li class="nav-group"><span>Start here</span><ul><li><button class="nav-link" data-target="welcome" type="button">Welcome and purpose</button></li></ul></li><li class="nav-group"><span>Strategy</span><ul><li><button class="nav-link" data-target="doc-types" type="button">Choose the documentation type</button></li><li><button class="nav-link" data-target="audience" type="button">Define the audience</button></li><li><button class="nav-link" data-target="outcomes" type="button">Define outcomes and scope</button></li><li><button class="nav-link" data-target="research" type="button">Research and verify the topic</button></li></ul></li><li class="nav-group"><span>Structure</span><ul><li><button class="nav-link" data-target="architecture" type="button">Design the information architecture</button></li><li><button class="nav-link" data-target="page-patterns" type="button">Use consistent page patterns</button></li><li><button class="nav-link" data-target="navigation" type="button">Design navigation and cross-links</button></li></ul></li><li class="nav-group"><span>Writing</span><ul><li><button class="nav-link" data-target="headings" type="button">Write useful titles and headings</button></li><li><button class="nav-link" data-target="clear-writing" type="button">Write clearly and directly</button></li><li><button class="nav-link" data-target="terminology" type="button">Manage terminology and definitions</button></li><li><button class="nav-link" data-target="procedures" type="button">Write reliable procedures</button></li><li><button class="nav-link" data-target="examples" type="button">Create effective examples</button></li></ul></li><li class="nav-group"><span>Design</span><ul><li><button class="nav-link" data-target="visuals" type="button">Use diagrams, screenshots, tables, and media</button></li><li><button class="nav-link" data-target="accessibility" type="button">Build accessible documentation</button></li></ul></li><li class="nav-group"><span>Specialized topics</span><ul><li><button class="nav-link" data-target="technical" type="button">Document code, APIs, schemas, and configuration</button></li><li><button class="nav-link" data-target="process-policy" type="button">Document processes, decisions, and policies</button></li><li><button class="nav-link" data-target="troubleshooting" type="button">Create troubleshooting guides</button></li></ul></li><li class="nav-group"><span>Publishing</span><ul><li><button class="nav-link" data-target="search" type="button">Design for search and findability</button></li><li><button class="nav-link" data-target="formats" type="button">Choose formats and authoring tools</button></li></ul></li><li class="nav-group"><span>Quality</span><ul><li><button class="nav-link" data-target="review-testing" type="button">Review and test documentation</button></li><li><button class="nav-link" data-target="automation" type="button">Automate documentation quality</button></li></ul></li><li class="nav-group"><span>Governance</span><ul><li><button class="nav-link" data-target="maintenance" type="button">Maintain, version, and retire content</button></li><li><button class="nav-link" data-target="metrics-style" type="button">Measure effectiveness and define style</button></li></ul></li><li class="nav-group"><span>Starter kit</span><ul><li><button class="nav-link" data-target="starter-template" type="button">Complete HTML starter template</button></li><li><button class="nav-link" data-target="worked-example" type="button">Worked example: community program documentation</button></li><li><button class="nav-link" data-target="project-plan" type="button">Documentation project plan</button></li><li><button class="nav-link" data-target="checklists" type="button">Master checklists</button></li></ul></li></ul>
+</nav>
+<div class="sidebar-footer">
+<div class="progress-row">
+<span id="progressLabel">1 of 28</span>
+<span id="progressPercent">0%</span>
+</div>
+<div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+<div class="footer-buttons">
+<button aria-label="Previous page" class="side-action" id="prevBtn" type="button">← Previous</button>
+<button aria-label="Next page" class="side-action" id="nextBtn" type="button">Next →</button>
+<button aria-label="Open settings" class="side-action" id="settingsBtn" type="button">⚙</button>
+</div>
+</div>
+</aside>
+<button aria-controls="sidebar" aria-expanded="true" class="sidebar-tab" id="sidebarTab" type="button">Contents</button>
+<main class="main" id="main">
+<header class="topbar">
+<div class="topbar-inner">
+<div class="crumb"><span id="crumbGroup">Start here</span> / <strong id="crumbTitle">Welcome and purpose</strong></div>
+<div class="top-actions">
+<button class="icon-btn" id="focusSearchBtn" title="Search" type="button">⌕</button>
+<button class="icon-btn" id="printBtn" title="Print or save as PDF" type="button">⎙</button>
+</div>
+</div>
+</header>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section class="doc-page" data-summary="Purpose, scope, and the full documentation lifecycle." data-title="Welcome and purpose" id="welcome"><div class="page-inner">
+<h1>Documentation Creation Guide</h1>
+<p class="lead">A comprehensive, topic-agnostic playbook for planning, writing, designing, reviewing, publishing, and maintaining documentation.</p>
+<div class="callout note"><strong>Core principle.</strong> Documentation is a product for readers. Its quality is measured by whether people can find, understand, trust, and apply it.</div>
+<h2>What this guide helps you create</h2>
+<div class="card-grid">
+<article class="mini-card"><h3>Learning guides</h3><p>Progressive instruction that builds understanding and skill.</p></article>
+<article class="mini-card"><h3>How-to guides</h3><p>Task-oriented steps for completing a specific goal.</p></article>
+<article class="mini-card"><h3>Reference</h3><p>Precise, consistently structured information for lookup.</p></article>
+<article class="mini-card"><h3>Explanations</h3><p>Mental models, rationale, relationships, and tradeoffs.</p></article>
+<article class="mini-card"><h3>Processes and policies</h3><p>Roles, workflow, requirements, exceptions, and accountability.</p></article>
+<article class="mini-card"><h3>Operational runbooks</h3><p>Detection, diagnosis, recovery, verification, and escalation.</p></article>
+</div>
+<h2>The documentation lifecycle</h2>
+<div class="pipeline"><span>discover</span><b>→</b><span>design</span><b>→</b><span>draft</span><b>→</b><span>validate</span><b>→</b><span>publish</span><b>→</b><span>maintain</span></div>
+<div class="page-end"><span>End of section</span><strong>Welcome and purpose</strong></div></div></section><section class="doc-page" data-summary="Match the document form to the reader’s goal." data-title="Choose the documentation type" id="doc-types"><div class="page-inner">
+<h1>Choose the documentation type</h1>
+<p class="lead">Most weak documentation mixes multiple reader goals into one page. Strong documentation separates learning, task completion, lookup, and explanation.</p>
+<table><thead><tr><th>Type</th><th>Reader question</th><th>Typical structure</th></tr></thead><tbody>
+<tr><td>Tutorial</td><td>Can you teach me?</td><td>Guided sequence with a working result</td></tr>
+<tr><td>How-to</td><td>How do I complete this task?</td><td>Prerequisites, steps, verification</td></tr>
+<tr><td>Reference</td><td>What exactly is available?</td><td>Consistent entries, tables, constraints</td></tr>
+<tr><td>Explanation</td><td>Why does this work this way?</td><td>Concepts, models, rationale, tradeoffs</td></tr>
+<tr><td>Runbook</td><td>How do I respond to this event?</td><td>Detection, containment, diagnosis, recovery</td></tr>
+<tr><td>Policy</td><td>What is required or prohibited?</td><td>Scope, requirements, roles, exceptions</td></tr>
+</tbody></table>
+<h2>Example: one subject, four documents</h2>
+<div class="callout success"><strong>Subject: backups.</strong> A tutorial teaches the first backup. A how-to restores a deleted project. A reference lists schedules and retention limits. An explanation describes incremental backups.</div>
+<div class="page-end"><span>End of section</span><strong>Choose the documentation type</strong></div></div></section><section class="doc-page" data-summary="Describe the reader precisely enough to make writing decisions." data-title="Define the audience" id="audience"><div class="page-inner">
+<h1>Define the audience</h1>
+<h2>Audience profile template</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">Primary reader:
+Secondary reader:
+Existing knowledge:
+Immediate goal:
+Environment:
+Time available:
+Access or permissions:
+Consequences of failure:
+Desired outcome:</code></pre>
+</div>
+<h2>Worked example</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">Primary reader: New laboratory assistant
+Existing knowledge: Basic lab safety; no instrument experience
+Immediate goal: Calibrate the spectrometer
+Environment: Shared laboratory workstation
+Time available: 20 minutes
+Consequences of failure: Invalid measurements and lost samples
+Desired outcome: Complete calibration and verify the control reading</code></pre>
+</div>
+<div class="callout warning"><strong>Avoid “general audience.”</strong> Define at least one primary audience and one secondary audience with meaningfully different needs.</div>
+<div class="page-end"><span>End of section</span><strong>Define the audience</strong></div></div></section><section class="doc-page" data-summary="Set observable outcomes, boundaries, and success measures." data-title="Define outcomes and scope" id="outcomes"><div class="page-inner">
+<h1>Define outcomes and scope</h1>
+<table><thead><tr><th>Weak</th><th>Stronger</th></tr></thead><tbody>
+<tr><td>Explain onboarding</td><td>A new employee can access required systems and complete the first-day checklist.</td></tr>
+<tr><td>Document the API</td><td>A developer can authenticate, create a record, and handle common errors.</td></tr>
+<tr><td>Describe the program</td><td>A parent can determine eligibility, cost, schedule, and application steps.</td></tr>
+</tbody></table>
+<h2>Scope template</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">This documentation covers:
+- ...
+
+It does not cover:
+- ...
+
+Related documentation:
+- ...
+
+The documentation is successful when:
+- ...</code></pre>
+</div>
+<h2>Useful success measures</h2>
+<ul><li>Task completion rate and time</li><li>Error or support-ticket reduction</li><li>Search success</li><li>Reader confidence or assessment performance</li><li>Freshness and maintenance effort</li></ul>
+<div class="page-end"><span>End of section</span><strong>Define outcomes and scope</strong></div></div></section><section class="doc-page" data-summary="Gather authoritative evidence and validate real behavior." data-title="Research and verify the topic" id="research"><div class="page-inner">
+<h1>Research and verify the topic</h1>
+<h2>Source hierarchy</h2>
+<ol class="steps"><li><strong>Authoritative sources:</strong> standards, policies, specifications, approved records.</li><li><strong>Observed behavior:</strong> tested product, workflow, or process.</li><li><strong>Subject-matter experts:</strong> people who perform, design, or approve the work.</li><li><strong>Existing documentation:</strong> useful evidence, but verify age and accuracy.</li><li><strong>Community sources:</strong> excellent for common questions and misunderstandings.</li></ol>
+<h2>Research record</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">Claim or procedure:
+Authoritative source:
+Last verified:
+Known exceptions:
+Test performed:
+Subject-matter reviewer:
+Risk if incorrect:</code></pre>
+</div>
+<h2>Expert interview prompts</h2>
+<ul><li>What do experienced people do automatically that beginners miss?</li><li>Where does the process usually fail?</li><li>Which steps are mandatory rather than customary?</li><li>What differs by role, version, or environment?</li><li>How can the reader verify success?</li></ul>
+<div class="page-end"><span>End of section</span><strong>Research and verify the topic</strong></div></div></section><section class="doc-page" data-summary="Build predictable navigation around reader goals." data-title="Design the information architecture" id="architecture"><div class="page-inner">
+<h1>Design the information architecture</h1>
+<p class="lead">Organize around reader goals rather than departments, product internals, or the order in which experts learned the subject.</p>
+<table><thead><tr><th>Pattern</th><th>Best for</th></tr></thead><tbody>
+<tr><td>Task-based</td><td>Products, procedures, user help</td></tr><tr><td>Progressive learning</td><td>Courses and onboarding</td></tr><tr><td>Lifecycle</td><td>Projects, programs, case management</td></tr><tr><td>Role-based</td><td>Systems used by distinct roles</td></tr><tr><td>Object-based</td><td>APIs, schemas, catalogs</td></tr><tr><td>Problem-based</td><td>Troubleshooting</td></tr>
+</tbody></table>
+<h2>Example site map</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">Start here
+  Overview
+  Prerequisites
+  First successful task
+
+Guides
+  Common task A
+  Common task B
+  Advanced workflow
+
+Concepts
+  Core model
+  Security model
+  Data lifecycle
+
+Reference
+  Configuration
+  Commands
+  Error codes
+
+Troubleshooting
+  Common symptoms
+  Recovery procedures</code></pre>
+</div>
+<div class="page-end"><span>End of section</span><strong>Design the information architecture</strong></div></div></section><section class="doc-page" data-summary="Create predictable structures for common page types." data-title="Use consistent page patterns" id="page-patterns"><div class="page-inner">
+<h1>Use consistent page patterns</h1>
+<h2>How-to page</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">MARKDOWN</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-markdown"># Complete [task]
+
+## Before you begin
+- Required access
+- Required materials
+- Expected duration
+
+## Steps
+1. ...
+2. ...
+3. ...
+
+## Verify the result
+- Expected output
+
+## Troubleshooting
+- Common failure and recovery</code></pre>
+</div>
+<h2>Concept page</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">MARKDOWN</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-markdown"># [Concept]
+
+## In one sentence
+## Why it matters
+## Mental model
+## Main parts
+## Example
+## Tradeoffs
+## Common misconceptions
+## Related topics</code></pre>
+</div>
+<h2>Reference page</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">MARKDOWN</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-markdown"># [Reference item]
+
+## Summary
+## Syntax or format
+## Inputs
+## Outputs
+## Constraints
+## Examples
+## Errors
+## Version notes</code></pre>
+</div>
+<div class="page-end"><span>End of section</span><strong>Use consistent page patterns</strong></div></div></section><section class="doc-page" data-summary="Help readers enter, move through, and exit documentation confidently." data-title="Design navigation and cross-links" id="navigation"><div class="page-inner">
+<h1>Design navigation and cross-links</h1>
+<h2>Navigation layers</h2>
+<ul><li><strong>Global navigation:</strong> major content areas.</li><li><strong>Local navigation:</strong> pages within the current area.</li><li><strong>In-page navigation:</strong> headings for long pages.</li><li><strong>Contextual links:</strong> prerequisites, next steps, and related topics.</li></ul>
+<h2>Link-writing example</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">Avoid: Click here for more information.
+Use: Review the account-recovery requirements.
+
+Avoid: Learn more.
+Use: Understand how retention periods are calculated.</code></pre>
+</div>
+<div class="callout note"><strong>Every page needs an exit.</strong> Give readers a next step, related reference, verification action, or escalation path.</div>
+<div class="page-end"><span>End of section</span><strong>Design navigation and cross-links</strong></div></div></section><section class="doc-page" data-summary="Use headings as navigation, summaries, and search signals." data-title="Write useful titles and headings" id="headings"><div class="page-inner">
+<h1>Write useful titles and headings</h1>
+<table><thead><tr><th>Weak title</th><th>Improved title</th></tr></thead><tbody>
+<tr><td>Configuration</td><td>Configure weekly email reports</td></tr><tr><td>Accounts</td><td>Create and manage user accounts</td></tr><tr><td>Errors</td><td>Troubleshoot failed data imports</td></tr><tr><td>Background</td><td>Why approval requires two reviewers</td></tr>
+</tbody></table>
+<h2>Heading rules</h2>
+<ul><li>Use one page title.</li><li>Keep headings parallel within a section.</li><li>Do not skip heading levels for appearance.</li><li>Front-load distinctive words.</li><li>Read only the headings to test whether the page still makes sense.</li></ul>
+<div class="page-end"><span>End of section</span><strong>Write useful titles and headings</strong></div></div></section><section class="doc-page" data-summary="Make instructions and explanations easy to understand without losing precision." data-title="Write clearly and directly" id="clear-writing"><div class="page-inner">
+<h1>Write clearly and directly</h1>
+<h2>Before and after</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">Before:
+Upon successful completion of the authentication process,
+the user will then be able to access the dashboard.
+
+After:
+After you sign in, the dashboard opens.</code></pre>
+</div>
+<h2>Writing rules</h2>
+<ul><li>Put the main action near the beginning.</li><li>Use one main idea per sentence.</li><li>Prefer concrete nouns and strong verbs.</li><li>Use “you” when appropriate.</li><li>Keep conditions close to the action they modify.</li><li>Define unfamiliar terms at first use.</li></ul>
+<div class="callout note"><strong>Plain language is not simplistic language.</strong> Preserve necessary precision while removing avoidable complexity.</div>
+<div class="page-end"><span>End of section</span><strong>Write clearly and directly</strong></div></div></section><section class="doc-page" data-summary="Keep vocabulary consistent, defined, and aligned with the reader’s environment." data-title="Manage terminology and definitions" id="terminology"><div class="page-inner">
+<h1>Manage terminology and definitions</h1>
+<h2>Terminology table</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">MARKDOWN</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-markdown">Preferred term | Definition | Avoid   | Notes
+---------------|------------|---------|----------------
+workspace      | ...        | project | Interface label
+member         | ...        | user    | External docs
+administrator  | ...        | admin   | Full term in policy</code></pre>
+</div>
+<h2>Rules</h2>
+<ul><li>Use one preferred term for one concept.</li><li>Match interface labels exactly.</li><li>Avoid synonyms merely for variety.</li><li>Expand unfamiliar acronyms on first use.</li><li>Record deprecated, prohibited, and audience-specific terms.</li></ul>
+<div class="page-end"><span>End of section</span><strong>Manage terminology and definitions</strong></div></div></section><section class="doc-page" data-summary="Create actionable steps with prerequisites, verification, and recovery." data-title="Write reliable procedures" id="procedures"><div class="page-inner">
+<h1>Write reliable procedures</h1>
+<h2>Procedure anatomy</h2>
+<ol class="steps"><li>Trigger or purpose</li><li>Prerequisites</li><li>Numbered actions</li><li>Expected results</li><li>Verification</li><li>Recovery or escalation</li></ol>
+<h2>Worked example</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">MARKDOWN</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-markdown"># Enable weekly reports
+
+## Before you begin
+You must have administrator access.
+
+## Steps
+1. Open **Settings**.
+2. Select **Notifications**.
+3. Turn on **Weekly report**.
+4. Select **Save**.
+
+## Verify the result
+A confirmation message appears and **Weekly report** displays **On**.
+
+## If it does not work
+Confirm that your account has administrator access.</code></pre>
+</div>
+<div class="callout danger"><strong>Place warnings before the risky action.</strong> Readers act as they read.</div>
+<div class="page-end"><span>End of section</span><strong>Write reliable procedures</strong></div></div></section><section class="doc-page" data-summary="Design focused, realistic, progressive, and testable examples." data-title="Create effective examples" id="examples"><div class="page-inner">
+<h1>Create effective examples</h1>
+<div class="pipeline"><span>minimal</span><b>→</b><span>typical</span><b>→</b><span>edge case</span><b>→</b><span>complete scenario</span></div>
+<h2>Configuration example</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">YAML</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-yaml">service:
+  name: reporting
+  timeout_seconds: 20
+  retries: 3
+  notifications:
+    enabled: true</code></pre>
+</div>
+<h2>JSON response example</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">JSON</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-json">{
+  "id": "rec_123",
+  "status": "approved",
+  "reviewer": "team-lead",
+  "effective_date": "2026-08-01"
+}</code></pre>
+</div>
+<h2>Good-example checklist</h2>
+<ul class="checklist"><li>Demonstrates one important idea.</li><li>Uses realistic data.</li><li>Shows expected output.</li><li>Names assumptions.</li><li>Can be copied safely.</li><li>Has been tested.</li></ul>
+<div class="page-end"><span>End of section</span><strong>Create effective examples</strong></div></div></section><section class="doc-page" data-summary="Choose visuals based on the question they help answer." data-title="Use diagrams, screenshots, tables, and media" id="visuals"><div class="page-inner">
+<h1>Use diagrams, screenshots, tables, and media</h1>
+<table><thead><tr><th>Visual</th><th>Best use</th></tr></thead><tbody>
+<tr><td>Flowchart</td><td>Decision paths and branching</td></tr><tr><td>Architecture diagram</td><td>Component relationships</td></tr><tr><td>Sequence diagram</td><td>Timing and interaction order</td></tr><tr><td>Screenshot</td><td>Location and visual recognition</td></tr><tr><td>Table</td><td>Comparison across consistent attributes</td></tr><tr><td>Video</td><td>Motion, timing, or physical technique</td></tr>
+</tbody></table>
+<h2>Visual guidance</h2>
+<ul><li>Give every visual a clear question to answer.</li><li>Crop screenshots to the relevant area.</li><li>Remove personal or sensitive information.</li><li>Use annotations sparingly.</li><li>Do not rely on color alone.</li><li>Explain diagrams in nearby text.</li><li>Assign ownership because visuals age quickly.</li></ul>
+<div class="page-end"><span>End of section</span><strong>Use diagrams, screenshots, tables, and media</strong></div></div></section><section class="doc-page" data-summary="Make content usable across visual, motor, cognitive, and technical differences." data-title="Build accessible documentation" id="accessibility"><div class="page-inner">
+<h1>Build accessible documentation</h1>
+<h2>Accessibility checklist</h2>
+<ul class="checklist"><li>Headings follow a meaningful hierarchy.</li><li>Links describe their destination.</li><li>Keyboard navigation works.</li><li>Focus indicators remain visible.</li><li>Contrast is sufficient.</li><li>Images have appropriate alternative text.</li><li>Color is not the only signal.</li><li>Tables have headers.</li><li>Layouts remain usable when text is enlarged.</li></ul>
+<h2>Alternative text</h2>
+<table><thead><tr><th>Image purpose</th><th>Approach</th></tr></thead><tbody>
+<tr><td>Decorative</td><td>Use empty alternative text</td></tr><tr><td>Functional icon</td><td>Describe the action, such as “Open settings”</td></tr><tr><td>Data chart</td><td>State the main finding and provide underlying data</td></tr><tr><td>Process diagram</td><td>Summarize the sequence and relationships in text</td></tr>
+</tbody></table>
+<div class="page-end"><span>End of section</span><strong>Build accessible documentation</strong></div></div></section><section class="doc-page" data-summary="Document technical interfaces with consistent contracts and tested examples." data-title="Document code, APIs, schemas, and configuration" id="technical"><div class="page-inner">
+<h1>Document code, APIs, schemas, and configuration</h1>
+<h2>Function reference example</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">PYTHON</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-python">def calculate_total(items, tax_rate):
+    """Return the total price including tax.
+
+    Args:
+        items: Iterable of numeric prices.
+        tax_rate: Decimal rate from 0 through 1.
+
+    Returns:
+        Total price including tax.
+
+    Raises:
+        ValueError: If tax_rate is outside the accepted range.
+    """</code></pre>
+</div>
+<h2>API endpoint example</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">MARKDOWN</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-markdown">## Create a record
+
+POST /v1/records
+
+### Authentication
+Bearer token with `records:write`
+
+### Request body
+- `name`: string, required
+- `category`: string, optional
+
+### Responses
+- `201 Created`
+- `400 Invalid input`
+- `401 Unauthorized`
+- `409 Duplicate record`</code></pre>
+</div>
+<h2>Command example</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">BASH</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-bash">curl -X POST https://api.example.test/v1/records \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Quarterly report"}'</code></pre>
+</div>
+<div class="callout warning"><strong>Generated reference is not enough.</strong> Pair it with task guidance, explanation, realistic examples, and error handling.</div>
+<div class="page-end"><span>End of section</span><strong>Document code, APIs, schemas, and configuration</strong></div></div></section><section class="doc-page" data-summary="Capture workflow, ownership, evidence, requirements, and exceptions." data-title="Document processes, decisions, and policies" id="process-policy"><div class="page-inner">
+<h1>Document processes, decisions, and policies</h1>
+<h2>Process template</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">MARKDOWN</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-markdown"># [Process name]
+
+Trigger:
+Owner:
+Inputs:
+Expected duration:
+
+## Steps and responsibilities
+## Decisions
+## Exceptions
+## Records to retain
+## Completion criteria
+## Escalation</code></pre>
+</div>
+<h2>Decision record</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">Title:
+Status:
+Date:
+Decision owner:
+
+Context:
+Decision:
+Alternatives considered:
+Consequences:
+Review date:</code></pre>
+</div>
+<h2>Requirement language</h2>
+<table><thead><tr><th>Word</th><th>Meaning</th></tr></thead><tbody><tr><td>Must</td><td>Mandatory</td></tr><tr><td>Must not</td><td>Prohibited</td></tr><tr><td>Should</td><td>Recommended unless justified otherwise</td></tr><tr><td>May</td><td>Permitted</td></tr></tbody></table>
+<div class="page-end"><span>End of section</span><strong>Document processes, decisions, and policies</strong></div></div></section><section class="doc-page" data-summary="Help readers diagnose symptoms, recover safely, and escalate with evidence." data-title="Create troubleshooting guides" id="troubleshooting"><div class="page-inner">
+<h1>Create troubleshooting guides</h1>
+<p class="lead">Organize around what readers can observe—not the internal cause they do not yet know.</p>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">MARKDOWN</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-markdown">## Upload remains at 0%
+
+### Likely causes
+- Network connection is unavailable
+- The file exceeds the size limit
+- The session expired
+
+### Diagnose
+1. Check the connection indicator.
+2. Confirm the file is smaller than 100 MB.
+3. Refresh the page and sign in again.
+
+### Resolve
+...
+
+### Escalate when
+...</code></pre>
+</div>
+<div class="pipeline"><span>symptom</span><b>→</b><span>quick checks</span><b>→</b><span>likely cause</span><b>→</b><span>recovery</span><b>→</b><span>verification</span></div>
+<div class="page-end"><span>End of section</span><strong>Create troubleshooting guides</strong></div></div></section><section class="doc-page" data-summary="Support navigation, internal search, and search engines." data-title="Design for search and findability" id="search"><div class="page-inner">
+<h1>Design for search and findability</h1>
+<h2>Metadata example</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">YAML</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-yaml">title: Reset a locked account
+description: Restore access after repeated failed sign-in attempts.
+audience:
+  - end-user
+  - support
+tags:
+  - login
+  - password
+  - locked account
+owner: identity-team
+review_date: 2026-10-01</code></pre>
+</div>
+<h2>Findability checklist</h2>
+<ul class="checklist"><li>Specific page title</li><li>One-sentence summary</li><li>Reader vocabulary and synonyms</li><li>Stable URL</li><li>Related links</li><li>Version and audience metadata</li><li>No competing duplicate pages</li></ul>
+<div class="page-end"><span>End of section</span><strong>Design for search and findability</strong></div></div></section><section class="doc-page" data-summary="Select a source format and platform that fit contributors and governance." data-title="Choose formats and authoring tools" id="formats"><div class="page-inner">
+<h1>Choose formats and authoring tools</h1>
+<table><thead><tr><th>Format</th><th>Strengths</th><th>Limitations</th></tr></thead><tbody>
+<tr><td>Markdown</td><td>Simple, portable, version-control friendly</td><td>Limited native layout</td></tr><tr><td>HTML</td><td>Flexible, semantic, interactive</td><td>More authoring complexity</td></tr><tr><td>AsciiDoc</td><td>Rich technical-document features</td><td>Smaller contributor familiarity</td></tr><tr><td>Word processor</td><td>Familiar to broad contributors</td><td>Weak diffing and site management</td></tr><tr><td>Wiki or CMS</td><td>Easy collaboration and publishing</td><td>Governance and portability vary</td></tr>
+</tbody></table>
+<h2>Docs-as-code layout</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">docs/
+├── index.md
+├── guides/
+├── concepts/
+├── reference/
+├── troubleshooting/
+├── images/
+├── style-guide.md
+└── metadata/</code></pre>
+</div>
+<div class="page-end"><span>End of section</span><strong>Choose formats and authoring tools</strong></div></div></section><section class="doc-page" data-summary="Validate accuracy, clarity, accessibility, and task success." data-title="Review and test documentation" id="review-testing"><div class="page-inner">
+<h1>Review and test documentation</h1>
+<table><thead><tr><th>Review</th><th>Main question</th></tr></thead><tbody>
+<tr><td>Technical</td><td>Is every claim and procedure correct?</td></tr><tr><td>Editorial</td><td>Is the page clear, consistent, and well structured?</td></tr><tr><td>Usability</td><td>Can the intended reader complete the task?</td></tr><tr><td>Accessibility</td><td>Can readers navigate and understand it accessibly?</td></tr><tr><td>Policy or legal</td><td>Are authority and obligations represented accurately?</td></tr>
+</tbody></table>
+<h2>Usability-test script</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">Scenario:
+You need to ...
+
+Start point:
+...
+
+Success condition:
+...
+
+Observe:
+- where the participant hesitates
+- terms they do not recognize
+- missed prerequisites
+- incorrect assumptions
+- whether they verify success</code></pre>
+</div>
+<div class="callout success"><strong>Test the documentation, not the participant.</strong> Confusion is evidence that the content or structure needs improvement.</div>
+<div class="page-end"><span>End of section</span><strong>Review and test documentation</strong></div></div></section><section class="doc-page" data-summary="Use repeatable checks for links, markup, examples, accessibility, and freshness." data-title="Automate documentation quality" id="automation"><div class="page-inner">
+<h1>Automate documentation quality</h1>
+<h2>Automatable checks</h2>
+<ul><li>Broken links</li><li>Missing metadata</li><li>Spelling and terminology rules</li><li>Invalid markup</li><li>Code formatting and compilation</li><li>Example-output tests</li><li>Missing alternative text</li><li>Stale review dates</li></ul>
+<h2>Pipeline example</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">YAML</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-yaml">name: documentation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    steps:
+      - checkout
+      - lint-markdown
+      - check-links
+      - test-code-examples
+      - build-site
+      - run-accessibility-checks</code></pre>
+</div>
+<p>Automation checks consistency. Human review still determines whether the documentation answers the right question.</p>
+<div class="page-end"><span>End of section</span><strong>Automate documentation quality</strong></div></div></section><section class="doc-page" data-summary="Assign ownership and keep content aligned with change." data-title="Maintain, version, and retire content" id="maintenance"><div class="page-inner">
+<h1>Maintain, version, and retire content</h1>
+<h2>Governance metadata</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">Owner:
+Subject-matter reviewer:
+Status:
+Last verified:
+Next review:
+Source of authority:
+Applies to version:
+Retirement condition:</code></pre>
+</div>
+<h2>Content states</h2>
+<table><thead><tr><th>State</th><th>Meaning</th></tr></thead><tbody><tr><td>Draft</td><td>Not yet authoritative</td></tr><tr><td>In review</td><td>Awaiting approval</td></tr><tr><td>Published</td><td>Approved and current</td></tr><tr><td>Deprecated</td><td>Visible but not recommended</td></tr><tr><td>Archived</td><td>Retained for history and removed from normal navigation</td></tr></tbody></table>
+<div class="callout danger"><strong>Documentation without an owner becomes historical evidence, not reliable guidance.</strong></div>
+<div class="page-end"><span>End of section</span><strong>Maintain, version, and retire content</strong></div></div></section><section class="doc-page" data-summary="Use outcomes and a practical style guide to improve consistency." data-title="Measure effectiveness and define style" id="metrics-style"><div class="page-inner">
+<h1>Measure effectiveness and define style</h1>
+<h2>Metrics by goal</h2>
+<table><thead><tr><th>Goal</th><th>Possible measures</th></tr></thead><tbody><tr><td>Findability</td><td>Search success, zero-result queries, navigation paths</td></tr><tr><td>Task success</td><td>Completion rate, time, error rate</td></tr><tr><td>Support reduction</td><td>Repeated questions, escalation rate</td></tr><tr><td>Learning</td><td>Assessment results and confidence</td></tr><tr><td>Quality</td><td>Broken links, stale pages, review backlog</td></tr></tbody></table>
+<h2>Style rule pattern</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">Rule:
+Use sentence-style capitalization for page titles.
+
+Reason:
+It is easier to scan and reduces inconsistent capitalization.
+
+Use:
+Create a new workspace
+
+Avoid:
+Create a New Workspace</code></pre>
+</div>
+<div class="page-end"><span>End of section</span><strong>Measure effectiveness and define style</strong></div></div></section><section class="doc-page" data-summary="A functional single-file foundation for documentation on any topic." data-title="Complete HTML starter template" id="starter-template"><div class="page-inner">
+<h1>Complete HTML starter template</h1>
+<p class="lead">This self-contained starter includes left navigation, Previous and Next controls, a settings dialog, light and dark modes, adjustable text size, responsive layout, and a code block.</p>
+<div class="callout note"><strong>Use it directly.</strong> Copy the template, replace the sample navigation and pages, and save it as an <code>.html</code> file.</div>
+<div class="code-shell" data-title="documentation-starter.html">
+<div class="code-toolbar">
+<span class="code-lang">HTML</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en" data-theme="light"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;My Documentation&lt;/title&gt;
+  &lt;style&gt;
+    :root { --font-scale: 1; --sidebar-width: 280px; }
+    html[data-theme="light"] {
+      --bg: #f7f8fb; --surface: #fff; --text: #1b2435;
+      --muted: #5f697c; --border: #d9deea; --accent: #315fca;
+      --sidebar: #111827; --sidebar-text: #e5e7eb;
+      --code-bg: #111827; --code-text: #e5e7eb;
+    }
+    html[data-theme="dark"] {
+      --bg: #0b1020; --surface: #121a2c; --text: #e7ecf5;
+      --muted: #aeb8cb; --border: #2c3956; --accent: #82b4ff;
+      --sidebar: #070b14; --sidebar-text: #eef2f8;
+      --code-bg: #080c16; --code-text: #e6edf7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font: calc(16px * var(--font-scale))/1.65 system-ui, sans-serif;
+    }
+    .sidebar {
+      position: fixed; inset: 0 auto 0 0; width: var(--sidebar-width);
+      background: var(--sidebar); color: var(--sidebar-text);
+      display: grid; grid-template-rows: auto 1fr auto;
+    }
+    .sidebar header { padding: 20px; border-bottom: 1px solid #ffffff20; }
+    .sidebar nav { overflow: auto; padding: 14px; }
+    .sidebar button {
+      width: 100%; border: 0; background: transparent; color: inherit;
+      text-align: left; padding: 9px 10px; border-radius: 7px; cursor: pointer;
+    }
+    .sidebar button.active { background: #284b82; font-weight: 700; }
+    .controls {
+      display: grid; grid-template-columns: 1fr 1fr 42px; gap: 8px;
+      padding: 10px; border-top: 1px solid #ffffff20;
+    }
+    .controls button { border: 1px solid #ffffff24; background: #ffffff12; text-align: center; }
+    main { margin-left: var(--sidebar-width); min-height: 100vh; }
+    .page { display: none; max-width: 900px; margin: auto; padding: 56px 34px 90px; }
+    .page.active { display: block; }
+    pre { overflow: auto; padding: 16px; border-radius: 8px; background: var(--code-bg); color: var(--code-text); }
+    dialog { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); padding: 20px; }
+    @media (max-width: 800px) { .sidebar { position: static; width: 100%; } main { margin-left: 0; } }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;aside class="sidebar"&gt;
+    &lt;header&gt;&lt;strong&gt;My Documentation&lt;/strong&gt;&lt;/header&gt;
+    &lt;nav&gt;
+      &lt;button class="nav-link active" data-page="overview"&gt;Overview&lt;/button&gt;
+      &lt;button class="nav-link" data-page="first-task"&gt;First task&lt;/button&gt;
+      &lt;button class="nav-link" data-page="reference"&gt;Reference&lt;/button&gt;
+    &lt;/nav&gt;
+    &lt;div class="controls"&gt;
+      &lt;button id="previous"&gt;← Previous&lt;/button&gt;
+      &lt;button id="next"&gt;Next →&lt;/button&gt;
+      &lt;button id="settings"&gt;⚙&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/aside&gt;
+
+  &lt;main&gt;
+    &lt;section class="page active" id="overview"&gt;
+      &lt;h1&gt;Overview&lt;/h1&gt;
+      &lt;p&gt;Explain the topic, audience, and expected outcomes.&lt;/p&gt;
+    &lt;/section&gt;
+    &lt;section class="page" id="first-task"&gt;
+      &lt;h1&gt;Complete the first task&lt;/h1&gt;
+      &lt;ol&gt;&lt;li&gt;Prepare the inputs.&lt;/li&gt;&lt;li&gt;Complete the action.&lt;/li&gt;&lt;li&gt;Verify the result.&lt;/li&gt;&lt;/ol&gt;
+      &lt;pre&gt;&lt;code&gt;example command --option value&lt;/code&gt;&lt;/pre&gt;
+    &lt;/section&gt;
+    &lt;section class="page" id="reference"&gt;
+      &lt;h1&gt;Reference&lt;/h1&gt;
+      &lt;p&gt;Provide exact definitions, options, and constraints.&lt;/p&gt;
+    &lt;/section&gt;
+  &lt;/main&gt;
+
+  &lt;dialog id="settings-dialog"&gt;
+    &lt;h2&gt;Settings&lt;/h2&gt;
+    &lt;p&gt;&lt;button data-theme="light"&gt;Light&lt;/button&gt; &lt;button data-theme="dark"&gt;Dark&lt;/button&gt;&lt;/p&gt;
+    &lt;label&gt;Text size &lt;input id="text-size" type="range" min="85" max="130" value="100"&gt;&lt;/label&gt;
+    &lt;p&gt;&lt;button id="close-settings"&gt;Done&lt;/button&gt;&lt;/p&gt;
+  &lt;/dialog&gt;
+
+  &lt;script&gt;
+    const pages = [...document.querySelectorAll('.page')];
+    const links = [...document.querySelectorAll('.nav-link')];
+    let current = 0;
+
+    function showPage(index) {
+      current = Math.max(0, Math.min(index, pages.length - 1));
+      pages.forEach((page, i) =&gt; page.classList.toggle('active', i === current));
+      links.forEach((link, i) =&gt; link.classList.toggle('active', i === current));
+      location.hash = pages[current].id;
+      window.scrollTo(0, 0);
+    }
+
+    links.forEach((link, index) =&gt; link.addEventListener('click', () =&gt; showPage(index)));
+    document.getElementById('previous').addEventListener('click', () =&gt; showPage(current - 1));
+    document.getElementById('next').addEventListener('click', () =&gt; showPage(current + 1));
+
+    const dialog = document.getElementById('settings-dialog');
+    document.getElementById('settings').addEventListener('click', () =&gt; dialog.showModal());
+    document.getElementById('close-settings').addEventListener('click', () =&gt; dialog.close());
+
+    document.querySelectorAll('[data-theme]').forEach(button =&gt; {
+      button.addEventListener('click', () =&gt; {
+        document.documentElement.dataset.theme = button.dataset.theme;
+      });
+    });
+
+    document.getElementById('text-size').addEventListener('input', event =&gt; {
+      document.documentElement.style.setProperty('--font-scale', event.target.value / 100);
+    });
+
+    const initial = pages.findIndex(page =&gt; page.id === location.hash.slice(1));
+    showPage(initial &gt;= 0 ? initial : 0);
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</div>
+<h2>Customization checklist</h2>
+<ul class="checklist"><li>Replace the title and description.</li><li>Define the primary audience and outcomes.</li><li>Replace sample pages with task, concept, and reference pages.</li><li>Update colors through CSS variables.</li><li>Add search, code-copy, or progress behavior as needed.</li><li>Test keyboard navigation and text enlargement.</li><li>Verify all examples before publishing.</li></ul>
+<div class="page-end"><span>End of section</span><strong>Complete HTML starter template</strong></div></div></section><section class="doc-page" data-summary="Apply the method to a complete nontechnical example." data-title="Worked example: community program documentation" id="worked-example"><div class="page-inner">
+<h1>Worked example: community program documentation</h1>
+<h2>Audience and outcome</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">Primary audience: Parents of new participants
+Outcome: Determine eligibility, understand the schedule,
+complete registration, and prepare for the first session.</code></pre>
+</div>
+<h2>Recommended structure</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">Start here
+  Program overview
+  Eligibility
+  Costs and schedule
+
+Register
+  Required information
+  Registration steps
+  Confirmation
+
+Prepare
+  What to bring
+  Code of conduct
+  First-day checklist
+
+For volunteers
+  Roles
+  Training
+  Safety procedures
+
+Reference
+  Calendar
+  Contacts
+  Policies
+  FAQ</code></pre>
+</div>
+<h2>Example page</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">MARKDOWN</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-markdown"># Register a participant
+
+## Before you begin
+Prepare contact information, grade level, emergency contact,
+and a payment method.
+
+## Steps
+1. Open the registration form.
+2. Enter participant information.
+3. Select the session.
+4. Review the code of conduct.
+5. Submit payment.
+6. Select **Complete registration**.
+
+## Verify the result
+You receive a confirmation email with the session date.
+
+## If confirmation does not arrive
+Check the spam folder, then contact the registration coordinator.</code></pre>
+</div>
+<div class="page-end"><span>End of section</span><strong>Worked example: community program documentation</strong></div></div></section><section class="doc-page" data-summary="Turn documentation into a scoped project with ownership and milestones." data-title="Documentation project plan" id="project-plan"><div class="page-inner">
+<h1>Documentation project plan</h1>
+<h2>Project brief</h2>
+<div class="code-shell">
+<div class="code-toolbar">
+<span class="code-lang">TEXT</span>
+<button aria-label="Copy code" class="copy-btn" type="button">Copy</button>
+</div>
+<pre><code class="language-text">Project:
+Owner:
+Primary audience:
+Top reader outcomes:
+In scope:
+Out of scope:
+Authoritative sources:
+Reviewers:
+Publishing format:
+Target release:
+Maintenance owner:
+Success measures:</code></pre>
+</div>
+<h2>Work breakdown</h2>
+<table><thead><tr><th>Stage</th><th>Deliverable</th></tr></thead><tbody><tr><td>Discovery</td><td>Audience profile, task inventory, source map</td></tr><tr><td>Architecture</td><td>Site map and page inventory</td></tr><tr><td>Standards</td><td>Templates, terminology, style rules</td></tr><tr><td>Drafting</td><td>Priority pages and tested examples</td></tr><tr><td>Validation</td><td>Review record and usability findings</td></tr><tr><td>Launch</td><td>Published documentation and redirects</td></tr><tr><td>Maintenance</td><td>Ownership and review schedule</td></tr></tbody></table>
+<div class="page-end"><span>End of section</span><strong>Documentation project plan</strong></div></div></section><section class="doc-page" data-summary="Concise checks for drafting, publishing, and maintenance." data-title="Master checklists" id="checklists"><div class="page-inner">
+<h1>Master checklists</h1>
+<h2>Before drafting</h2>
+<ul class="checklist"><li>Primary reader is defined.</li><li>Reader outcome is observable.</li><li>Scope is explicit.</li><li>Authoritative sources are identified.</li><li>The documentation type is appropriate.</li><li>Owner and reviewers are known.</li></ul>
+<h2>Before publishing</h2>
+<ul class="checklist"><li>Facts are verified.</li><li>Examples and procedures are tested.</li><li>Headings support scanning.</li><li>Warnings appear before risk.</li><li>Accessibility checks are complete.</li><li>Links work.</li><li>Owner and review date are present.</li></ul>
+<h2>During maintenance</h2>
+<ul class="checklist"><li>Changes trigger documentation review.</li><li>Stale pages are flagged.</li><li>Deprecated pages point to current guidance.</li><li>Search gaps and feedback are reviewed.</li><li>Examples still work.</li></ul>
+<div class="page-end"><span>End of section</span><strong>Master checklists</strong></div></div></section></main>
+<div aria-label="Page controls" class="mobile-bottom">
+<button id="mobilePrev" type="button">← Previous</button>
+<button id="mobileNext" type="button">Next →</button>
+<button aria-label="Open settings" id="mobileSettings" type="button">⚙</button>
+</div>
+<div aria-label="Search results" class="search-results" id="searchResults" role="listbox"></div>
+<dialog id="settingsDialog">
+<div class="modal-head">
+<h2>Reader settings</h2>
+<button aria-label="Close settings" class="icon-btn" id="closeSettings" type="button">×</button>
+</div>
+<div class="modal-body">
+<div class="setting-row">
+<label>Theme</label>
+<div aria-label="Theme" class="segmented">
+<button data-theme-choice="light" id="lightTheme" type="button">☀ Light</button>
+<button data-theme-choice="dark" id="darkTheme" type="button">☾ Dark</button>
+</div>
+</div>
+<div class="setting-row">
+<label for="textSize">Text size</label>
+<div class="range-row">
+<span>A</span>
+<input id="textSize" max="130" min="85" step="5" type="range" value="100"/>
+<span style="font-size:1.25em">A</span>
+</div>
+<p id="textSizeLabel" style="margin:.5rem 0 0;color:var(--muted);font-size:.85rem;">100%</p>
+</div>
+</div>
+<div class="modal-foot">
+<button class="primary-btn" id="doneSettings" type="button">Done</button>
+</div>
+</dialog>
+</div>
+<script>
+(() => {
+  "use strict";
+
+  const sections = [{"id": "welcome", "title": "Welcome and purpose", "group": "Start here", "summary": "Purpose, scope, and the full documentation lifecycle."}, {"id": "doc-types", "title": "Choose the documentation type", "group": "Strategy", "summary": "Match the document form to the reader’s goal."}, {"id": "audience", "title": "Define the audience", "group": "Strategy", "summary": "Describe the reader precisely enough to make writing decisions."}, {"id": "outcomes", "title": "Define outcomes and scope", "group": "Strategy", "summary": "Set observable outcomes, boundaries, and success measures."}, {"id": "research", "title": "Research and verify the topic", "group": "Strategy", "summary": "Gather authoritative evidence and validate real behavior."}, {"id": "architecture", "title": "Design the information architecture", "group": "Structure", "summary": "Build predictable navigation around reader goals."}, {"id": "page-patterns", "title": "Use consistent page patterns", "group": "Structure", "summary": "Create predictable structures for common page types."}, {"id": "navigation", "title": "Design navigation and cross-links", "group": "Structure", "summary": "Help readers enter, move through, and exit documentation confidently."}, {"id": "headings", "title": "Write useful titles and headings", "group": "Writing", "summary": "Use headings as navigation, summaries, and search signals."}, {"id": "clear-writing", "title": "Write clearly and directly", "group": "Writing", "summary": "Make instructions and explanations easy to understand without losing precision."}, {"id": "terminology", "title": "Manage terminology and definitions", "group": "Writing", "summary": "Keep vocabulary consistent, defined, and aligned with the reader’s environment."}, {"id": "procedures", "title": "Write reliable procedures", "group": "Writing", "summary": "Create actionable steps with prerequisites, verification, and recovery."}, {"id": "examples", "title": "Create effective examples", "group": "Writing", "summary": "Design focused, realistic, progressive, and testable examples."}, {"id": "visuals", "title": "Use diagrams, screenshots, tables, and media", "group": "Design", "summary": "Choose visuals based on the question they help answer."}, {"id": "accessibility", "title": "Build accessible documentation", "group": "Design", "summary": "Make content usable across visual, motor, cognitive, and technical differences."}, {"id": "technical", "title": "Document code, APIs, schemas, and configuration", "group": "Specialized topics", "summary": "Document technical interfaces with consistent contracts and tested examples."}, {"id": "process-policy", "title": "Document processes, decisions, and policies", "group": "Specialized topics", "summary": "Capture workflow, ownership, evidence, requirements, and exceptions."}, {"id": "troubleshooting", "title": "Create troubleshooting guides", "group": "Specialized topics", "summary": "Help readers diagnose symptoms, recover safely, and escalate with evidence."}, {"id": "search", "title": "Design for search and findability", "group": "Publishing", "summary": "Support navigation, internal search, and search engines."}, {"id": "formats", "title": "Choose formats and authoring tools", "group": "Publishing", "summary": "Select a source format and platform that fit contributors and governance."}, {"id": "review-testing", "title": "Review and test documentation", "group": "Quality", "summary": "Validate accuracy, clarity, accessibility, and task success."}, {"id": "automation", "title": "Automate documentation quality", "group": "Quality", "summary": "Use repeatable checks for links, markup, examples, accessibility, and freshness."}, {"id": "maintenance", "title": "Maintain, version, and retire content", "group": "Governance", "summary": "Assign ownership and keep content aligned with change."}, {"id": "metrics-style", "title": "Measure effectiveness and define style", "group": "Governance", "summary": "Use outcomes and a practical style guide to improve consistency."}, {"id": "starter-template", "title": "Complete HTML starter template", "group": "Starter kit", "summary": "A functional single-file foundation for documentation on any topic."}, {"id": "worked-example", "title": "Worked example: community program documentation", "group": "Starter kit", "summary": "Apply the method to a complete nontechnical example."}, {"id": "project-plan", "title": "Documentation project plan", "group": "Starter kit", "summary": "Turn documentation into a scoped project with ownership and milestones."}, {"id": "checklists", "title": "Master checklists", "group": "Starter kit", "summary": "Concise checks for drafting, publishing, and maintenance."}];
+  const pages = [...document.querySelectorAll(".doc-page")];
+  const navLinks = [...document.querySelectorAll(".nav-link")];
+
+  const sidebar = document.getElementById("sidebar");
+  const sidebarTab = document.getElementById("sidebarTab");
+  const navSearch = document.getElementById("navSearch");
+  const searchResults = document.getElementById("searchResults");
+  const crumbGroup = document.getElementById("crumbGroup");
+  const crumbTitle = document.getElementById("crumbTitle");
+  const progressLabel = document.getElementById("progressLabel");
+  const progressPercent = document.getElementById("progressPercent");
+  const progressBar = document.getElementById("progressBar");
+
+  const prevButtons = [document.getElementById("prevBtn"), document.getElementById("mobilePrev")];
+  const nextButtons = [document.getElementById("nextBtn"), document.getElementById("mobileNext")];
+
+  const settingsDialog = document.getElementById("settingsDialog");
+  const settingsButtons = [document.getElementById("settingsBtn"), document.getElementById("mobileSettings")];
+  const closeSettings = document.getElementById("closeSettings");
+  const doneSettings = document.getElementById("doneSettings");
+  const textSize = document.getElementById("textSize");
+  const textSizeLabel = document.getElementById("textSizeLabel");
+  const themeButtons = [...document.querySelectorAll("[data-theme-choice]")];
+
+  let currentIndex = 0;
+  let searchSelection = -1;
+
+  const storage = {
+    get(key) {
+      try { return window.localStorage.getItem(key); } catch { return null; }
+    },
+    set(key, value) {
+      try { window.localStorage.setItem(key, value); } catch { /* preferences remain session-only */ }
+    }
+  };
+
+  function updateHash(id) {
+    try {
+      history.replaceState(null, "", "#" + id);
+    } catch {
+      try { location.hash = id; } catch { /* navigation still works without a hash */ }
+    }
+  }
+
+  function isMobile() {
+    return window.matchMedia("(max-width: 900px)").matches;
+  }
+
+  function showPage(index, pushHash = true) {
+    currentIndex = Math.max(0, Math.min(index, pages.length - 1));
+    pages.forEach((page, i) => page.classList.toggle("active", i === currentIndex));
+    navLinks.forEach((link, i) => link.classList.toggle("active", i === currentIndex));
+
+    const meta = sections[currentIndex];
+    crumbGroup.textContent = meta.group;
+    crumbTitle.textContent = meta.title;
+    document.title = meta.title + " — Documentation Creation Guide";
+
+    prevButtons.forEach(btn => btn.disabled = currentIndex === 0);
+    nextButtons.forEach(btn => btn.disabled = currentIndex === pages.length - 1);
+
+    const percent = Math.round(((currentIndex + 1) / pages.length) * 100);
+    progressLabel.textContent = `${currentIndex + 1} of ${pages.length}`;
+    progressPercent.textContent = `${percent}%`;
+    progressBar.style.width = `${percent}%`;
+
+    navLinks[currentIndex]?.scrollIntoView({ block: "nearest" });
+    window.scrollTo({ top: 0, behavior: "instant" });
+
+    if (pushHash) {
+      updateHash(meta.id);
+    }
+    storage.set("docguide-current-page", meta.id);
+
+    if (isMobile()) {
+      sidebar.classList.remove("open");
+      sidebarTab.setAttribute("aria-expanded", "false");
+    }
+  }
+
+  function go(delta) {
+    showPage(currentIndex + delta);
+  }
+
+  navLinks.forEach((link, index) => {
+    link.addEventListener("click", () => showPage(index));
+  });
+
+  prevButtons.forEach(btn => btn.addEventListener("click", () => go(-1)));
+  nextButtons.forEach(btn => btn.addEventListener("click", () => go(1)));
+
+  sidebarTab.addEventListener("click", () => {
+    if (isMobile()) {
+      const open = sidebar.classList.toggle("open");
+      sidebarTab.setAttribute("aria-expanded", String(open));
+    } else {
+      const collapsed = sidebar.classList.toggle("collapsed");
+      sidebarTab.setAttribute("aria-expanded", String(!collapsed));
+      storage.set("docguide-sidebar-collapsed", String(collapsed));
+    }
+  });
+
+  document.getElementById("focusSearchBtn").addEventListener("click", () => {
+    if (isMobile()) {
+      sidebar.classList.add("open");
+      sidebarTab.setAttribute("aria-expanded", "true");
+    } else {
+      sidebar.classList.remove("collapsed");
+      sidebarTab.setAttribute("aria-expanded", "true");
+    }
+    navSearch.focus();
+  });
+
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+
+  function setTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    themeButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.themeChoice === theme));
+    storage.set("docguide-theme", theme);
+  }
+
+  function setTextSize(value) {
+    const numeric = Number(value);
+    document.documentElement.style.setProperty("--font-scale", numeric / 100);
+    textSize.value = String(numeric);
+    textSizeLabel.textContent = `${numeric}%`;
+    storage.set("docguide-text-size", String(numeric));
+  }
+
+  settingsButtons.forEach(btn => btn.addEventListener("click", () => settingsDialog.showModal()));
+  [closeSettings, doneSettings].forEach(btn => btn.addEventListener("click", () => settingsDialog.close()));
+  themeButtons.forEach(btn => btn.addEventListener("click", () => setTheme(btn.dataset.themeChoice)));
+  textSize.addEventListener("input", () => setTextSize(textSize.value));
+
+  settingsDialog.addEventListener("click", event => {
+    const rect = settingsDialog.getBoundingClientRect();
+    const inside = event.clientX >= rect.left && event.clientX <= rect.right &&
+                   event.clientY >= rect.top && event.clientY <= rect.bottom;
+    if (!inside) settingsDialog.close();
+  });
+
+  function escapeHtml(value) {
+    return value.replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    })[char]);
+  }
+
+  function classifyToken(token, lang) {
+    const escaped = escapeHtml(token);
+    if (/^\/\//.test(token) || /^\/\*/.test(token) || /^#/.test(token) && (lang === "bash" || lang === "powershell")) {
+      return `<span class="tok-comment">${escaped}</span>`;
+    }
+    if (/^#/.test(token)) return `<span class="tok-preproc">${escaped}</span>`;
+    if (/^["']/.test(token)) return `<span class="tok-string">${escaped}</span>`;
+    if (/^\d/.test(token)) return `<span class="tok-number">${escaped}</span>`;
+
+    const keywords = new Set([
+      "alignas","alignof","and","asm","auto","bitand","bitor","bool","break","case","catch","char","char8_t","char16_t","char32_t",
+      "class","compl","concept","const","consteval","constexpr","constinit","const_cast","continue","co_await","co_return","co_yield",
+      "decltype","default","delete","do","double","dynamic_cast","else","enum","explicit","export","extern","false","float","for",
+      "friend","goto","if","inline","int","long","mutable","namespace","new","noexcept","not","nullptr","operator","or","override",
+      "private","protected","public","register","reinterpret_cast","requires","return","short","signed","sizeof","static","static_assert",
+      "static_cast","struct","switch","template","this","thread_local","throw","true","try","typedef","typeid","typename","union",
+      "unsigned","using","virtual","void","volatile","wchar_t","while","xor","_Bool","_Atomic","_Generic","_Noreturn","_Static_assert"
+    ]);
+    const types = new Set([
+      "size_t","ptrdiff_t","int8_t","int16_t","int32_t","int64_t","uint8_t","uint16_t","uint32_t","uint64_t",
+      "FILE","std","string","string_view","vector","array","map","unordered_map","set","optional","variant","unique_ptr","shared_ptr",
+      "weak_ptr","span","thread","mutex","lock_guard","unique_lock","atomic","future"
+    ]);
+
+    if (keywords.has(token)) return `<span class="tok-keyword">${escaped}</span>`;
+    if (types.has(token)) return `<span class="tok-type">${escaped}</span>`;
+    if (/^[+\-*\/%=&|!<>^~?:]+$/.test(token)) return `<span class="tok-operator">${escaped}</span>`;
+    return escaped;
+  }
+
+  function highlight(raw, lang) {
+    if (["text","makefile","cmake"].includes(lang)) {
+      const generic = /(#[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b\d+(?:\.\d+)?\b|\$\([^\)]+\)|\b(?:if|else|endif|set|project|add_library|add_executable|target_link_libraries|target_include_directories|target_compile_options)\b)/g;
+      return raw.replace(generic, token => classifyToken(token, lang));
+    }
+
+    if (lang === "bash" || lang === "powershell") {
+      const shell = /(#[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b\d+(?:\.\d+)?\b|\$[A-Za-z_][A-Za-z0-9_]*|\b(?:sudo|apt|install|cmake|gcc|g\+\+|clang|clang\+\+|cc|c\+\+|cl|gdb|lldb|run|break|print|continue|set|if|else|fi)\b)/g;
+      return raw.replace(shell, token => classifyToken(token, lang));
+    }
+
+    const tokenPattern = /(\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[ \t]*[A-Za-z_][^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?[uUlLfF]*\b|\b[A-Za-z_][A-Za-z0-9_]*\b|[+\-*\/%=&|!<>^~?:]+)/g;
+    return raw.replace(tokenPattern, token => classifyToken(token, lang));
+  }
+
+  document.querySelectorAll("pre code").forEach(code => {
+    const langClass = [...code.classList].find(name => name.startsWith("language-")) || "language-text";
+    const lang = langClass.replace("language-", "");
+    const raw = code.textContent;
+    code.dataset.raw = raw;
+    code.innerHTML = highlight(raw, lang);
+  });
+
+  document.querySelectorAll(".copy-btn").forEach(button => {
+    button.addEventListener("click", async () => {
+      const code = button.closest(".code-shell").querySelector("code");
+      try {
+        await navigator.clipboard.writeText(code.dataset.raw || code.textContent);
+        const previous = button.textContent;
+        button.textContent = "Copied";
+        setTimeout(() => button.textContent = previous, 1200);
+      } catch {
+        button.textContent = "Select manually";
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-tabs]").forEach(tabset => {
+    const buttons = [...tabset.querySelectorAll('[role="tab"]')];
+    const panels = [...tabset.querySelectorAll(".tab-panel")];
+
+    buttons.forEach((button, index) => {
+      button.addEventListener("click", () => {
+        buttons.forEach((b, i) => b.setAttribute("aria-selected", String(i === index)));
+        panels.forEach((panel, i) => panel.hidden = i !== index);
+      });
+    });
+  });
+
+  function getSearchMatches(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return sections
+      .map((section, index) => {
+        const text = pages[index].innerText.toLowerCase();
+        let score = 0;
+        if (section.title.toLowerCase().includes(q)) score += 8;
+        if (section.group.toLowerCase().includes(q)) score += 3;
+        if (section.summary.toLowerCase().includes(q)) score += 4;
+        if (text.includes(q)) score += 1;
+        return { ...section, index, score };
+      })
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score || a.index - b.index)
+      .slice(0, 10);
+  }
+
+  function renderSearchResults(matches) {
+    searchResults.innerHTML = "";
+    searchSelection = -1;
+
+    if (!navSearch.value.trim()) {
+      searchResults.classList.remove("open");
+      return;
+    }
+
+    if (!matches.length) {
+      searchResults.innerHTML = '<div style="padding:14px;color:var(--muted)">No matching sections.</div>';
+      searchResults.classList.add("open");
+      return;
+    }
+
+    matches.forEach(match => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "search-result";
+      button.dataset.index = String(match.index);
+      button.innerHTML = `<strong>${escapeHtml(match.title)}</strong><span>${escapeHtml(match.group)} · ${escapeHtml(match.summary)}</span>`;
+      button.addEventListener("click", () => {
+        showPage(match.index);
+        navSearch.value = "";
+        searchResults.classList.remove("open");
+      });
+      searchResults.appendChild(button);
+    });
+    searchResults.classList.add("open");
+  }
+
+  navSearch.addEventListener("input", () => {
+    const q = navSearch.value.trim().toLowerCase();
+    const matches = getSearchMatches(q);
+    renderSearchResults(matches);
+
+    document.querySelectorAll(".nav-group").forEach(group => {
+      let anyVisible = false;
+      group.querySelectorAll(".nav-link").forEach(link => {
+        const visible = !q || link.textContent.toLowerCase().includes(q);
+        link.hidden = !visible;
+        if (visible) anyVisible = true;
+      });
+      group.hidden = q ? !anyVisible : false;
+    });
+  });
+
+  navSearch.addEventListener("keydown", event => {
+    const results = [...searchResults.querySelectorAll(".search-result")];
+    if (event.key === "ArrowDown" && results.length) {
+      event.preventDefault();
+      searchSelection = Math.min(searchSelection + 1, results.length - 1);
+    } else if (event.key === "ArrowUp" && results.length) {
+      event.preventDefault();
+      searchSelection = Math.max(searchSelection - 1, 0);
+    } else if (event.key === "Enter" && searchSelection >= 0) {
+      event.preventDefault();
+      results[searchSelection].click();
+      return;
+    } else if (event.key === "Escape") {
+      searchResults.classList.remove("open");
+      navSearch.blur();
+      return;
+    }
+    results.forEach((r, i) => r.classList.toggle("active", i === searchSelection));
+  });
+
+  document.addEventListener("click", event => {
+    if (!searchResults.contains(event.target) && event.target !== navSearch) {
+      searchResults.classList.remove("open");
+    }
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "/" && !/input|textarea|select/i.test(document.activeElement.tagName)) {
+      event.preventDefault();
+      document.getElementById("focusSearchBtn").click();
+    }
+    if (event.altKey && event.key === "ArrowLeft") go(-1);
+    if (event.altKey && event.key === "ArrowRight") go(1);
+  });
+
+  window.addEventListener("hashchange", () => {
+    const id = location.hash.slice(1);
+    const index = sections.findIndex(section => section.id === id);
+    if (index >= 0) showPage(index, false);
+  });
+
+  const savedTheme = storage.get("docguide-theme") || "light";
+  const savedSize = storage.get("docguide-text-size") || "100";
+  setTheme(savedTheme);
+  setTextSize(savedSize);
+
+  if (!isMobile() && storage.get("docguide-sidebar-collapsed") === "true") {
+    sidebar.classList.add("collapsed");
+    sidebarTab.setAttribute("aria-expanded", "false");
+  }
+
+  const initialId = location.hash.slice(1) || storage.get("docguide-current-page") || sections[0].id;
+  const initialIndex = Math.max(0, sections.findIndex(section => section.id === initialId));
+  showPage(initialIndex, !location.hash);
+})();
+</script>
+</body>
+</html>
