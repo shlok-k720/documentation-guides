@@ -6,7 +6,13 @@ async function loadGuides() {
   try {
     const res = await fetch('/guides');
     if (res.ok) {
-      guides = await res.json();
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('application/json')) {
+        guides = await res.json();
+      } else {
+        // non-JSON response (likely HTML directory index); fall back to static file
+        guides = null;
+      }
     } else if (res.status === 404) {
       guides = null;
     }
