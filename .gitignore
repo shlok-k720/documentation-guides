@@ -6,3 +6,5 @@
 db/guides.json
 
 db/
+
+package-lock.json
