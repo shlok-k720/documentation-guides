@@ -1,54 +1,32 @@
 async function loadGuides() {
   const container = document.getElementById('cards');
   container.innerHTML = '';
-  // Try dynamic API first, fall back to static guides.json for GitHub Pages
-  let guides = null;
+
   try {
-    const res = await fetch('/guides');
-    if (res.ok) {
-      const ct = res.headers.get('content-type') || '';
-      if (ct.includes('application/json')) {
-        guides = await res.json();
-      } else {
-        // non-JSON response (likely HTML directory index); fall back to static file
-        guides = null;
-      }
-    } else if (res.status === 404) {
-      guides = null;
+    const response = await fetch('guides.json');
+    if (!response.ok) throw new Error(`Unable to load guides (${response.status})`);
+    const manifest = await response.json();
+    const guides = Array.isArray(manifest) ? manifest : manifest.guides;
+
+    if (!Array.isArray(guides) || !guides.length) {
+      container.textContent = 'No guides available.';
+      return;
     }
+
+    guides.forEach(g => {
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.innerHTML = `
+        <h3>${escapeHtml(g.name)}</h3>
+        <p class="desc">${escapeHtml(g.description)}</p>
+        <p><a class="btn" href="${g.url}">Open guide</a></p>
+      `;
+      container.appendChild(card);
+    });
   } catch (err) {
-    // network error — likely no server on GH Pages
-    guides = null;
+    console.error('Failed to load guides', err);
+    container.textContent = 'Guides could not be loaded.';
   }
-
-  if (!guides) {
-    try {
-      const r2 = await fetch('/guides.json');
-      if (r2.ok) {
-        const j = await r2.json();
-        // accept either { guides: [...] } or [...]
-        guides = Array.isArray(j) ? j : (j.guides || []);
-      }
-    } catch (err) {
-      console.error('Fallback guides.json failed', err);
-    }
-  }
-
-  if (!guides || !guides.length) {
-    container.textContent = 'No guides available.';
-    return;
-  }
-
-  guides.forEach(g => {
-    const card = document.createElement('article');
-    card.className = 'card';
-    card.innerHTML = `
-      <h3>${escapeHtml(g.name)}</h3>
-      <p class="desc">${escapeHtml(g.description)}</p>
-      <p><a class="btn" href="${g.url}">Open guide</a></p>
-    `;
-    container.appendChild(card);
-  });
 }
 
 function escapeHtml(s) {
@@ -68,30 +46,30 @@ async function submitRequest(event) {
   const form = event.target;
   const msg = document.getElementById('requestMessage');
   msg.textContent = '';
-  const data = {
-    name: form.name.value.trim(),
-    email: form.email.value.trim(),
-    topic: form.topic.value.trim(),
-    details: form.details.value.trim()
-  };
-  if (!data.name || !data.topic) {
+  if (!form.reportValidity()) return;
+  if (!form.name.value.trim() || !form.topic.value.trim()) {
     msg.textContent = 'Please provide your name and topic.';
     return;
   }
 
   try {
-    const res = await fetch('/api/request-guide', {
+    const submitButton = form.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    const res = await fetch(form.action, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      headers: { Accept: 'application/json' },
+      body: new FormData(form)
     });
     const body = await res.json();
-    if (!res.ok) throw new Error(body.error || 'Server error');
+    if (!res.ok) throw new Error(body.errors?.[0]?.message || 'Submission failed');
     msg.textContent = 'Request submitted — thank you!';
     form.reset();
   } catch (err) {
     console.error('request failed', err);
-    msg.textContent = 'Failed to submit request.';
+    msg.textContent = err.message || 'Failed to submit request.';
+  } finally {
+    const submitButton = form.querySelector('button[type="submit"]');
+    submitButton.disabled = false;
   }
 }
 

@@ -4,19 +4,19 @@
       "id": "documentation-creation-guide",
       "name": "Documentation Creation Guide",
       "description": "A comprehensive guide for planning, writing, designing, reviewing, publishing, and maintaining documentation.",
-      "url": "/guides/documentation_creation_guide.html"
+      "url": "guides/documentation_creation_guide.html"
     },
     {
       "id": "swift-6-for-java-kotlin",
       "name": "Swift 6 for Java/Kotlin Programmers",
       "description": "A porting and language-features guide for Java and Kotlin developers moving to Swift 6.",
-      "url": "/guides/swift_6_for_java_kotlin_programmers.html"
+      "url": "guides/swift_6_for_java_kotlin_programmers.html"
     },
     {
       "id": "c-cpp-learning-guide",
       "name": "C / C++ Learning Guide",
       "description": "Core concepts, build tools, and examples to get started with C and C++ development.",
-      "url": "/guides/c_cpp_learning_guide.html"
+      "url": "guides/c_cpp_learning_guide.html"
     }
   ]
 }

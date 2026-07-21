@@ -87,5 +87,6 @@ h2 { font-size: 1.4rem; margin: 32px 0 12px; }
 .form-row label { font-weight: 700; font-size: .9rem; }
 .form-row input, .form-row textarea { padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: .95rem; }
 .form-row button.btn { margin-top: 6px; }
+.form-row button.btn:disabled { cursor: wait; opacity: .65; }
 
 

@@ -14,7 +14,7 @@
           <p class="tagline">Guides on various topics, documentation style!</p>
         </div>
         <div>
-          <a href="/admin" class="btn secondary">Admin</a>
+          <a href="admin.html" class="btn secondary">Admin</a>
         </div>
       </div>
     </header>
@@ -23,7 +23,7 @@
       <section id="cards" class="card-grid" aria-live="polite"></section>
       <section id="request-guide" class="request-section">
         <h2>Request a Guide</h2>
-        <form id="requestForm">
+        <form id="requestForm" action="https://formspree.io/f/xgogygbe" method="POST">
           <div class="form-row">
             <label for="name">Your name</label>
             <input id="name" name="name" type="text" required />
@@ -42,16 +42,16 @@
           </div>
           <div class="form-row">
             <button type="submit" class="btn">Submit request</button>
-            <span id="requestMessage" aria-live="polite"></span>
+            <span id="requestMessage" role="status" aria-live="polite"></span>
           </div>
         </form>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div class="container">Built with Node.js • Static guides</div>
+      <div class="container">Static guides</div>
     </footer>
 
-    <script src="/app.js"></script>
+    <script src="app.js"></script>
   </body>
 </html>
