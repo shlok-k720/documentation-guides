@@ -1,24 +1,48 @@
 async function loadGuides() {
+  const container = document.getElementById('cards');
+  container.innerHTML = '';
+  // Try dynamic API first, fall back to static guides.json for GitHub Pages
+  let guides = null;
   try {
     const res = await fetch('/api/guides');
-    const guides = await res.json();
-    const container = document.getElementById('cards');
-    container.innerHTML = '';
-
-    guides.forEach(g => {
-      const card = document.createElement('article');
-      card.className = 'card';
-      card.innerHTML = `
-        <h3>${escapeHtml(g.name)}</h3>
-        <p class="desc">${escapeHtml(g.description)}</p>
-        <p><a class="btn" href="${g.url}">Open guide</a></p>
-      `;
-      container.appendChild(card);
-    });
+    if (res.ok) {
+      guides = await res.json();
+    } else if (res.status === 404) {
+      guides = null;
+    }
   } catch (err) {
-    console.error('Failed to load guides', err);
-    document.getElementById('cards').textContent = 'Failed to load guides.';
+    // network error — likely no server on GH Pages
+    guides = null;
   }
+
+  if (!guides) {
+    try {
+      const r2 = await fetch('/guides.json');
+      if (r2.ok) {
+        const j = await r2.json();
+        // accept either { guides: [...] } or [...]
+        guides = Array.isArray(j) ? j : (j.guides || []);
+      }
+    } catch (err) {
+      console.error('Fallback guides.json failed', err);
+    }
+  }
+
+  if (!guides || !guides.length) {
+    container.textContent = 'No guides available.';
+    return;
+  }
+
+  guides.forEach(g => {
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.innerHTML = `
+      <h3>${escapeHtml(g.name)}</h3>
+      <p class="desc">${escapeHtml(g.description)}</p>
+      <p><a class="btn" href="${g.url}">Open guide</a></p>
+    `;
+    container.appendChild(card);
+  });
 }
 
 function escapeHtml(s) {
