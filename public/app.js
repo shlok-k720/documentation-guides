@@ -4,7 +4,7 @@ async function loadGuides() {
   // Try dynamic API first, fall back to static guides.json for GitHub Pages
   let guides = null;
   try {
-    const res = await fetch('/api/guides');
+    const res = await fetch('/guides');
     if (res.ok) {
       guides = await res.json();
     } else if (res.status === 404) {
