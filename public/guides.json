@@ -4,19 +4,36 @@
       "id": "documentation-creation-guide",
       "name": "Documentation Creation Guide",
       "description": "A comprehensive guide for planning, writing, designing, reviewing, publishing, and maintaining documentation.",
-      "url": "guides/documentation_creation_guide.html"
+      "url": "guides/documentation_creation_guide.html",
+      "category": "Category 1"
     },
     {
       "id": "swift-6-for-java-kotlin",
       "name": "Swift 6 for Java/Kotlin Programmers",
       "description": "A porting and language-features guide for Java and Kotlin developers moving to Swift 6.",
-      "url": "guides/swift_6_for_java_kotlin_programmers.html"
+      "url": "guides/swift_6_for_java_kotlin_programmers.html",
+      "category": "Category 1"
     },
     {
       "id": "c-cpp-learning-guide",
       "name": "C / C++ Learning Guide",
       "description": "Core concepts, build tools, and examples to get started with C and C++ development.",
-      "url": "guides/c_cpp_learning_guide.html"
+      "url": "guides/c_cpp_learning_guide.html",
+      "category": "Category 1"
+    },
+    {
+      "id": "meteorology-guide",
+      "name": "Meteorology: Teaching Companion",
+      "description": "An 18-chapter Science Olympiad companion covering the atmosphere, weather systems, severe weather, climate, and forecasting.",
+      "url": "guides/meteorology_guide.html",
+      "category": "Category 2"
+    },
+    {
+      "id": "heredity-guide",
+      "name": "Heredity: Teaching Companion",
+      "description": "A Science Olympiad guide to classical and molecular genetics, from inheritance and DNA to gene expression and genetic disorders.",
+      "url": "guides/heredity-guide.html",
+      "category": "Category 2"
     }
   ]
 }

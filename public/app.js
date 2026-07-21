@@ -13,15 +13,44 @@ async function loadGuides() {
       return;
     }
 
-    guides.forEach(g => {
-      const card = document.createElement('article');
-      card.className = 'card';
-      card.innerHTML = `
-        <h3>${escapeHtml(g.name)}</h3>
-        <p class="desc">${escapeHtml(g.description)}</p>
-        <p><a class="btn" href="${g.url}">Open guide</a></p>
-      `;
-      container.appendChild(card);
+    const categories = ['Category 1', 'Category 2'];
+    const groupedGuides = new Map(categories.map(category => [category, []]));
+
+    guides.forEach(guide => {
+      const category = groupedGuides.has(guide.category) ? guide.category : 'Category 1';
+      groupedGuides.get(category).push(guide);
+    });
+
+    categories.forEach((category, index) => {
+      const categoryGuides = groupedGuides.get(category);
+      if (!categoryGuides.length) return;
+
+      if (index > 0 && container.children.length) {
+        const divider = document.createElement('div');
+        divider.className = 'category-divider';
+        divider.setAttribute('aria-hidden', 'true');
+        container.appendChild(divider);
+      }
+
+      const section = document.createElement('section');
+      section.className = 'guide-category';
+      section.innerHTML = `<h2 class="category-title">${escapeHtml(category)}</h2>`;
+
+      const grid = document.createElement('div');
+      grid.className = 'card-grid';
+      categoryGuides.forEach(guide => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3>${escapeHtml(guide.name)}</h3>
+          <p class="desc">${escapeHtml(guide.description)}</p>
+          <p><a class="btn" href="${guide.url}">Open guide</a></p>
+        `;
+        grid.appendChild(card);
+      });
+
+      section.appendChild(grid);
+      container.appendChild(section);
     });
   } catch (err) {
     console.error('Failed to load guides', err);

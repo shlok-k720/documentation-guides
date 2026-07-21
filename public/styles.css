@@ -37,7 +37,11 @@ body {
 .tagline { margin: 4px 0 0; color: var(--muted); font-size: .95rem; }
 
 /* Use fixed column size so cards remain tight squares on wide screens */
-.card-grid { display: grid; grid-template-columns: repeat(auto-fill, 220px); justify-content: center; gap: 26px 36px; margin-top: 14px; align-items: start; }
+#cards { margin-top: 14px; }
+.guide-category { width: 100%; }
+.category-title { margin: 0 0 18px; text-align: center; font-size: 1.25rem; }
+.category-divider { width: 3px; height: 56px; margin: 42px auto; background: var(--accent); border-radius: 2px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, 220px); justify-content: center; gap: 26px 36px; align-items: start; }
 
 .card {
 	background: var(--surface);
