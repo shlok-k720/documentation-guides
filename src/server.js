@@ -206,11 +206,11 @@ app.post('/api/guides', requireAuth, (req, res) => {
   }
 });
 
-app.use(express.static(path.join(__dirname, '..', 'public')));
-
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'admin.html'));
+app.get(['/admin', '/admin.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'admin.html'));
 });
+
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // fallback to index for SPA routes
 app.get('*', (req, res) => {
