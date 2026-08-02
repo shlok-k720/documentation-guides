@@ -34,6 +34,20 @@
       "description": "A Science Olympiad guide to classical and molecular genetics, from inheritance and DNA to gene expression and genetic disorders.",
       "url": "guides/heredity-guide.html",
       "category": "Category 2"
+    },
+    {
+      "id": "combinatorics-guide",
+      "name": "Combinatorics: Teaching Companion",
+      "description": "A concept-driven guide to counting principles, combinatorial techniques, sequences, probability, and advanced problem solving with AMC 10/12 flavor.",
+      "url": "guides/combinatorics.html",
+      "category": "Category 2"
+    },
+    {
+      "id": "control-theory-ftc",
+      "name": "Control Theory in FTC Robots",
+      "description": "An FTC robotics course on feedback loops, PID and feedforward control, tuning, motion profiling, and autonomous robot mechanisms.",
+      "url": "guides/control-theory-ftc-decode.html",
+      "category": "Category 2"
     }
   ]
 }
