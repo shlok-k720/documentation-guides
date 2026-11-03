@@ -48,6 +48,13 @@
       "description": "An FTC robotics course on feedback loops, PID and feedforward control, tuning, motion profiling, and autonomous robot mechanisms.",
       "url": "guides/control-theory-ftc-decode.html",
       "category": "Category 2"
+    },
+    {
+      "id": "ftc-library-publishing-guide",
+      "name": "Creating and Publishing FTC Libraries",
+      "description": "Create and publish a Java and Kotlin FTC library with Kotlin DSL Gradle build files, and publish it free with JitPack.",
+      "url": "guides/ftc_library_publishing_guide.html",
+      "category": "Category 1"
     }
   ]
 }
