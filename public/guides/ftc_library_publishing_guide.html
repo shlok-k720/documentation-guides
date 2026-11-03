@@ -839,7 +839,7 @@ VERSION_NAME=0.1.0
 
 android.useAndroidX=true
 org.gradle.jvmargs=-Xmx2048m</code></pre></div>
-<p>The <code>maven.brott.dev</code> repository in the settings file is the FTC Dashboard repository, included here as FtcAutoTune includes it. It is only needed if you depend on FTC Dashboard artifacts; including it when you do not use Dashboard is harmless. If you add a Dashboard dependency later, declare it as <code>compileOnly</code> in the <code>ftc</code> module, like the FTC SDK lines.</p>
+<p>The <code>maven.brott.dev</code> repository in the settings file is the FTC Dashboard repository, included here as FtcAutoTune includes it. It is only needed if you depend on FTC Dashboard artifacts; including it when you do not use Dashboard is harmless. If you add a Dashboard dependency later, declare it as <code>compileOnly</code> in the <code>ftc</code> module, like the FTC SDK lines. If you depend on a library hosted only on Dairy, such as Sloth, add the Dairy repository (https://repo.dairy.foundation/releases/) to the repositories block in this same settings file; Pedro AutoTune declares it in its module build file instead, because that project has no centralized repositories block.</p>
 <p>Note the root file: the Android plugin and both Kotlin plugins are declared with versions here and <code>apply false</code>, meaning “make this version available, do not apply it to the root project.” Subproject files then write <code>kotlin("jvm")</code> with no version. If you put a version in both places and they disagree, Gradle will tell you, but only after a confusing error. One place for versions, one place only.</p>
 <h2>The core build file</h2>
 <p>Here is the complete <code>core/build.gradle.kts</code>. Read it top to bottom: plugins, language targets, dependencies, tests, publishing. The publishing block is explained in full in the JitPack chapters; for now, note that it exists and that it publishes the <code>java</code> component as <code>example-core</code>.</p>
@@ -1159,6 +1159,9 @@ dependencies {
     compileOnly("org.firstinspires.ftc:RobotCore:11.1.0")
     compileOnly("org.firstinspires.ftc:Hardware:11.1.0")
     compileOnly("org.firstinspires.ftc:FtcCommon:11.1.0")
+
+    // Optional: uncomment if you wire up FTC Dashboard graphing in the OpModes.
+    // compileOnly("com.acmerobotics.dashboard:dashboard:0.4.16")
 }
 
 publishing {
@@ -1348,7 +1351,7 @@ class KotlinMotorController @JvmOverloads constructor(
 <h1>Manifest, resources, and assets</h1>
 <p class="lead">An Android library needs a manifest. It does not need resources, activities, or a launcher icon. Most first libraries ship exactly one manifest and zero resources, and that is correct.</p>
 <h2>The minimal manifest</h2>
-<p>Put this file at <code>ftc/src/main/AndroidManifest.xml</code>. AGP 8+ takes the package/namespace from the build file, so the manifest itself is almost empty. Include it anyway: an explicit manifest is clearer than relying on AGP to synthesize one, and it gives you a place to declare permissions or components later, when you actually need them. (FtcAutoTune's <code>ftc</code> module ships no manifest at all and builds on JitPack; the empty manifest here is the explicit version of the same choice.)</p>
+<p>Put this file at <code>ftc/src/main/AndroidManifest.xml</code>. AGP 8+ takes the package/namespace from the build file, so the manifest itself is almost empty. Include it anyway: an explicit manifest is clearer than relying on AGP to synthesize one, and it gives you a place to declare permissions or components later, when you actually need them. (FtcAutoTune's <code>ftc</code> module ships no manifest at all and builds on JitPack; the empty manifest here is the explicit version of the same choice.) Pedro Pathing’s revhub manifest is the same single empty element.</p>
 <div class="code-shell" data-title="AndroidManifest.xml"><div class="code-toolbar"><span class="code-lang">XML</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-text">&lt;manifest /&gt;</code></pre></div>
 <p>That is the whole file for this example. Do not add an <code>&lt;application&gt;</code> element, an activity, or a <code>package</code> attribute. The library's manifest is merged into the app's manifest at build time; anything you declare here becomes part of every consumer's app. A permission declared here is a permission every consumer's app requests, whether they use the feature that needs it or not. Add manifest entries only when a feature requires them, and document each one in the README so consumers are not surprised by a permission prompt they did not ask for.</p>
 <h2>Resources: only if you have them</h2>
@@ -2016,6 +2019,9 @@ dependencies {
     compileOnly("org.firstinspires.ftc:RobotCore:11.1.0")
     compileOnly("org.firstinspires.ftc:Hardware:11.1.0")
     compileOnly("org.firstinspires.ftc:FtcCommon:11.1.0")
+
+    // Optional: uncomment if you wire up FTC Dashboard graphing in the OpModes.
+    // compileOnly("com.acmerobotics.dashboard:dashboard:0.4.16")
 }
 
 publishing {
