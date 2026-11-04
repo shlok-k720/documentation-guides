@@ -30,9 +30,11 @@
  * The shell markup (sidebar, settings dialog, mobile controls, top bar)
  * is created only where it is missing, so this file can also wire up an
  * existing guide that already has that markup in its HTML. It never
- * touches the guide's content sections, and it includes no CSS: guides
- * keep their inline <style> for now. See the README for what still
- * differs between guides (notably the Swift guide's highlighter).
+ * touches the guide's content sections, and it includes no CSS:
+ * styling lives in the companion file guide-shell.css in the same
+ * directory, which a guide links from <head>. See the README for what
+ * still differs between guides (notably the Swift guide's
+ * highlighter and stylesheet).
  *
  * This is a behaviour-preserving port of the inline scripts in the
  * Category 1 guides (C/C++, Documentation Creation, FTC Library Guide),

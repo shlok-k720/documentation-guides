@@ -1,7 +1,8 @@
 # Guide shell API
 
 `guide-shell.js` is the one shared JavaScript file for Category 1
-documentation guides. It renders and wires up every element those guides
+documentation guides, and `guide-shell.css` is the one shared
+stylesheet. Together they render and wire up every element those guides
 repeat: the sidebar and table of contents, search, progress, previous/next
 buttons, reader settings, print, code blocks, and tabs.
 
@@ -11,23 +12,26 @@ exactly like the inline scripts it replaces.
 
 ## Where it lives, and why
 
-The file is at `public/api/guide-shell.js`, not at the repo root. GitHub
-Pages serves `public/`, so a guide at `public/guides/*.html` loads it as
-`../api/guide-shell.js`. A copy at the repo root would never be deployed.
+The files are at `public/api/guide-shell.js` and
+`public/api/guide-shell.css`, not at the repo root. GitHub
+Pages serves `public/`, so a guide at `public/guides/*.html` loads them as
+`../api/guide-shell.js` and `../api/guide-shell.css`. Copies at the repo root would never be deployed.
 
 The name is deliberately not a route the Express server already uses
 (`GET /api/guides`, `POST /api/request-guide`, and so on). Locally,
-Express serves it as a static file because no `/api/*.js` route matches
-it first.
+Express serves them as static files because no `/api/*.js` or
+`/api/*.css` route matches them first.
 
 ## New guide: minimal page
 
-A new guide needs the guide CSS (still inline in each guide file for
-now, see "What this file does not do" below), one `<main>` with one
-`<section class="doc-page">` per page, and two script tags at the end
-of `<body>`:
+A new guide links the shared stylesheet in `<head>`, has one `<main>`
+with one `<section class="doc-page">` per page, and two script tags at
+the end of `<body>`:
 
 ```html
+<!-- in <head> -->
+<link rel="stylesheet" href="../api/guide-shell.css">
+<!-- at the end of <body> -->
 <script src="../api/guide-shell.js"></script>
 <script>
   GuideShell.init({
@@ -132,7 +136,17 @@ fine for guide examples.
    `storagePrefix` and its existing `sections` array copied verbatim
    (it is the only place the `group` for each page lives; `.doc-page`
    elements do not carry `data-group` today).
-3. Keep the inline `<style>` untouched. Nothing else changes.
+3. Stylesheet: the C/C++, Documentation Creation, and FTC guides all
+   carry the exact stylesheet that is now `guide-shell.css`, so
+   migrating one of those three means deleting its inline `<style>`
+   block and adding
+   `<link rel="stylesheet" href="../api/guide-shell.css">` in `<head>`,
+   then checking it in a browser. Do not do this for the Swift guide:
+   its inline stylesheet differs (minified, `--content-max: 1080px`
+   instead of 980px, no `.tabs` rules, plus Swift-only
+   `.compare-grid`, `.comparison-label`, and extra `tok-*` rules).
+   Existing guides have not been switched over yet; the shared file
+   is ready, and migration is one guide at a time.
 
 Migrate one guide at a time and check it in a browser before moving
 to the next. Do not migrate the Category 2 teaching companions with
@@ -141,17 +155,23 @@ that this shell does not render.
 
 ## What this file does not do
 
-- **CSS.** The guide stylesheet (about 15 KB, identical in the C/C++,
-  Documentation Creation, and FTC guides) is still inline in each
-  guide. Extracting it into a shared stylesheet is the natural next
-  step, but it is a separate change: it touches every guide file at
-  once, and the Swift guide's stylesheet differs.
 - **Category 2 guides.** See above.
 - **The index page.** `public/app.js` (the guide listing) is untouched.
 
+## Stylesheet
+
+`guide-shell.css` is the inline `<style>` block shared byte-identically
+by the C/C++, Documentation Creation, and FTC guides, extracted
+verbatim (only a header comment was added). It styles every class the
+JavaScript renders. The Swift guide is the exception, for the reasons
+in step 3 above, and keeps its own inline stylesheet for now.
+
 ## Testing
 
-`node --check public/api/guide-shell.js` must pass. The pure helpers
+`node --check public/api/guide-shell.js` must pass. The CSS file must
+stay parseable: its braces balance, and the rules it contains are the
+ones extracted from the three guides (checked when it was created).
+The pure helpers
 (`escapeHtml`, `highlightCode`, `scoreMatches`, `groupSections`,
 `normalizeSections`, `storageKey`) are exported through
 `GuideShell._internals` and through `module.exports` under Node, so
