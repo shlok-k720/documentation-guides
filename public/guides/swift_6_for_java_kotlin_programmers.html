@@ -697,62 +697,9 @@ AndroidView(factory = { context -&gt;
 <div aria-label="Search results" class="search-results" id="searchResults" role="listbox"></div>
 <dialog id="settingsDialog"><div class="modal-head"><h2>Reader settings</h2><button aria-label="Close settings" class="icon-btn" id="closeSettings" type="button">×</button></div><div class="modal-body"><div class="setting-row"><label>Theme</label><div aria-label="Theme" class="segmented"><button data-theme-choice="light" id="lightTheme" type="button">☀ Light</button><button data-theme-choice="dark" id="darkTheme" type="button">☾ Dark</button></div></div><div class="setting-row"><label for="textSize">Text size</label><div class="range-row"><span>A</span><input id="textSize" max="130" min="85" step="5" type="range" value="100"><span style="font-size:1.25em">A</span></div><p id="textSizeLabel" style="margin:.5rem 0 0;color:var(--muted);font-size:.85rem;">100%</p></div></div><div class="modal-foot"><button class="primary-btn" id="doneSettings" type="button">Done</button></div></dialog>
 </div>
+<script src="../api/guide-shell.js"></script>
 <script>
-(() => {
-  "use strict";
-  const pages = [...document.querySelectorAll(".doc-page")];
-  const sections = pages.map(page => ({ id: page.id, title: page.dataset.title, group: page.dataset.group, summary: page.dataset.summary }));
-  const navTree = document.getElementById("navTree");
-  const groups = [...new Set(sections.map(section => section.group))];
-  groups.forEach(group => {
-    const groupItem = document.createElement("li");
-    groupItem.className = "nav-group";
-    const label = document.createElement("span"); label.textContent = group; groupItem.append(label);
-    const list = document.createElement("ul");
-    sections.filter(section => section.group === group).forEach(section => {
-      const item = document.createElement("li"), button = document.createElement("button");
-      button.className = "nav-link"; button.type = "button"; button.dataset.target = section.id; button.textContent = section.title;
-      item.append(button); list.append(item);
-    });
-    groupItem.append(list); navTree.append(groupItem);
-  });
-  const navLinks = [...document.querySelectorAll(".nav-link")];
-  const sidebar = document.getElementById("sidebar"), sidebarTab = document.getElementById("sidebarTab");
-  const navSearch = document.getElementById("navSearch"), searchResults = document.getElementById("searchResults");
-  const crumbGroup = document.getElementById("crumbGroup"), crumbTitle = document.getElementById("crumbTitle");
-  const progressLabel = document.getElementById("progressLabel"), progressPercent = document.getElementById("progressPercent"), progressBar = document.getElementById("progressBar");
-  const prevButtons = [document.getElementById("prevBtn"), document.getElementById("mobilePrev")];
-  const nextButtons = [document.getElementById("nextBtn"), document.getElementById("mobileNext")];
-  const settingsDialog = document.getElementById("settingsDialog"), settingsButtons = [document.getElementById("settingsBtn"), document.getElementById("mobileSettings")];
-  const themeButtons = [...document.querySelectorAll("[data-theme-choice]")], textSize = document.getElementById("textSize"), textSizeLabel = document.getElementById("textSizeLabel");
-  let currentIndex = 0, searchSelection = -1;
-  const storage = { get(key) { try { return localStorage.getItem(key); } catch { return null; } }, set(key, value) { try { localStorage.setItem(key, value); } catch {} } };
-  const isMobile = () => window.matchMedia("(max-width: 900px)").matches;
-  function showPage(index, updateHash = true) {
-    currentIndex = Math.max(0, Math.min(index, pages.length - 1));
-    pages.forEach((page, i) => page.classList.toggle("active", i === currentIndex));
-    navLinks.forEach(link => link.classList.toggle("active", link.dataset.target === sections[currentIndex].id));
-    const meta = sections[currentIndex]; crumbGroup.textContent = meta.group; crumbTitle.textContent = meta.title;
-    document.title = `${meta.title} — Swift 6 + SwiftUI`;
-    prevButtons.forEach(button => button.disabled = currentIndex === 0); nextButtons.forEach(button => button.disabled = currentIndex === pages.length - 1);
-    const percent = Math.round((currentIndex + 1) / pages.length * 100);
-    progressLabel.textContent = `${currentIndex + 1} of ${pages.length}`; progressPercent.textContent = `${percent}%`; progressBar.style.width = `${percent}%`;
-    if (updateHash) history.replaceState(null, "", `#${meta.id}`);
-    storage.set("swift6-current-page", meta.id); window.scrollTo({ top: 0, behavior: "instant" });
-    if (isMobile()) { sidebar.classList.remove("open"); sidebarTab.setAttribute("aria-expanded", "false"); }
-  }
-  navLinks.forEach((link, index) => link.addEventListener("click", () => showPage(sections.findIndex(section => section.id === link.dataset.target))));
-  prevButtons.forEach(button => button.addEventListener("click", () => showPage(currentIndex - 1)));
-  nextButtons.forEach(button => button.addEventListener("click", () => showPage(currentIndex + 1)));
-  sidebarTab.addEventListener("click", () => { const open = isMobile() ? sidebar.classList.toggle("open") : !sidebar.classList.toggle("collapsed"); sidebarTab.setAttribute("aria-expanded", String(open)); });
-  document.getElementById("focusSearchBtn").addEventListener("click", () => { sidebar.classList.remove("collapsed"); if (isMobile()) sidebar.classList.add("open"); navSearch.focus(); });
-  document.getElementById("printBtn").addEventListener("click", () => window.print());
-  function setTheme(theme) { document.documentElement.dataset.theme = theme; themeButtons.forEach(button => button.classList.toggle("active", button.dataset.themeChoice === theme)); storage.set("swift6-theme", theme); }
-  function setTextSize(value) { document.documentElement.style.setProperty("--font-scale", Number(value) / 100); textSize.value = value; textSizeLabel.textContent = `${value}%`; storage.set("swift6-text-size", value); }
-  settingsButtons.forEach(button => button.addEventListener("click", () => settingsDialog.showModal()));
-  [document.getElementById("closeSettings"), document.getElementById("doneSettings")].forEach(button => button.addEventListener("click", () => settingsDialog.close()));
-  themeButtons.forEach(button => button.addEventListener("click", () => setTheme(button.dataset.themeChoice)));
-  textSize.addEventListener("input", () => setTextSize(textSize.value));
+var swiftHighlight = (function () {
   const escapeHtml = text => text.replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[char]);
   const keywords = new Set("abstract actor any as async await break case catch class continue default defer do else enum extension false fallthrough final for func guard if import in init internal is let nil nonisolated open operator package private protocol public repeat return self some static struct subscript super switch throw throws true try typealias var weak where while".split(" "));
   const types = new Set("Any AnyObject Array Bool Character Data Date Decimal Dictionary Double Error Float Hashable Identifiable Int Int8 Int16 Int32 Int64 Optional Result Set String URL UUID Void".split(" "));
@@ -785,24 +732,18 @@ AndroidView(factory = { context -&gt;
     }
     return output + escapeHtml(source.slice(last));
   }
-  document.querySelectorAll(".code-shell").forEach(shell => {
-    const code = shell.querySelector("pre code");
-    const language = shell.querySelector(".code-toolbar span")?.textContent || "";
-    const source = code.textContent;
-    code.dataset.source = source;
-    code.innerHTML = highlightCode(source, language);
-  });
-  document.querySelectorAll(".copy-btn").forEach(button => button.addEventListener("click", async () => { const code = button.closest(".code-shell").querySelector("code"); try { await navigator.clipboard.writeText(code.dataset.source || code.textContent); const old = button.textContent; button.textContent = "Copied"; setTimeout(() => button.textContent = old, 1200); } catch { button.textContent = "Select manually"; } }));
-  function matches(query) { const term = query.trim().toLowerCase(); if (!term) return []; return sections.map((section, index) => { const body = pages[index].innerText.toLowerCase(); const score = (section.title.toLowerCase().includes(term) ? 8 : 0) + (section.group.toLowerCase().includes(term) ? 3 : 0) + (section.summary.toLowerCase().includes(term) ? 4 : 0) + (body.includes(term) ? 1 : 0); return { ...section, index, score }; }).filter(result => result.score).sort((a, b) => b.score - a.score || a.index - b.index).slice(0, 10); }
-  function renderResults(results) { searchResults.innerHTML = ""; searchSelection = -1; if (!navSearch.value.trim()) return searchResults.classList.remove("open"); if (!results.length) { searchResults.innerHTML = '<div style="padding:14px;color:var(--muted)">No matching sections.</div>'; return searchResults.classList.add("open"); } results.forEach(result => { const button = document.createElement("button"); button.className = "search-result"; button.type = "button"; button.innerHTML = `<strong>${escapeHtml(result.title)}</strong><span>${escapeHtml(result.group)} · ${escapeHtml(result.summary)}</span>`; button.addEventListener("click", () => { showPage(result.index); navSearch.value = ""; searchResults.classList.remove("open"); }); searchResults.append(button); }); searchResults.classList.add("open"); }
-  navSearch.addEventListener("input", () => { const term = navSearch.value.trim().toLowerCase(); renderResults(matches(term)); document.querySelectorAll(".nav-group").forEach(group => { let visible = false; group.querySelectorAll(".nav-link").forEach(link => { const show = !term || link.textContent.toLowerCase().includes(term); link.hidden = !show; visible ||= show; }); group.hidden = !visible; }); });
-  navSearch.addEventListener("keydown", event => { const results = [...searchResults.querySelectorAll(".search-result")]; if (event.key === "ArrowDown" && results.length) { event.preventDefault(); searchSelection = Math.min(searchSelection + 1, results.length - 1); } else if (event.key === "ArrowUp" && results.length) { event.preventDefault(); searchSelection = Math.max(searchSelection - 1, 0); } else if (event.key === "Enter" && searchSelection >= 0) { results[searchSelection].click(); } else if (event.key === "Escape") { searchResults.classList.remove("open"); } results.forEach((result, index) => result.classList.toggle("active", index === searchSelection)); });
-  document.addEventListener("click", event => { if (!searchResults.contains(event.target) && event.target !== navSearch) searchResults.classList.remove("open"); });
-  document.addEventListener("keydown", event => { if (event.key === "/" && !/input|textarea|select/i.test(document.activeElement.tagName)) { event.preventDefault(); document.getElementById("focusSearchBtn").click(); } if (event.altKey && event.key === "ArrowLeft") showPage(currentIndex - 1); if (event.altKey && event.key === "ArrowRight") showPage(currentIndex + 1); });
-  window.addEventListener("hashchange", () => { const index = sections.findIndex(section => section.id === location.hash.slice(1)); if (index >= 0) showPage(index, false); });
-  setTheme(storage.get("swift6-theme") || "light"); setTextSize(storage.get("swift6-text-size") || "100");
-  const saved = location.hash.slice(1) || storage.get("swift6-current-page"); showPage(Math.max(0, sections.findIndex(section => section.id === saved)));
+  return highlightCode;
 })();
+GuideShell.init({
+  storagePrefix: "swift6",
+  title: "Swift 6 + SwiftUI",
+  brandMark: "S6",
+  brandTitle: "Swift 6 + SwiftUI",
+  brandSubtitle: "For Java and Kotlin programmers",
+  highlight: function (raw, lang) {
+    return swiftHighlight(raw, /^\s*</.test(raw) ? "XML" : lang);
+  }
+});
 </script>
 </body>
 </html>
