@@ -170,7 +170,9 @@ export const guideTestAll = defineFeature(function(context is Context, id is Id,
         verify(wall == 3 * millimeter, "const length");
         var numbers = [1, 2, 3];
         verify(numbers[0] == 1, "array index");
-        verify(numbers?[9] is undefined, "safe navigation");
+        var absent = undefined;
+        verify(absent?[0] is undefined, "safe navigation on undefined");
+        verify(try (numbers[9]) is undefined, "out-of-range index throws");
         var dims = { "length" : 113.5 * millimeter, "width" : 90.5 * millimeter };
         verify(dims.length == 113.5 * millimeter, "map dot access");
         verify(dims.height is undefined, "missing map key");
@@ -237,7 +239,7 @@ export const guideTestAll = defineFeature(function(context is Context, id is Id,
         var maybe = try (0 / 0);
         verify(maybe is undefined, "try expression form");
         var caught = false;
-        try { throw "deliberate test error"; } catch (e) { caught = true; }
+        try { throw "deliberate test error"; } catch (e) { caught = (e == "deliberate test error"); }
         verify(caught, "try catch");
         println("errors: ok");
 
