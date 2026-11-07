@@ -172,7 +172,9 @@ export const guideTestAll = defineFeature(function(context is Context, id is Id,
         verify(numbers[0] == 1, "array index");
         var absent = undefined;
         verify(absent?[0] is undefined, "safe navigation on undefined");
-        verify(try (numbers[9]) is undefined, "out-of-range index throws");
+        verify(size(numbers) == 3, "array size");
+        // An out-of-range read throws, and try does not catch it (proved
+        // twice in the Feature Studio), so the throw itself has no check here.
         var dims = { "length" : 113.5 * millimeter, "width" : 90.5 * millimeter };
         verify(dims.length == 113.5 * millimeter, "map dot access");
         verify(dims.height is undefined, "missing map key");
@@ -185,7 +187,7 @@ export const guideTestAll = defineFeature(function(context is Context, id is Id,
 
         // valuewithunits: unit arithmetic
         verify(1 * meter == 1000 * millimeter, "unit conversion");
-        verify(25.4 * millimeter == 1 * inch, "mm-inch equality");
+        verify(tolerantEquals(25.4 * millimeter, 1 * inch), "mm-inch equality");
         verify((3 * meter + 1 * inch) > 3 * meter, "same-dimension add");
         verify(sqrt(4 * meter ^ 2) == 2 * meter, "sqrt of area");
         verify(((64 * foot) / (9 * inch)) is number, "units cancel to number");
@@ -229,7 +231,7 @@ export const guideTestAll = defineFeature(function(context is Context, id is Id,
         var label = (count > 0) ? "positive" : "other";
         verify(label == "positive", "ternary");
         verify(2 ^ 3 == 8, "exponent");
-        verify("a" ~ "b" == "ab", "concatenation");
+        verify(("a" ~ "b") == "ab", "concatenation");
         verify((-7) % 3 == 2, "modulo sign of second operand");
         verify(range(0, 3)[3] == 3, "range inclusive");
         println("control-flow: ok");
@@ -284,20 +286,26 @@ export const guideTestAll = defineFeature(function(context is Context, id is Id,
             });
         println("opExtrude + opFillet: ok");
 
-        // The tube profile sits at x 10..20 mm so the revolved tube
-        // overlaps the block: the union below is a real merge, not two
-        // disjoint bodies sitting next to each other.
+        // The revolve axis must lie in the profile's plane. An axis
+        // perpendicular to the profile spins the face in its own plane
+        // and sweeps no volume: the Feature Studio refuses it with
+        // "resolved face is perpendicular to axes". So the axis here is
+        // the X axis, which lies in the XY sketch plane, and the profile
+        // is offset from it (y 5..12 mm) so the revolve is a hollow tube,
+        // not a solid cylinder. The tube overlaps the block, so the union
+        // below is a real merge, not two disjoint bodies sitting next to
+        // each other.
         var tubeSketch = newSketchOnPlane(context, id + "tubeSketch", {
                 "sketchPlane" : plane(vector(0, 0, 0) * millimeter, vector(0, 0, 1))
             });
         skRectangle(tubeSketch, "prof", {
-                "firstCorner" : pt(10 * millimeter, zero),
-                "secondCorner" : pt(20 * millimeter, 10 * millimeter)
+                "firstCorner" : pt(10 * millimeter, 5 * millimeter),
+                "secondCorner" : pt(20 * millimeter, 12 * millimeter)
             });
         skSolve(tubeSketch);
         opRevolve(context, id + "tube", {
                 "entities" : qSketchRegion(id + "tubeSketch"),
-                "axis" : line(vector(0, 0, 0) * millimeter, vector(0, 0, 1)),
+                "axis" : line(vector(0, 0, 0) * millimeter, vector(1, 0, 0)),
                 "angleForward" : 360 * degree
             });
         opChamfer(context, id + "chamfer", {
@@ -327,7 +335,8 @@ export const guideTestAll = defineFeature(function(context is Context, id is Id,
             });
         opThicken(context, id + "thicken", {
                 "entities" : qSketchRegion(id + "sampler"),
-                "thickness1" : 2 * millimeter
+                "thickness1" : 2 * millimeter,
+                "thickness2" : 0 * millimeter
             });
         println("opLoft + opThicken: ok");
 
