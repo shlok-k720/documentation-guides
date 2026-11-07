@@ -203,10 +203,11 @@ var safe = numbers?[9];     // safe navigation: undefined instead of throwing</c
 var len = dims.length;      // dot access for string keys
 var w = dims["width"];      // bracket access works too
 var key = "length";
-var same = dims.(key);      // parentheses use the variable's value as the key
+var same = dims[key];       // brackets use the variable's value as the key
 var absent = dims.height;   // a missing key reads as undefined
 dims.height = undefined;    // assigning undefined removes the key</code></pre></div>
 <p>Maps are heterogeneous, and they are ordered deterministically, so iterating a map always visits the keys in the same order. If you know Python, a map is closest to a dict, except that a missing key reads as <code>undefined</code> instead of raising, and assigning <code>undefined</code> deletes the key.</p>
+<p>Parentheses do appear with maps, but in a different place: in a map <em>literal</em>, a parenthesized key uses a variable's value as the key. With <code>var b = 2;</code>, the literal <code>{ (b) : "two" }</code> makes the key <code>2</code>, not the string <code>"b"</code>; without the parentheses, <code>b</code> would be read as the string key <code>"b"</code>. That is a literal-key rule, not an access rule: to <em>read</em> by a variable key you use brackets, <code>dims[key]</code>. Do not write <code>dims.(key)</code> — it does not parse.</p>
 <p>Maps are also how the standard library passes named arguments: almost every operation takes a map of fields, such as <code>{ "entities" : ..., "direction" : ... }</code>. You will write maps constantly, and most of them are operation arguments.</p>
 <h2>Boxes: the one mutable container</h2>
 <p>Every value except a <code>box</code> or a <code>builtin</code> behaves as if it were deep-copied on assignment, on argument passing, and on return. That means a function cannot change its caller's array or map by writing into it. If you genuinely need shared mutable state, use a box:</p>
@@ -310,13 +311,13 @@ function fourthPowerChecked(x) returns number { return x * x * x * x; }
 
 var f = function(x) { return x + 1; };       // a lambda assigned to a variable
 var g = x =&gt; x + 1;                          // arrow form
-var h = (v is ValueWithUnits) =&gt; v * 2;
+var h = (v is ValueWithUnits) returns ValueWithUnits =&gt; v * 2;
 
 function pt(x is ValueWithUnits, y is ValueWithUnits)
 {
     return vector(x / millimeter, y / millimeter) * millimeter;
 }</code></pre></div>
-<p>Parameters may carry <code>is &lt;Type&gt;</code> constraints, and arguments are checked the same way the <code>is</code> operator checks a value. A function that falls off the end, or executes a bare <code>return;</code>, returns <code>undefined</code>. The <code>pt</code> function at the end is the holder's sketch-point helper; it takes two lengths and returns a 2D length vector, and the sketch-points chapter explains why it has to exist.</p>
+<p>Parameters may carry <code>is &lt;Type&gt;</code> constraints, and arguments are checked the same way the <code>is</code> operator checks a value. A function that falls off the end, or executes a bare <code>return;</code>, returns <code>undefined</code>. The <code>pt</code> function at the end is the holder's sketch-point helper; it takes two lengths and returns a 2D length vector, and the sketch-points chapter explains why it has to exist. A lambda can carry a <code>returns</code> constraint too, as the <code>h</code> example shows.</p>
 <p>There is also an arrow call syntax: <code>x-&gt;f(y, z)</code> is equivalent to <code>f(x, y, z)</code>. It reads well when the first argument is the thing being acted on, such as a query or a vector.</p>
 <h2>Predicates</h2>
 <p>A predicate always returns a <code>boolean</code>. It has two restrictions: no assignments and no side-effect statements inside, and no variable declarations except the loop variable in a <code>for (var ... in ...)</code>. It succeeds if and only if every expression statement it executes evaluates to <code>true</code>; it fails immediately, returning <code>false</code>, on a <code>false</code> expression statement, and it raises if an expression statement is not <code>true</code> or <code>false</code>.</p>
