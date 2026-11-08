@@ -55,6 +55,13 @@
       "description": "Create and publish a Java and Kotlin FTC library with Kotlin DSL Gradle build files, and publish it free with JitPack.",
       "url": "guides/ftc_library_publishing_guide.html",
       "category": "Category 1"
+    },
+    {
+      "id": "featurescript-introduction-guide",
+      "name": "Introduction to FeatureScript for Onshape",
+      "description": "An introduction to FeatureScript: the language, sketches, modeling operations, and queries, built around a real 3D-printable REV slim battery holder.",
+      "url": "guides/featurescript_introduction_guide.html",
+      "category": "Category 1"
     }
   ]
 }
