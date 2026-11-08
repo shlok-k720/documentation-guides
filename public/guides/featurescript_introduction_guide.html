@@ -59,9 +59,9 @@
 <p class="lead">This guide takes you from opening a Feature Studio to writing a real custom feature: a parameterized, 3D-printable holder for the REV slim battery that you can drop into any Part Studio, change with a dialog, and print. Along the way you will learn the language itself, the sketching and modeling operations, and the query system that selects the geometry you want to change.</p>
 <div class="callout note"><strong>Who this is for.</strong> You can build parts in an Onshape Part Studio: sketches, extrudes, fillets, patterns. You have some programming background and you can think computationally, so you can adapt to a new language. That is all this guide assumes. You do not need to know FeatureScript, or any other CAD scripting language. Every new idea is introduced where you first need it, and every code example is small enough to read in one sitting.</div>
 <h2>What you will finish with</h2>
-<p>By the end you will have a working custom feature, the REV slim battery holder, that builds a protective slide-in sleeve for the REV Robotics 12 V slim battery (REV-31-1302). It is parameterized: battery length, width, and height, slide clearance, wall and base thickness, wall height, lip size, and the mounting-hole pattern are all dialog fields with sensible defaults. Change a number, and the holder rebuilds.</p>
+<p>By the end you will have a working custom feature, the REV slim battery holder, that builds a protective slide-in sleeve for the REV Robotics 12 V slim battery (REV-31-1302). It is parameterized: battery length, width, and height, slide clearance, wall and base thickness, wall height, top face thickness, cable slot size and position, label text, and the mounting-hole pattern are all dialog fields with sensible defaults. Change a number, and the holder rebuilds.</p>
 <div class="card-grid">
-<article class="mini-card"><h3>A working feature</h3><p>One FeatureScript file that builds the holder from fourteen steps: sketches, extrudes, and booleans, with the battery sliding in through an open end and held down by lips.</p></article>
+<article class="mini-card"><h3>A working feature</h3><p>One FeatureScript file that builds the holder from sixteen steps: sketches, extrudes, and booleans, with the battery sliding in from the front edge and held by gravity and a full top face.</p></article>
 <article class="mini-card"><h3>The language</h3><p>Types, units, functions, control flow, and errors, with the rules that actually bite: sketch points need length units, and there is no <code>Length</code> type.</p></article>
 <article class="mini-card"><h3>The standard library</h3><p>The working set: sketching, extrude and boolean, revolve, fillet, chamfer, loft, thicken, and the queries that select bodies, faces, and sketch regions.</p></article>
 </div>
@@ -196,8 +196,9 @@ var z is Vector = vector(0, 0);</code></pre></div>
 var first = numbers[0];     // zero-based indexing
 var mixed = [1, "two", 3 * millimeter];  // arrays are heterogeneous
 var missing = numbers[9];   // throws: out-of-range read
-var safe = numbers?[9];     // safe navigation: undefined instead of throwing</code></pre></div>
-<p>Arrays do not grow when you write past the end. If you need a longer array, build a new one. The safe-navigation form <code>?[...]</code> reads as <code>undefined</code> instead of throwing, which is useful when a value may legitimately be absent.</p>
+var x = undefined;
+var safe = x?[1];           // safe navigation: undefined, no throw</code></pre></div>
+<p>Arrays do not grow when you write past the end. If you need a longer array, build a new one. Safe navigation (<code>?[...]</code>) guards an undefined value, not a bad index: <code>x?[1]</code> is <code>undefined</code> when <code>x</code> is undefined, but <code>numbers?[9]</code> still throws when <code>numbers</code> is defined and 9 is out of range. The <code>?</code> asks whether there is a value here at all, not whether the index is valid. And <code>try</code> does not catch it either: <code>try (numbers[9])</code> still fails the feature. Guard an index with <code>size()</code> before you read it.</p>
 <h2>Maps</h2>
 <div class="code-shell"><div class="code-toolbar"><span class="code-lang">FEATURESCRIPT</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-featurescript">var dims = { "length" : 113.5 * millimeter, "width" : 90.5 * millimeter };
 var len = dims.length;      // dot access for string keys
@@ -234,7 +235,7 @@ var d = sqrt(4 * meter^2);                // 2 * meter
 // var e = sqrt(4 * meter);               // throws: no square root of a length
 var n = definition.myLength / inch;       // dividing by a unit gives a number</code></pre></div>
 <p>The rules are the ones you would expect from dimensional analysis: values with the same dimensions add and subtract, across unit systems; values with different dimensions do not; multiplication multiplies the units, and a product whose units cancel completely is a plain <code>number</code>. Dividing a length by a unit gives a number, which is the idiom the holder uses to turn a length into a plain number before building a sketch point.</p>
-<p>Internally a <code>ValueWithUnits</code> is a map tagged <code>ValueWithUnits</code>, with lengths stored in meters. You do not need to know that to use one, but it explains why two lengths in different units compare equal: they are the same quantity. For equality, prefer <code>tolerantEquals</code>, which compares up to a tolerance instead of exactly.</p>
+<p>Internally a <code>ValueWithUnits</code> is a map tagged <code>ValueWithUnits</code>, with lengths stored in meters. You do not need to know that to use one, but it explains what comparing across units does: both sides are converted to meters first. The catch is that <code>==</code> is exact, and a conversion factor like 25.4 is not exact in binary, so <code>25.4 * millimeter == 1 * inch</code> can be false even though they are the same quantity. For equality, prefer <code>tolerantEquals</code>, which compares up to a tolerance instead of exactly.</p>
 <div class="callout warning"><strong>There is no <code>Length</code> type.</strong> This is the single most common wrong assumption in FeatureScript. Lengths are typed <code>ValueWithUnits</code> throughout the library: <code>opExtrude</code>'s <code>endDepth</code> is a <code>ValueWithUnits</code>, and a parameter declared <code>is Length</code> is an error. <code>isLength</code> is only a predicate, a test you apply to a value. The holder's helper functions declare their length parameters <code>is ValueWithUnits</code>, which is the correct form.</div>
 <h2>The unit constants</h2>
 <table><thead><tr><th>Dimension</th><th>Constants</th></tr></thead><tbody>
@@ -287,7 +288,7 @@ var zero3 = zeroVector(3);            // vector(0, 0, 0)</code></pre></div>
 <div class="code-shell"><div class="code-toolbar"><span class="code-lang">FEATURESCRIPT</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-featurescript">var xy = plane(vector(0, 0, 0) * millimeter, vector(0, 0, 1));
 var offset = plane(vector(0, 0, 1) * (3 * millimeter), vector(0, 0, 1));
 var withX = plane(vector(0, 0, 0) * millimeter, vector(0, 0, 1), vector(1, 0, 0));</code></pre></div>
-<p>The two-argument form chooses the x-axis arbitrarily, perpendicular to the normal; the three-argument form lets you fix it. The origin is any 3D point in world space, so an offset plane like the second line is an ordinary plane three millimeters above the XY plane. That is how the holder sketches its cavity, lips, and open end at different heights.</p>
+<p>The two-argument form chooses the x-axis arbitrarily, perpendicular to the normal; the three-argument form lets you fix it. The origin is any 3D point in world space, so an offset plane like the second line is an ordinary plane three millimeters above the XY plane. That is how the holder sketches its cavity, front opening, top face, and cable slot at different heights.</p>
 <p>Constants: <code>XY_PLANE</code>, <code>YZ_PLANE</code>, <code>XZ_PLANE</code>. Helpers: <code>planeToWorld</code>, <code>worldToPlane</code> (a 2D result), <code>worldToPlane3D</code>, <code>yAxis(plane)</code>, and <code>flip(plane)</code>. You can also build a plane from a coordinate system with <code>plane(cSys)</code>.</p>
 <h2>Line</h2>
 <p>A <code>Line</code> is a map with an <code>origin</code> (a 3D point with length units) and a <code>direction</code> (a unitless normalized 3D vector). The <code>line</code> constructor normalizes the direction for you:</p>
@@ -363,7 +364,7 @@ var label = (count &gt; 0) ? "positive" : "zero or negative";  // ternary</code>
 <tr><td><code>is</code>, <code>as</code></td><td>Type test, and type-tag add/remove.</td></tr>
 <tr><td><code>op=</code></td><td>Compound assignment, as in C: <code>+=</code>, <code>-=</code>, and so on.</td></tr>
 </tbody></table>
-<p>Two of these deserve a second look. <code>2 ^ 3</code> is 8, not a bitwise xor: there is no bitwise xor operator in the language, and <code>^</code> is exponentiation. And <code>"a" ~ "b"</code> is <code>"ab"</code>: <code>~</code> concatenates strings, and it is also how the holder builds sketch entity ids, as in <code>prefix ~ "top"</code>.</p>
+<p>Two of these deserve a second look. <code>2 ^ 3</code> is 8, not a bitwise xor: there is no bitwise xor operator in the language, and <code>^</code> is exponentiation. And <code>"a" ~ "b"</code> is <code>"ab"</code>: <code>~</code> concatenates strings, and it is also how the holder builds sketch entity ids, as in <code>prefix ~ "top"</code>. Watch the precedence when you mix <code>~</code> with a comparison: <code>==</code> binds tighter than <code>~</code>, so <code>"a" ~ "b" == "ab"</code> reads as <code>"a" ~ ("b" == "ab")</code>. Parenthesize the concatenation when you compare its result.</p>
 <h2>try and catch</h2>
 <p>Exceptions are covered in full in the errors chapter. The short version: <code>try</code> exists in two forms, an expression form and a statement form.</p>
 <div class="code-shell"><div class="code-toolbar"><span class="code-lang">FEATURESCRIPT</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-featurescript">var maybe = try (0 / 0);   // expression form: undefined if an exception is raised
@@ -420,7 +421,7 @@ throw;                            // rethrow the current exception
 throw "an error has occurred";    // a string error
 throw { message : ErrorStringEnum.TOO_MANY_ENTITIES_SELECTED };  // a library error
 throw e;                          // rethrow a caught exception</code></pre></div>
-<p>Language errors are usually strings; library errors are usually maps with a <code>message</code> field of type <code>ErrorStringEnum</code>. Any raised exception is reported in the notices flyout, whether or not it is caught. <code>try silent</code>, in statement or expression form, suppresses that reporting, and should be used cautiously: a silenced error is an error nobody can see.</p>
+<p>Language errors are usually strings; library errors are usually maps with a <code>message</code> field of type <code>ErrorStringEnum</code>. Any raised exception is reported in the notices flyout, whether or not it is caught. <code>try silent</code>, in statement or expression form, suppresses that reporting, and should be used cautiously: a silenced error is an error nobody can see. One exception to the rule that <code>try</code> catches: an out-of-range array read is not caught by <code>try</code> in either form, as the arrays chapter notes.</p>
 <h2>Preconditions</h2>
 <p>A precondition is evaluated like a predicate: if an expression statement fails, an exception is raised and the call is aborted. That is the mechanism that turns a bad dialog value into a failed feature instead of a wrong part. The define-feature chapter works through preconditions in full; the short version is that a precondition is both a validation and, for a feature, the definition of its dialog.</p>
 <h2>Reporting errors and warnings from a feature</h2>
@@ -459,7 +460,7 @@ export const myFeature = defineFeature(function(context is Context, id is Id, de
 function makeArray(n is number) returns array
     precondition { isInteger(n); n &gt; 0; }
     { ... }</code></pre></div>
-<p>A precondition is evaluated like a predicate: if an expression statement fails, an exception is raised and the call is aborted. In a feature, the precondition does a second job: it defines the feature dialog. Each <code>definition.&lt;param&gt; is &lt;Type&gt;;</code> line, with an <code>annotation { "Name" : ... }</code> above it, becomes a dialog field, and predicates such as <code>isLength(definition.depth, LENGTH_BOUNDS);</code> validate it. That is why the holder's precondition is seventeen annotated <code>isLength</code> lines: those seventeen lines are the seventeen fields in its dialog.</p>
+<p>A precondition is evaluated like a predicate: if an expression statement fails, an exception is raised and the call is aborted. In a feature, the precondition does a second job: it defines the feature dialog. Each <code>definition.&lt;param&gt; is &lt;Type&gt;;</code> line, with an <code>annotation { "Name" : ... }</code> above it, becomes a dialog field, and predicates such as <code>isLength(definition.depth, LENGTH_BOUNDS);</code> validate it. That is why the holder's precondition is twenty annotated <code>isLength</code> lines plus one string line: those twenty-one lines are the twenty-one fields in its dialog.</p>
 <p>The order of the precondition lines is the order of the dialog fields. Put the parameters in the order a user would think about them: the battery size first, then the clearances and thicknesses, then the hole pattern. The holder does exactly that.</p>
 <div class="page-end"><span>Your first feature</span><strong>defineFeature, annotation, and precondition</strong></div>
 </div></section>
@@ -570,7 +571,7 @@ export const parameterizedBlock = defineFeature(function(context is Context, id 
 <li><strong>Change the length to 100</strong> and watch the block rebuild, still centred.</li>
 <li><strong>Try a bad value.</strong> Type 0 for the height. The precondition fails, the feature reports an error, and the dialog highlights the field. That is the bound spec doing its job.</li>
 </ol>
-<p>Every feature in the rest of this guide is this feature with more steps. The holder is this feature with fourteen steps, seventeen parameters, and three traps that this guide will teach you to avoid.</p>
+<p>Every feature in the rest of this guide is this feature with more steps. The holder is this feature with sixteen steps, twenty-one parameters, and three traps that this guide will teach you to avoid.</p>
 <div class="page-end"><span>Your first feature</span><strong>Your first feature: a parameterized block</strong></div>
 </div></section>
     <section class="doc-page" id="sketching-intro" data-title="Sketches: newSketchOnPlane and skSolve" data-summary="The sketch workflow, planes, and offset planes."><div class="page-inner">
@@ -595,7 +596,7 @@ skSolve(sketch1);</code></pre></div>
 <div class="code-shell"><div class="code-toolbar"><span class="code-lang">FEATURESCRIPT</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-featurescript">var cavitySketch = newSketchOnPlane(context, id + "cavitySketch", {
         "sketchPlane" : plane(vector(0, 0, 1) * definition.baseThickness, vector(0, 0, 1))
     });</code></pre></div>
-<p>That sketch sits on a plane at Z equal to the base thickness, with a Z normal, so its coordinates are in the plane at the top of the base. The holder sketches its cavity, its open end, its lips, and its cable slot on offset planes like this one, each at the height where its extrude starts. Sketching at the right height is usually simpler than sketching at the origin and extruding with a start offset.</p>
+<p>That sketch sits on a plane at Z equal to the base thickness, with a Z normal, so its coordinates are in the plane at the top of the base. The holder sketches its cavity, its front opening, its top face, and its cable slot on offset planes like this one, each at the height where its extrude starts. Sketching at the right height is usually simpler than sketching at the origin and extruding with a start offset.</p>
 <div class="page-end"><span>Sketching</span><strong>Sketches: newSketchOnPlane and skSolve</strong></div>
 </div></section>
     <section class="doc-page" id="sketch-geometry" data-title="Sketch geometry: lines, arcs, circles, rectangles" data-summary="The sk functions and what each one returns."><div class="page-inner">
@@ -619,7 +620,7 @@ skLineSegment(sketch, prefix ~ "bottom", { "start" : pt(xl, -halfW), "end" : pt(
 skArc(sketch, prefix ~ "arcTR", { "start" : pt(halfL, yw), "mid" : pt(xl + d, yw + d), "end" : pt(xl, halfW) });</code></pre></div>
 <p>Each arc's <code>mid</code> point sits at 45 degrees, offset by <code>r * 0.70710678</code> from the corner, so the arc connects the end of one edge to the start of the next and the loop closes. If any point in the loop is wrong, the loop does not close, the sketch has no enclosed region, and the extrude that follows it finds nothing. That failure is silent until the extrude: the sketch solves fine, but <code>qSketchRegion</code> resolves to nothing.</p>
 <h2>Other sketch functions</h2>
-<p>The rest of the sketch family, one line each: <code>skEllipse</code> and <code>skEllipticalArc</code> for ellipses and elliptical arcs; <code>skFitSpline</code> for a spline through points; <code>skBezier</code> for a Bézier curve; <code>skRegularPolygon</code> for a regular polygon, whose centre must satisfy <code>is2dPoint</code>; <code>skPolyline</code> for a polyline, with a <code>constrained</code> boolean, optional, default <code>false</code>; <code>skText</code> for sketch text; and <code>skImage</code> for a sketch image. The five in the table above are the working set, and the holder uses four of them.</p>
+<p>The rest of the sketch family, one line each: <code>skEllipse</code> and <code>skEllipticalArc</code> for ellipses and elliptical arcs; <code>skFitSpline</code> for a spline through points; <code>skBezier</code> for a Bézier curve; <code>skRegularPolygon</code> for a regular polygon, whose centre must satisfy <code>is2dPoint</code>; <code>skPolyline</code> for a polyline, with a <code>constrained</code> boolean, optional, default <code>false</code>; <code>skText</code> for sketch text; and <code>skImage</code> for a sketch image. The five in the table above are the working set, and the holder uses four of them — plus <code>skText</code>, for the engraved team number.</p>
 <div class="page-end"><span>Sketching</span><strong>Sketch geometry: lines, arcs, circles, rectangles</strong></div>
 </div></section>
     <section class="doc-page" id="sketch-points" data-title="Sketch points and the is2dPoint rule" data-summary="Why a sketch point needs length units on every component, and the pt() idiom."><div class="page-inner">
@@ -731,14 +732,23 @@ opBoolean(context, id + "cutCavity", {
 <h1>Revolve, fillet, and chamfer</h1>
 <p class="lead">Extrude and boolean build most features, but the next three operations cover the shapes an extrude cannot make: revolved parts, rounded edges, and beveled edges. Their signatures are longer, because each one has options that only apply in certain modes.</p>
 <h2>opRevolve</h2>
-<div class="code-shell"><div class="code-toolbar"><span class="code-lang">FEATURESCRIPT</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-featurescript">opRevolve(context, id + "revolve", {
+<div class="code-shell"><div class="code-toolbar"><span class="code-lang">FEATURESCRIPT</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-featurescript">var tubeSketch = newSketchOnPlane(context, id + "profileSketch", {
+        "sketchPlane" : plane(vector(0, 0, 0) * millimeter, vector(0, 0, 1))
+    });
+skRectangle(tubeSketch, "prof", {
+        "firstCorner" : vector(10, 5) * millimeter,
+        "secondCorner" : vector(20, 12) * millimeter
+    });
+skSolve(tubeSketch);
+opRevolve(context, id + "revolve", {
         "entities" : qSketchRegion(id + "profileSketch"),
-        "axis" : line(vector(0, 0, 0) * inch, vector(0, 0, 1)),
-        "angleForward" : 180 * degree
+        "axis" : line(vector(0, 0, 0) * millimeter, vector(1, 0, 0)),
+        "angleForward" : 360 * degree
     });</code></pre></div>
+<p>The axis must lie in the profile's plane. An axis perpendicular to the profile spins the face in its own plane and sweeps no volume, and the Feature Studio refuses it with "resolved face is perpendicular to axes". Here the profile is in the XY plane and the axis is the X axis, which lies in that plane. The profile is offset from the axis (y 5 to 12 mm) so the revolve is a hollow tube; a profile that touches the axis revolves into a solid instead. The profile may abut the axis but must not strictly intersect it.</p>
 <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead><tbody>
 <tr><td><code>entities</code></td><td>Query</td><td>The profile to revolve.</td></tr>
-<tr><td><code>axis</code></td><td><code>Line</code></td><td>For example <code>line(vector(0, 0, 0) * inch, vector(0, 0, 1))</code>.</td></tr>
+<tr><td><code>axis</code></td><td><code>Line</code></td><td>For example <code>line(vector(0, 0, 0) * millimeter, vector(1, 0, 0))</code>, the X axis, which lies in the XY sketch plane.</td></tr>
 <tr><td><code>angleForward</code></td><td><code>ValueWithUnits</code></td><td>Normalized to the range 0 to 2π.</td></tr>
 <tr><td><code>angleBack</code></td><td><code>ValueWithUnits</code></td><td>Optional, default <code>0</code>. If <code>angleForward</code> equals <code>angleBack</code>, the result is a full 360 degree revolve.</td></tr>
 </tbody></table>
@@ -798,10 +808,16 @@ opBoolean(context, id + "cutCavity", {
 </tbody></table>
 <p><code>LoftTopology</code> has three values: <code>MINIMAL</code>, <code>COLUMNS</code>, and <code>GRID</code>. <code>ToolBodyType</code> is <code>SOLID</code> or <code>SURFACE</code>, per its enum block in the tool.fs section of the library page; the <code>opLoft</code> field text agrees ("Specifies a <code>SOLID</code> or <code>SURFACE</code> loft. Default is <code>SOLID</code>.").</p>
 <h2>opThicken</h2>
+<div class="code-shell"><div class="code-toolbar"><span class="code-lang">FEATURESCRIPT</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-featurescript">opThicken(context, id + "thicken", {
+        "entities" : qSketchRegion(id + "sampler"),
+        "thickness1" : 2 * millimeter,
+        "thickness2" : 0 * millimeter
+    });</code></pre></div>
+<p>Both thicknesses are required: <code>thickness1</code> along the normal, <code>thickness2</code> in the opposite direction. Pass <code>0 * millimeter</code> for the second one for a one-sided thicken. Leaving <code>thickness2</code> out fails with an invalid-input error, even though the UI lets you leave it at zero.</p>
 <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead><tbody>
 <tr><td><code>entities</code></td><td>Query</td><td>Sheet bodies or faces.</td></tr>
-<tr><td><code>thickness1</code></td><td><code>ValueWithUnits</code></td><td>Along the normal.</td></tr>
-<tr><td><code>thickness2</code></td><td><code>ValueWithUnits</code></td><td>In the opposite direction.</td></tr>
+<tr><td><code>thickness1</code></td><td><code>ValueWithUnits</code></td><td>Along the normal. Required.</td></tr>
+<tr><td><code>thickness2</code></td><td><code>ValueWithUnits</code></td><td>In the opposite direction. Required; <code>0 * millimeter</code> for a one-sided thicken.</td></tr>
 <tr><td><code>keepTools</code></td><td>boolean</td><td>Optional, default <code>true</code>. If <code>false</code>, attempts to delete the <code>entities</code>: it will not delete sheet bodies unless the sheet body or all its faces are selected, and it will not delete sketches or solid bodies.</td></tr>
 </tbody></table>
 <h2>The operations around them</h2>
@@ -844,28 +860,28 @@ opBoolean(context, id + "cutCavity", {
 </div></section>
     <section class="doc-page" id="identity" data-title="Identity: who created that body?" data-summary="Merged and split entities, and why the holder tracks its body by its first id."><div class="page-inner">
 <h1>Identity: who created that body?</h1>
-<p class="lead">A query like <code>qCreatedBy(id + "base", EntityType.BODY)</code> only works if you know what "created by" means after booleans have merged and split bodies. The rule is precise, and it is narrower than the battery holder's own comments claim. This chapter states the documented rule, and says plainly where the holder's comments overstate it.</p>
+<p class="lead">A query like <code>qCreatedBy(id + "base", EntityType.BODY)</code> only works if you know what "created by" means after booleans have merged and split bodies. The rule is precise — and it is also a case where the docs and the Feature Studio disagree. This chapter states the documented rule, then the result of running the experiment in Onshape, and says plainly which one to build on.</p>
 <h2>The documented rule</h2>
 <p><code>qCreatedBy</code> is "a query for all the entities created by a feature or operation". An entity is "created by" an operation if the entity was added to the context as part of that operation. Entities modified, but not created, by an operation are not returned. Two consequences follow for booleans:</p>
 <ul>
 <li><strong>Split entities</strong> are "created by" both the original creator and the split operation.</li>
 <li><strong>Merged entities</strong> are "created by" the creators of each merged entity <em>as well as the merging operation itself</em>.</li>
 </ul>
-<p>The second point is the one that matters. A merged UNION result is created by the merging operation too, which means it <em>can</em> be found with <code>qCreatedBy</code> using the boolean operation's own id. That contradicts the blanket claim in the holder file's comments, that a boolean result can never be found with <code>qCreatedBy(booleanOpId)</code>. The blanket claim is wrong as a general statement, and this guide does not repeat it.</p>
+<p>The second point is the one that matters — and it is where the docs and the Feature Studio disagree. The <code>qCreatedBy</code> entry says a merged UNION result is created by the merging operation too, which would mean it can be found with <code>qCreatedBy</code> using the boolean operation's own id, and the holder file's comments repeat that reading. But when the test chapter's experiment was run in Onshape, the query resolved to nothing: the merged body was not found via the boolean's id. The doc text says one thing; the Feature Studio does another. This guide reports the doc text and the observed result side by side, and the observed result is what you should build on: do not rely on a boolean's own id to find its result.</p>
 <h2>What is actually safe to rely on</h2>
 <p>The UNION identity rule from the <code>opBoolean</code> entry is documented separately and is safe: "When several bodies merge, the identity of the tool that appears earliest in the query is preserved (in particular, body color and body name are taken from it)." So if the base is listed first in a union, the merged result keeps the base's identity, and <code>qCreatedBy(id + "base", EntityType.BODY)</code> finds it.</p>
 <p>For a <code>SUBTRACTION</code>, the docs do not state that the result keeps the target's identity. That reading is consistent with the <code>qCreatedBy</code> rule, since a subtraction target is modified, not created, by the operation, but it is an inference, not a documented sentence. Treat it as a reasonable expectation to verify in a Feature Studio, not as a documented guarantee.</p>
-<p>The cases where the "never" conclusion does hold are the non-merging ones: a UNION of disjoint tools that do not touch keeps each tool's own creation, so no merged body exists to find by the boolean's id, and a SUBTRACTION target is modified rather than created. The holder's practice, tracking the main body by its original creation id through the whole feature and listing it first in every union, is the safe practice in every case: it works whether or not the merged result is also findable by the boolean's id. What the file's comment gets wrong is presenting that safe practice as if the alternative were impossible. It is not impossible; it is merely not the practice the file relies on.</p>
-<div class="callout warning"><strong>Why the file tracks by the base id anyway.</strong> The holder was written after an actual failure: querying a boolean result by the boolean's own id resolved to nothing, and <code>opBoolean</code> threw <code>CANNOT_RESOLVE_ENTITIES</code>. Tracking by the original creation id fixed it. The documented <code>qCreatedBy</code> rule says a merged result should also be findable by the merging operation, so the observed failure and the doc text do not fully agree. The test chapter asks you to check this in Onshape, because the Feature Studio is the authority where the docs and an observed failure disagree.</div>
+<p>The experiment adds a case to that list: a merged UNION result was not found via the boolean's id either, even though the docs' wording says it should be. So in practice, a boolean's own id does not find its result — for a UNION, for disjoint tools, or for a SUBTRACTION target. The holder's practice, tracking the main body by its original creation id through the whole feature and listing it first in every union, is the safe practice in every case, and it is the only one the experiment supports. What the file's comment gets wrong is repeating the docs' wording as if the merging operation's id were a second way to find the result. It is not, as far as the Feature Studio shows.</p>
+<div class="callout warning"><strong>Why the file tracks by the base id anyway.</strong> The holder was written after an actual failure: querying a boolean result by the boolean's own id resolved to nothing, and <code>opBoolean</code> threw <code>CANNOT_RESOLVE_ENTITIES</code>. Tracking by the original creation id fixed it. The documented <code>qCreatedBy</code> rule says a merged result should also be findable by the merging operation, but the test chapter's experiment confirmed the failure: the merged body did not resolve via the boolean's id. The doc text and the Feature Studio disagree, and the Feature Studio is the authority. Track by the original creation id.</div>
 <h2>The practice, in one paragraph</h2>
 <p>Give the first solid you create a clear id, such as <code>id + "base"</code>. Refer to the main body by that id for the rest of the feature. List the main body first in every union, so the merged result keeps its identity. Never rely on a boolean's own id to find its result, and never rely on a subtraction target keeping its identity without testing it. If a query resolves to nothing, check the identity first: it is the most common reason a boolean throws <code>CANNOT_RESOLVE_ENTITIES</code>.</p>
 <div class="page-end"><span>Queries</span><strong>Identity: who created that body?</strong></div>
 </div></section>
-    <section class="doc-page" id="holder-walkthrough" data-title="The battery holder, step by step" data-summary="The fourteen steps, from base plate to fillet."><div class="page-inner">
+        <section class="doc-page" id="holder-walkthrough" data-title="The battery holder, step by step" data-summary="The sixteen steps, from base plate to text."><div class="page-inner">
 <h1>The battery holder, step by step</h1>
-<p class="lead">The holder is fourteen steps in one feature. Each step is a sketch, an extrude, or a boolean, and the steps run in order on the same main body. The step numbers in the file's comments map one to one to the build order, so an error that names a step tells you exactly where to look.</p>
+<p class="lead">The holder is sixteen steps in one feature. Each step is a sketch, an extrude, or a boolean, and the steps run in order on the same main body. The step numbers in the file's comments map one to one to the build order, so an error that names a step tells you exactly where to look.</p>
 <h2>Parameters and derived dimensions</h2>
-<p>The precondition declares seventeen length parameters, each with a millimeter bound spec and a default taken from the real battery: battery length 113.5, width 90.5, height 23, clearance 1 per side, wall thickness 3, base thickness 3, wall height 26, lip overhang 12, lip thickness 2, hole diameter 4.0, hole spacing 144 along the length and 64 across the width, cable slot 12 wide by 6.3 tall with its bottom 5 above the base and its centre at −45 along the length, and a fillet radius of 1 on every edge. Two of them are worth reading closely:</p>
+<p>The precondition declares twenty-one parameters: twenty lengths, each with a millimeter bound spec and a default taken from the real battery, plus one string for the label text. The lengths are battery length 113.5, width 90.5, height 23, clearance 1 per side, wall thickness 3, base thickness 3, wall height 26, top face thickness 2, cable slot 12 long by 6.3 tall with its centre at (Y 30, Z 20) on the right wall, hole diameter 4.0, hole spacing 144 along the length and 64 across the width, label text height 10, label text centre at (0, 0), label engrave depth 1, and a fillet radius of 1 on every edge. The string is the label text itself, "20373" by default. Two of the length lines are worth reading closely:</p>
 <div class="code-shell"><div class="code-toolbar"><span class="code-lang">FEATURESCRIPT</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-featurescript">        annotation { "Name" : "Battery length (REV: 113.5)" }
         isLength(definition.batteryLength, { (millimeter) : [50, 113.5, 200] } as LengthBoundSpec);
         annotation { "Name" : "Clearance per side (slide padding)" }
@@ -874,11 +890,19 @@ opBoolean(context, id + "cutCavity", {
 <div class="code-shell"><div class="code-toolbar"><span class="code-lang">FEATURESCRIPT</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-featurescript">        // Derived dimensions (defaults in mm):
         // cavity 115.5 x 92.5, walls outer 121.5 x 98.5, base 160 x 104.5,
         // total height 29 (3 base + 26 wall). Battery top sits at Z = 26,
-        // lips run Z = 27..29, so there is 1 mm of slide clearance above it.
-        // Top opening between the lips is 68.5 mm wide; the lips cover 11 mm
-        // of the battery per side. Cable slot is 12 x 6.3 mm through the
-        // front (+Y) side wall, Z 5..11.3, centred at X = -45 (towards the
-        // closed end), facing north out through the front face.
+        // top face runs Z = 27..29, so there is 1 mm of slide clearance
+        // above it. The front (+Y) edge is OPEN above the base: the front
+        // wall is removed for the full width (X -60.75..+60.75) and the full
+        // height above the base (Z 3..27, up to the top face). The battery
+        // (113.5 x 23 in cross-section) slides in through that opening with
+        // 4 mm clearance each side in X and 1 mm above (battery top 26,
+        // opening top 27). Right-wall cable slot is 12 (Y) x 6.3 (Z),
+        // centred at (Y 30, Z 20): Y 24..36 (9.25 mm clear of the front
+        // opening at Y 45.25), Z 16.85..23.15 (3.85 mm of wall above it
+        // before the top face). Label text "20373" is engraved 1 mm into
+        // the top face at its centre (0, 0), 10 mm tall, ~29 mm wide — the
+        // top face is otherwise clear, so the text has no neighbours to
+        // clear.
         const cavityL = definition.batteryLength + 2 * definition.clearance;
         const cavityW = definition.batteryWidth + 2 * definition.clearance;
         const wallOuterL = cavityL + 2 * definition.wallThickness;
@@ -888,25 +912,27 @@ opBoolean(context, id + "cutCavity", {
         const baseL = definition.holeSpacingX + 16 * millimeter;
         const baseW = wallOuterW + 2 * definition.wallThickness;
         const totalH = definition.baseThickness + definition.wallHeight;</code></pre></div>
-<p>The battery size comes from REV's product page for the REV-31-1302: maximum dimensions 113.5 by 90.5 by 23 mm. The cavity adds 1 mm of padding per side, so the pack drags in and out freely instead of wedging. The base is a flat tray, 160 by 104.5, and the holder is hollow all the way through: the cavity is open at the top between the lips and open at the +X end. The front (+Y) wall also carries a 12 by 6.3 mm cable slot near its bottom toward the closed end, and every edge is filleted 1 mm.</p>
-<h2>The fourteen steps</h2>
+<p>The battery size comes from REV's product page for the REV-31-1302: maximum dimensions 113.5 by 90.5 by 23 mm. The cavity adds 1 mm of padding per side, so the pack slides in and out freely instead of wedging. This holder mounts vertically: in the top view, the front (+Y) edge is the top when mounted, and the battery slides in from that edge, dropping down by gravity to rest against the back wall. The top (+Z) is a full 2 mm face, 1 mm above the battery top, so the pack cannot fall out sideways; the base is the opposite side panel, and together they sandwich the battery's 23 mm thickness. The right (+X) wall carries a 12 by 6.3 mm cable slot toward the top for the XT30 lead, the top face carries the engraved team number "20373" at its centre, and every edge is filleted 1 mm — except the engraving, which is cut after the fillet and stays sharp.</p>
+<h2>The sixteen steps</h2>
 <table><thead><tr><th>Step</th><th>What happens</th></tr></thead><tbody>
 <tr><td>1. Base plate</td><td>A rounded-rectangle sketch on the Top plane, extruded 3 mm. The rounded rectangle is four lines and four arcs from the <code>roundedRectOutline</code> helper, with a 4 mm corner radius.</td></tr>
 <tr><td>2. Wall block</td><td>A solid rectangle, the outer wall size, extruded the full height of 29 mm. It overlaps the base from Z 0 to 3.</td></tr>
 <tr><td>3. Merge base and walls</td><td>A UNION of the base and the walls. The base is listed first, so the merged result keeps the base identity.</td></tr>
 <tr><td>4. Cavity tool</td><td>A rectangle the size of the cavity, sketched on a plane at the top of the base (Z = 3) and extruded up through the walls as its own solid.</td></tr>
 <tr><td>5. Cut the cavity</td><td>A SUBTRACTION of the cavity tool from the main body, which is still identified as the base.</td></tr>
-<tr><td>6. Open-end tool</td><td>A rectangle covering the +X end wall above the base, extruded as its own solid. It also takes the last 4 mm of the long walls at the entry, which acts as a lead-in.</td></tr>
-<tr><td>7. Cut the open end</td><td>A SUBTRACTION of the open-end tool from the main body. The base stays, so the pack slides in along it, and the XT30 lead exits through the same open end.</td></tr>
-<tr><td>8. Retaining lips</td><td>Two strips along the top of the long walls, sketched on a plane at Z = total height minus lip thickness and extruded 2 mm. They overhang the cavity by the lip overhang, 12 mm by default, and sit 1 mm above the battery top, so the pack can slide under them but cannot lift out.</td></tr>
-<tr><td>9. Merge the lips</td><td>A UNION of the main body, listed first, and the lip tools.</td></tr>
+<tr><td>6. Front opening tool</td><td>A rectangle covering the front (+Y) wall above the base, extruded as its own solid. It spans the full width of the walls plus 1 mm past each side, and the full height above the base (Z 3 to 27). It also takes the front 4 mm of the long walls at the entry, which acts as a lead-in.</td></tr>
+<tr><td>7. Cut the front opening</td><td>A SUBTRACTION of the opening tool from the main body. The base stays, so the pack slides in along it, and the top face (step 8) re-covers the opening at the top (Z 27 to 29) — the battery, top at Z = 26, slides in underneath it.</td></tr>
+<tr><td>8. Full top face</td><td>A solid plate over the whole wall footprint (121.5 by 98.5), sketched on a plane at Z = total height minus top face thickness and extruded 2 mm. It sits 1 mm above the battery top, so the pack can slide under it but cannot lift out.</td></tr>
+<tr><td>9. Merge the top face</td><td>A UNION of the main body, listed first, and the top face.</td></tr>
 <tr><td>10. Mounting-hole tools</td><td>Six circles, diameter 4.0 mm, at (±72, −32 / 0 / +32), extruded from the Top plane through the 3 mm base only. The 144 by 64 pattern puts every hole on the goBILDA 8 mm grid.</td></tr>
 <tr><td>11. Cut the holes</td><td>A SUBTRACTION of the hole tools from the main body.</td></tr>
-<tr><td>12. Cable slot tool</td><td>A rectangle 12 mm long (along the wall) by 6.3 mm tall, sketched on a plane at Z = 5, the slot's bottom, and extruded up 6.3 mm through the front (+Y) side wall, near the bottom toward the closed (−X) end. Its Y extent runs 1 mm past the wall on each side so the cut goes clean through.</td></tr>
+<tr><td>12. Right-wall cable slot tool</td><td>A rectangle 12 mm along Y by 6.3 mm along Z, centred at (Y 30, Z 20), sketched on a YZ plane at the right wall's inner face minus 1 mm and extruded along +X by the wall thickness plus 2 mm, so it goes clean through the right (+X) wall and 1 mm past each face. The slot sits over the cavity and below the top face, so it touches nothing but the right wall.</td></tr>
 <tr><td>13. Cut the cable slot</td><td>A SUBTRACTION of the slot tool from the main body.</td></tr>
-<tr><td>14. Fillet every edge</td><td>An <code>opFillet</code> on every edge of the finished body — the query is all edges owned by the base body — with a 1 mm radius. It runs last so the slot and hole edges are filleted too.</td></tr>
+<tr><td>14. Fillet every edge</td><td>An <code>opFillet</code> on every edge of the finished body — the query is all edges owned by the base body — with a 1 mm radius. It runs before the text engraving on purpose: a 1 mm fillet fails on the text glyphs' small edges, and <code>opFillet</code> fails the whole operation if any selected edge cannot take the radius.</td></tr>
+<tr><td>15. Label text tool</td><td>The team number "20373" via <code>skText</code> (OpenSans), 10 mm tall, centred at (0, 0) on the top face. The sketch sits on a plane at the bottom of the engrave (Z = total height minus text depth) and extrudes up by the text depth, so the tool is the text glyphs, 1 mm deep into the top face. A shallow engrave, not a through-cut, keeps the "0"'s island attached.</td></tr>
+<tr><td>16. Cut the text</td><td>A SUBTRACTION of the text tool from the main body: a 1 mm engraving into the top face. The text edges stay sharp, because the fillet already ran.</td></tr>
 </tbody></table>
-<p>Three of the steps are worth reading in full, because each one shows a pattern from the earlier chapters. The merge lists the main body first in the union:</p>
+<p>Four of the steps are worth reading in full, because each one shows a pattern from the earlier chapters. The merge lists the main body first in the union:</p>
 <div class="code-shell"><div class="code-toolbar"><span class="code-lang">FEATURESCRIPT</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-featurescript">        opBoolean(context, id + "mergeBaseWalls", {
                 "tools" : qUnion([qCreatedBy(id + "base", EntityType.BODY), qCreatedBy(id + "walls", EntityType.BODY)]),
                 "operationType" : BooleanOperationType.UNION
@@ -915,10 +941,14 @@ opBoolean(context, id + "cutCavity", {
 <div class="code-shell"><div class="code-toolbar"><span class="code-lang">FEATURESCRIPT</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-featurescript">        var cavitySketch = newSketchOnPlane(context, id + "cavitySketch", {
                 "sketchPlane" : plane(vector(0, 0, 1) * definition.baseThickness, vector(0, 0, 1))
             });</code></pre></div>
+<p>The cable slot is sketched on a YZ plane, which needs the three-argument form of <code>plane</code> to fix the sketch axes: the plane's x-axis along +Y and its y-axis along +Z, so the <code>pt()</code> coordinates are (Y, Z) directly:</p>
+<div class="code-shell"><div class="code-toolbar"><span class="code-lang">FEATURESCRIPT</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-featurescript">        var cableSketch = newSketchOnPlane(context, id + "cableSketch", {
+                "sketchPlane" : plane(vector(1, 0, 0) * (cavityL / 2 - 1 * millimeter), vector(1, 0, 0), vector(0, 1, 0))
+            });</code></pre></div>
 <p>And the six hole centres go through the <code>pt</code> helper, with the length-valued <code>zero</code> for the centres on the axis:</p>
 <div class="code-shell"><div class="code-toolbar"><span class="code-lang">FEATURESCRIPT</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-featurescript">        skCircle(holeSketch, "hole1", { "center" : pt(hx, hy), "radius" : hr });
         skCircle(holeSketch, "hole2", { "center" : pt(hx, zero), "radius" : hr });</code></pre></div>
-<p>Every later step refers to the main body as <code>qCreatedBy(id + "base", EntityType.BODY)</code>. That is the identity practice from the queries chapters: the body is tracked by its original creation id through the whole feature, and it is listed first in every union so the merged result keeps that identity.</p>
+<p>Every later step refers to the main body as <code>qCreatedBy(id + "base", EntityType.BODY)</code>. That is the identity practice from the queries chapters: the body is tracked by its original creation id through the whole feature, and it is listed first in every union so the merged result keeps that identity. The label width is one more detail worth noting: the text box width is estimated from the label length with <code>length()</code>, the string-length function — <code>size()</code> works only on arrays and maps, not strings, and using it here fails in Onshape with "No matching function for size(string)".</p>
 <div class="page-end"><span>Running example</span><strong>The battery holder, step by step</strong></div>
 </div></section>
     <section class="doc-page" id="holder-gotchas" data-title="Three traps the holder teaches" data-summary="The sketch-point rule, the missing operationType, and boolean identity."><div class="page-inner">
@@ -928,30 +958,32 @@ opBoolean(context, id + "cutCavity", {
 <p>The first version of the file passed computed lengths straight into <code>vector()</code>, as in <code>vector(hx, hy)</code>, and used bare <code>0</code> for centres on an axis. <code>skCircle</code> rejected the centres with a precondition failure, because the result does not satisfy <code>is2dPoint</code>: a sketch point needs length units on every component, and a bare <code>0</code> is not a length. The fix is the <code>pt()</code> helper from the sketch-points chapter, used for every sketch point in the file, plus a length-valued <code>zero</code> constant for axis centres. Direction vectors such as <code>vector(0, 0, 1)</code> are unitless by design and are unaffected.</p>
 <h2>2. opExtrude has no operationType</h2>
 <p>The first version passed <code>"operationType" : NewBodyOperationType.REMOVE</code> to <code>opExtrude</code>, expecting the extrude to cut. That field belongs to the native <code>extrude</code> feature, not to the op, and <code>opExtrude</code> silently ignores it. The enum's values are <code>NEW</code>, <code>ADD</code>, <code>REMOVE</code>, and <code>INTERSECT</code>; the extras chapter lists them with the other body-creation enums. The "cuts" came out as extra solid blocks and regeneration failed. The fix used in the file is explicit booleans: extrude each cut profile as a new tool body, then subtract it with <code>opBoolean</code> and <code>BooleanOperationType.SUBTRACTION</code>, and merge with <code>BooleanOperationType.UNION</code> where bodies join. The silence is the lesson: an unknown field in an operation's definition map is ignored, not rejected, so a misspelled or misplaced field fails downstream instead of at the line where you wrote it.</p>
-<h2>3. Boolean identity: the subtraction half is still inference</h2>
-<p>The file's comments state the identity rule carefully now, and that care is the point. After a UNION, the merged result keeps the identity of the tool that appears earliest in the query — that is documented, and it is why the main body is listed first in every union. The comments also record the other half of the <code>qCreatedBy</code> entry: merged entities are "created by" the creators of each merged entity <em>as well as the merging operation itself</em>, so a merged UNION result can be found through the boolean's own id. What is still inference, not doc text, is the SUBTRACTION half: the comments say a subtraction result can not be found through the boolean's id, because a SUBTRACTION only modifies its target and modified entities are not returned by <code>qCreatedBy</code>. The <code>opBoolean</code> text does not state that; it is an inference from the <code>qCreatedBy</code> rule, and the observed <code>CANNOT_RESOLVE_ENTITIES</code> failure on the old file is consistent with it.</p>
-<p>What the file actually relies on is the safe practice, and the safe practice is correct: track the main body by its original creation id, <code>qCreatedBy(id + "base")</code>, and list it first in every union. That works in every case, whether or not the merged result is also findable by the boolean's id, and whether or not the subtraction inference holds. The test chapter gives you a small experiment that checks the UNION half in a Feature Studio: if the merged body highlights under the boolean's id, the docs' wording is the behaviour.</p>
+<h2>3. Boolean identity: the docs and the Feature Studio disagree</h2>
+<p>The file's comments state the identity rule as the docs write it, and that is the trap. After a UNION, the merged result keeps the identity of the tool that appears earliest in the query — that is documented, and it is why the main body is listed first in every union. The comments also record the other half of the <code>qCreatedBy</code> entry: merged entities are "created by" the creators of each merged entity <em>as well as the merging operation itself</em>, so a merged UNION result should be findable through the boolean's own id. But the test chapter's experiment found nothing via the boolean's id. The docs' wording says the merged result is created by the merging operation; the Feature Studio does not return it that way. The SUBTRACTION half is inference either way: the comments say a subtraction result can not be found through the boolean's id, because a SUBTRACTION only modifies its target and modified entities are not returned by <code>qCreatedBy</code>, and the observed <code>CANNOT_RESOLVE_ENTITIES</code> failure on the old file is consistent with that.</p>
+<p>What the file actually relies on is the safe practice, and the safe practice is correct: track the main body by its original creation id, <code>qCreatedBy(id + "base")</code>, and list it first in every union. That works in every case, and it is the only practice the experiment supports. The comment's mistake is repeating the docs' wording as if the boolean's id were a second way to find the result. It is not, as far as the Feature Studio shows.</p>
 <div class="page-end"><span>Running example</span><strong>Three traps the holder teaches</strong></div>
 </div></section>
-    <section class="doc-page" id="holder-test" data-title="Test the holder in Onshape" data-summary="How to test it, what to check, and two things to confirm first."><div class="page-inner">
+        <section class="doc-page" id="holder-test" data-title="Test the holder in Onshape" data-summary="How to test it, what to check, and two things to confirm first."><div class="page-inner">
 <h1>Test the holder in Onshape</h1>
-<p class="lead">This guide was checked against the FeatureScript documentation, but a Feature Studio is the real check. The holder has not been run inside Onshape yet, and neither have the small examples in the earlier chapters. This chapter is the test plan for both.</p>
+<p class="lead">This guide was checked against the FeatureScript documentation, but a Feature Studio is the real check. The holder itself has not been run inside Onshape yet — the small examples in the earlier chapters have, and they pass. This chapter is the test plan for the holder.</p>
 <h2>Two things to know first</h2>
 <p>Before running anything, two details in the file are worth knowing, because the guide cannot settle them from the docs:</p>
 <ol class="steps">
-<li><strong>The lip numbers look different, but they agree.</strong> The header comment says the lips cover 11 mm of the pack per side, and the <code>lipOverhang</code> parameter defaults to 12 mm. They measure different things: 12 mm is how far the lip extends from the cavity edge, and the battery sits 1 mm inside that edge, so 12 minus 1 is the 11 mm of pack the lip covers. The top opening between the lips is 68.5 mm. If you change the clearance, the coverage changes with it, because the cavity edge moves.</li>
-<li><strong>The battery dimensions are published maxima.</strong> REV lists 113.5 by 90.5 by 23 mm as the maximum dimensions of the REV-31-1302. The cavity has 1 mm of padding per side for sliding. If your pack's shrink wrap measures larger, or the slide feels too loose or too tight, adjust "Clearance per side" in the feature dialog. The slide fit also depends on print accuracy: if the lips print with elephant's foot or the walls bow inward, the pack may bind, and a first print in PLA for a fit check is cheaper than going straight to PETG or ASA.</li>
+<li><strong>The front edge is open, so nothing latches the battery in.</strong> When mounted vertically the pack rests against the back wall by gravity, and the top face and base sandwich its 23 mm thickness — but if the robot inverts or tilts hard toward the open edge, the battery can slide back out the front. Add a strap across the open edge if that is a risk. The slide fit also depends on print accuracy: if the top face prints with elephant's foot or the walls bow inward, the pack may bind, and a first print in PLA for a fit check is cheaper than going straight to PETG or ASA.</li>
+<li><strong>The battery dimensions are published maxima, and the cable slot is sized for the wire, not the connector.</strong> REV lists 113.5 by 90.5 by 23 mm as the maximum dimensions of the REV-31-1302. The cavity has 1 mm of padding per side for sliding. If your pack's shrink wrap measures larger, or the slide feels too loose or too tight, adjust "Clearance per side" in the feature dialog. The cable slot is 12 by 6.3 mm: thread the XT30 wire through first, then plug the connector in outside the holder — the connector body does not fit through the slot.</li>
 </ol>
 <h2>Run the holder</h2>
 <ol class="steps">
 <li><strong>Paste the whole file</strong> from the appendix into a Feature Studio, and confirm there are no errors in the notices flyout.</li>
 <li><strong>Add the feature</strong> in a Part Studio from the custom-feature dropdown. It builds the holder centred on the origin, on the Top plane, with the base running from Z = 0 up.</li>
-<li><strong>Check the result is one solid body.</strong> The feature should end with a single body: base, walls, and lips merged, cavity, open end, holes, and cable slot cut, every edge filleted.</li>
-<li><strong>Measure the cavity.</strong> It should be 115.5 by 92.5, open at the top between the lips and open at the +X end.</li>
+<li><strong>Check the result is one solid body.</strong> The feature should end with a single body: base, walls, and top face merged, cavity, front opening, holes, cable slot, and text cut, every edge filleted except the text.</li>
+<li><strong>Measure the cavity.</strong> It should be 115.5 by 92.5, open at the front (+Y) edge above the base.</li>
 <li><strong>Measure the base.</strong> 160 by 104.5, 3 mm thick, with six holes, 4.0 mm diameter, at (±72, −32 / 0 / +32), through the base only.</li>
-<li><strong>Check the lips.</strong> They should run along the top of the long walls, from Z = 27 to 29, 1 mm above the battery top at Z = 26, covering 11 mm of the pack per side and leaving a 68.5 mm opening between them.</li>
-<li><strong>Check the cable slot.</strong> It should be a 12 by 6.3 mm rectangle through the front (+Y) wall, from Z = 5 to 11.3, centred at X = −45 toward the closed end.</li>
-<li><strong>Check the fillet.</strong> Every edge should carry a 1 mm fillet, including the slot and hole edges, because the fillet runs last.</li>
+<li><strong>Check the top face.</strong> It should be a full plate, 121.5 by 98.5, from Z = 27 to 29, 1 mm above the battery top at Z = 26. The battery slides under it but cannot lift out.</li>
+<li><strong>Check the front opening.</strong> It should run the full width of the walls above the base, from Z = 3 to 27. The battery (113.5 by 23 in cross-section) slides in through it with 4 mm of clearance each side in X and 1 mm above.</li>
+<li><strong>Check the cable slot.</strong> It should be a 12 by 6.3 mm rectangle through the right (+X) wall, Y 24 to 36 and Z 16.85 to 23.15, centred at (Y 30, Z 20) — 9.25 mm clear of the front opening and 3.85 mm of wall above it before the top face.</li>
+<li><strong>Check the text.</strong> "20373" should be engraved 1 mm into the top face at its centre (0, 0), 10 mm tall and about 29 mm wide, with the "0"'s island still attached — a shallow engrave, not a through-cut.</li>
+<li><strong>Check the fillet.</strong> Every edge should carry a 1 mm fillet, because the fillet runs before the text. The text edges stay sharp, because they are cut after the fillet.</li>
 <li><strong>Change a parameter.</strong> Set the clearance to 3 and confirm the cavity grows to 119.5 by 96.5 and the walls move with it. Set it back to 1.</li>
 </ol>
 <h2>If it fails</h2>
@@ -1003,7 +1035,7 @@ export const identityExperiment = defineFeature(function(context is Context, id 
             });
         debug(context, qCreatedBy(id + "merge", EntityType.BODY));
     });</code></pre></div>
-<p><code>debug(context, query)</code> highlights the entities the query finds in red while the dialog is open. If the merged body highlights, the boolean's id finds it, and the docs' wording is the behaviour. If nothing highlights, the boolean's id does not find it, and the observed failure is the behaviour. Either way, report what you see: it decides whether the holder file's comment needs a correction, or a confirmation. The small examples in the earlier chapters get the same treatment, and they are collected in one file, <a href="FeatureScript_Guide_Test_All.fs">FeatureScript_Guide_Test_All.fs</a>, in the same folder as this guide: paste it once and it runs every small example, ending with <code>GUIDE TEST: ALL CHECKS PASSED</code> in the console.</p>
+<p><code>debug(context, query)</code> highlights the entities the query finds in red while the dialog is open. When this experiment was run, the merged body did not highlight, and the console reported "Query resolves to nothing": the boolean's id does not find the merged body, and the observed failure is the behaviour, not the docs' wording. The holder file's comments record the corrected rule, and the small examples in the earlier chapters get the same treatment, collected in one file, <a href="FeatureScript_Guide_Test_All.fs">FeatureScript_Guide_Test_All.fs</a>, in the same folder as this guide: paste it once and it runs every small example, ending with <code>GUIDE TEST: ALL CHECKS PASSED</code> in the console. That file has been run in Onshape and passes end to end.</p>
 <div class="page-end"><span>Running example</span><strong>Test the holder in Onshape</strong></div>
 </div></section>
     <section class="doc-page" id="debugging" data-title="Debugging: println, debug, and reading errors" data-summary="Console output, highlighting entities, and the errors you will actually meet."><div class="page-inner">
@@ -1179,42 +1211,57 @@ eprintln("an error-stream message");</code></pre></div>
 </div></section>
     <section class="doc-page" id="complete-files" data-title="Complete files: the battery holder in one place" data-summary="The full FeatureScript file, ready to copy."><div class="page-inner">
 <h1>Complete files: the battery holder in one place</h1>
-<p class="lead">The whole battery holder file, reproduced verbatim from <code>REV_Slim_Battery_Holder.fs</code> (401 lines, md5 <code>b5ae24e89053f3a36e5d411a213315f3</code>), ready to copy into a Feature Studio. Do not copy it from a chat message: the pasted text in chat can carry smart quotes and other paste artifacts that are not in the file. Copy it from here.</p>
-<p>The file's header comment and its parameters agree on the lips now: the header says the lips cover 11 mm of the pack per side, and the <code>lipOverhang</code> parameter defaults to 12 mm of overhang from the cavity edge — 12 minus the 1 mm of clearance is the 11 mm of coverage, as the test chapter explains.</p>
+<p class="lead">The whole battery holder file, reproduced verbatim from <code>REV_Slim_Battery_Holder.fs</code> (509 lines, md5 <code>059f2ee71c05c753ea301eaec3156392</code>), ready to copy into a Feature Studio. Do not copy it from a chat message: the pasted text in chat can carry smart quotes and other paste artifacts that are not in the file. Copy it from here.</p>
+<p>This is the vertical-mount sleeve: the battery slides in from the front (+Y) edge and drops down by gravity, the top (+Z) is a full 2 mm face, the cable slot is on the right wall, and the team number "20373" is engraved into the top face. The holder has not been run inside Onshape yet, so run it with the test chapter open and check the measures there.</p>
 <div class="code-shell"><div class="code-toolbar"><span class="code-lang">FEATURESCRIPT</span><button class="copy-btn" type="button" aria-label="Copy code">Copy</button></div><pre><code class="language-featurescript">// REV Slim Battery Holder — Onshape FeatureScript
 // ============================================================
-// A protective 3D-printable slide-in sleeve for the REV Robotics 12V Slim
-// Battery (REV-31-1302, 12 V 3000 mAh NiMH).
+// A protective 3D-printable vertical-mount sleeve for the REV Robotics 12V
+// Slim Battery (REV-31-1302, 12 V 3000 mAh NiMH).
 //
 // Battery size is taken straight from REV&#x27;s product page
 // (https://www.revrobotics.com/rev-31-1302/):
 //   Maximum Dimensions: 113.5 mm x 90.5 mm x 23 mm
 // The cavity adds 1 mm of padding per side (115.5 x 92.5 mm) so the pack
-// drags in and out freely but without rattling.
+// slides in and out freely but without rattling.
 //
 // HOW IT WORKS
-// - The +X end is open: the battery slides/drags in from that end along the
-//   base, and the XT30 lead exits through the same open end (inline 20 A fuse
-//   sits outside the holder).
-// - Two wide lips along the top of the long walls overhang the battery by
-//   11 mm per side and sit 1 mm above its top, so the pack cannot lift or
-//   fall out — it can only slide in and out the open end. The top opening
-//   between the lips is 68.5 mm wide, 18 mm narrower than the first version&#x27;s
-//   86.5 mm (less than an inch). The walls are 26 mm above the base (taller
-//   than the 23 mm battery) so the lips clear the pack.
-// - A rectangular cable hole, 12 mm wide (along the wall) x 6.3 mm tall,
-//   through the front (+Y) side wall near its bottom, towards the closed
-//   (-X) end, for the battery cable to pass through. In top view (opening
-//   on the right), the wire runs along the top/north side towards the left,
-//   and the hole faces north, out through that same front face.
+// - This holder mounts VERTICALLY. In top view, the &quot;top edge&quot; of the
+//   drawing is the front (+Y) wall — and that edge is the TOP when mounted.
+//   The battery slides in from that edge: it drops down into the holder by
+//   gravity (the front wall is open above the base) and comes to rest
+//   against the back (-Y) wall, which is the bottom when mounted. To remove
+//   it, lift it straight up and out the same edge.
+// - The top (+Z) is a FULL FACE: a solid 2 mm plate closes the whole top of
+//   the holder (Z = 27..29), sitting 1 mm above the battery top, so the pack
+//   is retained on that side and cannot fall out sideways. (The top face is
+//   a vertical side panel when mounted; the base is the opposite side panel.
+//   Together they sandwich the battery&#x27;s 23 mm thickness.) The battery can
+//   only come out the way it went in, through the open front edge.
+// - A small rectangular slot cut through the right (+X) wall, towards the
+//   top of the wall (the &quot;top&quot; in the top view, where the text reads
+//   upright — +Y), long side horizontal: 12 mm along Y, 6.3 mm along Z,
+//   centred at (Y 30, Z 20). It is the cable slot for the XT30 wire: the
+//   battery lead passes out through the right wall here. (This is the same
+//   12 x 6.3 mm cable rectangle from the earlier versions, moved onto the
+//   right wall — the top face is now clear except for the team number.)
+// - The team number &quot;20373&quot; is engraved 1 mm deep into the top face, at its
+//   centre (0, 0) — the top face is clear except for the text. A shallow
+//   engrave, not a through-cut, so the &quot;0&quot;&#x27;s island stays attached (a
+//   through-cut would drop it out). (When mounted vertically, the text reads
+//   upright: its horizontal stays horizontal and its vertical becomes the
+//   mounted up direction.)
 // - Six M4 mounting holes (diameter 4.0 mm, a snug fit matching the goBILDA
 //   4 mm holes — raise it to 4.5 in the dialog for free clearance) at
 //   (+/-72, -32 / 0 / +32), a 144 x 64 mm pattern where every hole lands on
 //   the goBILDA 8 mm grid.
+// - There is NO Floodgate mount on this holder — the four Floodgate holes
+//   are deleted. Mount the switch elsewhere on the robot.
 // - Every edge is filleted 1 mm, so no sharp edge touches the battery or the
-//   user&#x27;s hands. The base is a flat tray; the holder is hollow all the way
-//   through — the cavity is open at the top between the lips and open at the
-//   +X end.
+//   user&#x27;s hands — except the engraved &quot;20373&quot;, which is cut after the fillet
+//   and stays sharp (a 1 mm fillet cannot be applied to the glyphs&#x27; small
+//   edges and fails the whole fillet). The holder is a pocket: solid base,
+//   three walls (back, left, right), a full top face, and open on the front
+//   (+Y) edge only.
 //
 // HOW TO USE
 // 1. In Onshape, open the document where the holder should live and create a
@@ -1225,10 +1272,12 @@ eprintln("an error-stream message");</code></pre></div>
 //    origin, on the Top plane, base running from Z = 0 up.
 // 4. Print in PETG or ASA: 3 walls, 4 top/bottom layers, ~30% infill.
 //    Mount with M4 bolts to a goBILDA plate — align the holder centre to a
-//    grid hole on the plate and the six holes line up.
-// 5. Slide the battery in from the open (+X) end. To remove it, pull it back
-//    out by the end of the pack (or its lead). The cable can exit through the
-//    open end or through the rectangular hole in the front side wall.
+//    grid hole on the plate and the six holes line up. Mount it vertically,
+//    with the open front (+Y) edge at the top.
+// 5. Slide the battery in from the open front (+Y) edge — it drops down into
+//    the holder by gravity and rests against the back wall. Run the XT30 lead
+//    out through the small slot in the right (+X) wall, towards the top.
+//    To remove the battery, lift it straight up and out the front edge.
 //
 // FEATURESCRIPT NOTES (from the Onshape Standard Library docs, cad.onshape.com/FsDoc,
 // checked against the FeatureScript 3112 research notes in
@@ -1262,18 +1311,19 @@ eprintln("an error-stream message");</code></pre></div>
 //   as a new tool body, then opBoolean with
 //   &quot;operationType&quot; : BooleanOperationType.SUBTRACTION (tools = tool body,
 //   targets = main body), and opBoolean UNION to merge the base, walls,
-//   and lips into one body.
-// - Identity rule, doc-backed (corrected after the 3112 research — the file&#x27;s
-//   earlier &quot;never&quot; wording was overstated): per the qCreatedBy docs, merged
+//   and top face into one body.
+// - Identity rule (corrected after an Onshape test, 2026-11-07 — the docs&#x27;
+//   wording does NOT match behaviour): the qCreatedBy docs say merged
 //   entities are &quot;created by&quot; the creators of each merged entity as well as
-//   the merging operation itself, so a UNION result can be found through the
-//   boolean&#x27;s own id; but an entity only *modified* by an operation is not
-//   returned, so a SUBTRACTION result can NOT be found through the boolean&#x27;s
-//   id — and the observed CANNOT_RESOLVE_ENTITIES failure is consistent with
-//   a subtraction-result query. The file therefore tracks the main body
-//   through the whole feature by its original creation id,
-//   qCreatedBy(id + &quot;base&quot;), with the main body listed first in every UNION
-//   so the identity stays &quot;base&quot;. That path is safe under both readings.
+//   the merging operation itself, so a UNION result should be findable
+//   through the boolean&#x27;s own id. The Guide Test identity experiment showed
+//   otherwise: qCreatedBy(booleanOpId) resolves to nothing for a merged
+//   UNION result. So in practice only the earliest-tool identity is
+//   reliable — an entity only *modified* by an operation (like a SUBTRACTION
+//   target) is not returned through the boolean&#x27;s id either. The file
+//   therefore tracks the main body through the whole feature by its original
+//   creation id, qCreatedBy(id + &quot;base&quot;), with the main body listed first
+//   in every UNION so the identity stays &quot;base&quot;.
 // - Lengths are ValueWithUnits (there is no `Length` type — `isLength` is only
 //   a predicate for parameter checks). Parameters use isLength with
 //   { (millimeter) : [min, default, max] } as LengthBoundSpec.
@@ -1288,9 +1338,17 @@ eprintln("an error-stream message");</code></pre></div>
 //   has 1 mm padding per side for sliding; if your pack&#x27;s shrink wrap measures
 //   larger, or the slide feels too loose/tight, adjust &quot;Clearance per side&quot;
 //   in the feature dialog.
-// - The slide fit depends on print accuracy: if the lips print with elephant&#x27;s
-//   foot or the walls bow inward, the pack may bind — a first print in PLA for
-//   a fit check is cheaper than going straight to PETG/ASA.
+// - The slide fit depends on print accuracy: if the top face prints with
+//   elephant&#x27;s foot or the walls bow inward, the pack may bind — a first print
+//   in PLA for a fit check is cheaper than going straight to PETG/ASA.
+// - The front edge is OPEN, so the battery is retained by gravity (when
+//   mounted vertically, it rests against the back wall) and by the top face
+//   and base sandwiching its thickness — but nothing latches it in. If the
+//   robot inverts or tilts hard toward the open edge, the battery can slide
+//   back out the front. Add a strap across the open edge if that is a risk.
+// - The cable slot is sized for the XT30 wire (6.3 x 12 mm), not the
+//   connector body: thread the wire through first, then plug the connector
+//   in outside the holder.
 
 FeatureScript 3112;
 import(path : &quot;onshape/std/common.fs&quot;, version : &quot;3112.0&quot;);
@@ -1344,24 +1402,32 @@ export const revSlimBatteryHolder = defineFeature(function(context is Context, i
         isLength(definition.baseThickness, { (millimeter) : [2, 3, 6] } as LengthBoundSpec);
         annotation { &quot;Name&quot; : &quot;Wall height above base&quot; }
         isLength(definition.wallHeight, { (millimeter) : [5, 26, 40] } as LengthBoundSpec);
-        annotation { &quot;Name&quot; : &quot;Lip overhang into cavity&quot; }
-        isLength(definition.lipOverhang, { (millimeter) : [0, 12, 20] } as LengthBoundSpec);
-        annotation { &quot;Name&quot; : &quot;Lip thickness&quot; }
-        isLength(definition.lipThickness, { (millimeter) : [1, 2, 4] } as LengthBoundSpec);
+        annotation { &quot;Name&quot; : &quot;Top face thickness&quot; }
+        isLength(definition.topFaceThickness, { (millimeter) : [1, 2, 4] } as LengthBoundSpec);
+        annotation { &quot;Name&quot; : &quot;Right-wall cable slot length, along the wall towards the top (long side)&quot; }
+        isLength(definition.cableSlotLength, { (millimeter) : [6, 12, 30] } as LengthBoundSpec);
+        annotation { &quot;Name&quot; : &quot;Right-wall cable slot height, vertical (short side)&quot; }
+        isLength(definition.cableSlotHeight, { (millimeter) : [3, 6.3, 15] } as LengthBoundSpec);
+        annotation { &quot;Name&quot; : &quot;Right-wall cable slot centre towards the top (along Y; positive = towards the top edge)&quot; }
+        isLength(definition.cableSlotCenterY, { (millimeter) : [-20, 30, 39] } as LengthBoundSpec);
+        annotation { &quot;Name&quot; : &quot;Right-wall cable slot centre height (along Z)&quot; }
+        isLength(definition.cableSlotCenterZ, { (millimeter) : [10, 20, 23] } as LengthBoundSpec);
         annotation { &quot;Name&quot; : &quot;Mounting hole diameter&quot; }
         isLength(definition.holeDiameter, { (millimeter) : [3, 4.0, 5] } as LengthBoundSpec);
         annotation { &quot;Name&quot; : &quot;Hole spacing along length&quot; }
         isLength(definition.holeSpacingX, { (millimeter) : [32, 144, 200] } as LengthBoundSpec);
         annotation { &quot;Name&quot; : &quot;Hole spacing across width&quot; }
         isLength(definition.holeSpacingY, { (millimeter) : [32, 64, 160] } as LengthBoundSpec);
-        annotation { &quot;Name&quot; : &quot;Cable slot width&quot; }
-        isLength(definition.cableSlotWidth, { (millimeter) : [5, 12, 30] } as LengthBoundSpec);
-        annotation { &quot;Name&quot; : &quot;Cable slot height&quot; }
-        isLength(definition.cableSlotHeight, { (millimeter) : [3, 6.3, 15] } as LengthBoundSpec);
-        annotation { &quot;Name&quot; : &quot;Cable slot bottom height (from base)&quot; }
-        isLength(definition.cableSlotBottomZ, { (millimeter) : [4, 5, 20] } as LengthBoundSpec);
-        annotation { &quot;Name&quot; : &quot;Cable slot centre along length (negative = towards closed end)&quot; }
-        isLength(definition.cableSlotCenterX, { (millimeter) : [-50, -45, 50] } as LengthBoundSpec);
+        annotation { &quot;Name&quot; : &quot;Label text (engraved on the top face)&quot;, &quot;Default&quot; : &quot;20373&quot; }
+        definition.labelText is string;
+        annotation { &quot;Name&quot; : &quot;Label text height&quot; }
+        isLength(definition.textHeight, { (millimeter) : [5, 10, 20] } as LengthBoundSpec);
+        annotation { &quot;Name&quot; : &quot;Label text centre along length&quot; }
+        isLength(definition.textCenterX, { (millimeter) : [-30, 0, 30] } as LengthBoundSpec);
+        annotation { &quot;Name&quot; : &quot;Label text centre across width&quot; }
+        isLength(definition.textCenterY, { (millimeter) : [-20, 0, 20] } as LengthBoundSpec);
+        annotation { &quot;Name&quot; : &quot;Label engrave depth (into the top face)&quot; }
+        isLength(definition.textDepth, { (millimeter) : [0.5, 1, 2] } as LengthBoundSpec);
         annotation { &quot;Name&quot; : &quot;Fillet radius (all edges)&quot; }
         isLength(definition.filletRadius, { (millimeter) : [0.5, 1, 2] } as LengthBoundSpec);
     }
@@ -1369,11 +1435,19 @@ export const revSlimBatteryHolder = defineFeature(function(context is Context, i
         // Derived dimensions (defaults in mm):
         // cavity 115.5 x 92.5, walls outer 121.5 x 98.5, base 160 x 104.5,
         // total height 29 (3 base + 26 wall). Battery top sits at Z = 26,
-        // lips run Z = 27..29, so there is 1 mm of slide clearance above it.
-        // Top opening between the lips is 68.5 mm wide; the lips cover 11 mm
-        // of the battery per side. Cable slot is 12 x 6.3 mm through the
-        // front (+Y) side wall, Z 5..11.3, centred at X = -45 (towards the
-        // closed end), facing north out through the front face.
+        // top face runs Z = 27..29, so there is 1 mm of slide clearance
+        // above it. The front (+Y) edge is OPEN above the base: the front
+        // wall is removed for the full width (X -60.75..+60.75) and the full
+        // height above the base (Z 3..27, up to the top face). The battery
+        // (113.5 x 23 in cross-section) slides in through that opening with
+        // 4 mm clearance each side in X and 1 mm above (battery top 26,
+        // opening top 27). Right-wall cable slot is 12 (Y) x 6.3 (Z),
+        // centred at (Y 30, Z 20): Y 24..36 (9.25 mm clear of the front
+        // opening at Y 45.25), Z 16.85..23.15 (3.85 mm of wall above it
+        // before the top face). Label text &quot;20373&quot; is engraved 1 mm into
+        // the top face at its centre (0, 0), 10 mm tall, ~29 mm wide — the
+        // top face is otherwise clear, so the text has no neighbours to
+        // clear.
         const cavityL = definition.batteryLength + 2 * definition.clearance;
         const cavityW = definition.batteryWidth + 2 * definition.clearance;
         const wallOuterL = cavityL + 2 * definition.wallThickness;
@@ -1385,6 +1459,15 @@ export const revSlimBatteryHolder = defineFeature(function(context is Context, i
         const totalH = definition.baseThickness + definition.wallHeight;
         const cornerR = 4 * millimeter;
         const zero = 0 * millimeter;
+        // Label text: OpenSans digits are ~0.58 x the text height wide each,
+        // so the box width is estimated from the label length; skText starts
+        // the text at the left of the box and extends right, so a good width
+        // estimate keeps it centred. If it looks off-centre in the Part
+        // Studio, nudge &quot;Label text centre along length&quot;. (length() is the
+        // string-length function — size() works only on arrays and maps, not
+        // strings; using size() here failed in Onshape with &quot;No matching
+        // function for size(string)&quot;.) --------------------------------------
+        const labelWidth = length(definition.labelText) * 0.58 * definition.textHeight;
 
         // 1. Base plate: rounded rectangle, 3 mm thick, on the Top plane. ----
         var baseSketch = newSketchOnPlane(context, id + &quot;baseSketch&quot;, {
@@ -1416,15 +1499,17 @@ export const revSlimBatteryHolder = defineFeature(function(context is Context, i
                 &quot;endDepth&quot; : totalH
             });
 
-        // 3. Merge base + walls into one body. Per the opBoolean docs, when
-        //    bodies merge the result keeps the identity of the tool that
-        //    appears earliest in the query — here the base — so every later
-        //    step keeps referring to the main body as qCreatedBy(id + &quot;base&quot;).
-        //    (Doc-backed identity rule, corrected after the 3112 research: a
-        //    UNION result is also &quot;created by&quot; the merging op itself, but a
-        //    SUBTRACTION result is only a modified target, so it can NOT be
-        //    found through the boolean&#x27;s id. Tracking the base identity is
-        //    safe under both readings.) ----------------------------------------
+        // 3. Merge base + walls into one body. When bodies merge the result
+        //    keeps the identity of the tool that appears earliest in the
+        //    query — here the base — so every later step keeps referring to
+        //    the main body as qCreatedBy(id + &quot;base&quot;). (The qCreatedBy docs
+        //    also claim a UNION result is &quot;created by&quot; the merging op
+        //    itself, but the Guide Test identity experiment (2026-11-07)
+        //    showed qCreatedBy(booleanOpId) resolves to nothing — only the
+        //    earliest-tool identity is reliable in practice. A SUBTRACTION
+        //    result is only a modified target, so it can NOT be found
+        //    through the boolean&#x27;s id either. Tracking the base identity is
+        //    the safe path.) ------------------------------------------------
         opBoolean(context, id + &quot;mergeBaseWalls&quot;, {
                 &quot;tools&quot; : qUnion([qCreatedBy(id + &quot;base&quot;, EntityType.BODY), qCreatedBy(id + &quot;walls&quot;, EntityType.BODY)]),
                 &quot;operationType&quot; : BooleanOperationType.UNION
@@ -1456,17 +1541,21 @@ export const revSlimBatteryHolder = defineFeature(function(context is Context, i
                 &quot;operationType&quot; : BooleanOperationType.SUBTRACTION
             });
 
-        // 6. Open-end tool: removes the +X end wall above the base so the
-        //    battery can slide/drag in from that end (and the XT30 lead can
-        //    exit there). The tool also takes the last 4 mm of the long walls
-        //    at the entry, which acts as a lead-in. The base stays, so the
-        //    pack slides in along it. -------------------------------------------
+        // 6. Front opening tool: removes the front (+Y) wall above the base so
+        //    the battery can slide in from the front edge — the &quot;top edge in
+        //    the top view&quot;, which is the TOP when the holder is mounted
+        //    vertically, so the battery drops down into the holder by gravity
+        //    and rests against the back wall. The tool also takes the front
+        //    4 mm of the long (side) walls at the entry, which acts as a
+        //    lead-in. The base stays, so the pack slides in along it, and the
+        //    top face (added in step 8) re-covers the opening at the top
+        //    (Z 27..29) — the battery (top Z = 26) slides in underneath it.
         var openSketch = newSketchOnPlane(context, id + &quot;openSketch&quot;, {
                 &quot;sketchPlane&quot; : plane(vector(0, 0, 1) * definition.baseThickness, vector(0, 0, 1))
             });
         skRectangle(openSketch, &quot;openRect&quot;, {
-                &quot;firstCorner&quot; : pt(cavityL / 2 - 1 * millimeter, -wallOuterW / 2 - 1 * millimeter),
-                &quot;secondCorner&quot; : pt(wallOuterL / 2 + 2 * millimeter, wallOuterW / 2 + 1 * millimeter)
+                &quot;firstCorner&quot; : pt(-wallOuterL / 2 - 1 * millimeter, cavityW / 2 - 1 * millimeter),
+                &quot;secondCorner&quot; : pt(wallOuterL / 2 + 1 * millimeter, wallOuterW / 2 + 2 * millimeter)
             });
         skSolve(openSketch);
         opExtrude(context, id + &quot;openTool&quot;, {
@@ -1476,40 +1565,40 @@ export const revSlimBatteryHolder = defineFeature(function(context is Context, i
                 &quot;endDepth&quot; : definition.wallHeight
             });
 
-        // 7. Subtract the open-end tool from the main body. --------------------
-        opBoolean(context, id + &quot;cutOpenEnd&quot;, {
+        // 7. Subtract the front opening tool from the main body. --------------
+        opBoolean(context, id + &quot;cutOpenFront&quot;, {
                 &quot;tools&quot; : qCreatedBy(id + &quot;openTool&quot;, EntityType.BODY),
                 &quot;targets&quot; : qCreatedBy(id + &quot;base&quot;, EntityType.BODY),
                 &quot;operationType&quot; : BooleanOperationType.SUBTRACTION
             });
 
-        // 8. Retaining lips: two strips along the top of the long walls that
-        //    overhang the cavity by lipOverhang, at the very top of the walls
-        //    (Z = totalH - lipThickness .. totalH). They sit 1 mm above the
-        //    battery top, so the pack can slide under them but cannot lift out.
-        var lipSketch = newSketchOnPlane(context, id + &quot;lipSketch&quot;, {
-                &quot;sketchPlane&quot; : plane(vector(0, 0, 1) * (totalH - definition.lipThickness), vector(0, 0, 1))
+        // 8. Full top face: a solid plate over the whole wall footprint
+        //    (121.5 x 98.5) at the very top of the walls
+        //    (Z = totalH - topFaceThickness .. totalH). It sits 1 mm above
+        //    the battery top, so the pack can slide under it but cannot lift
+        //    out, and it closes the top except for the small cable slot
+        //    (step 10). Its front (+Y) strip re-covers the open front edge at
+        //    the top (Z 27..29), which is fine: the battery (top Z = 26)
+        //    slides in underneath it. ------------------------------------------
+        var topSketch = newSketchOnPlane(context, id + &quot;topSketch&quot;, {
+                &quot;sketchPlane&quot; : plane(vector(0, 0, 1) * (totalH - definition.topFaceThickness), vector(0, 0, 1))
             });
-        skRectangle(lipSketch, &quot;lipPlus&quot;, {
-                &quot;firstCorner&quot; : pt(-wallOuterL / 2, cavityW / 2 - definition.lipOverhang),
+        skRectangle(topSketch, &quot;topRect&quot;, {
+                &quot;firstCorner&quot; : pt(-wallOuterL / 2, -wallOuterW / 2),
                 &quot;secondCorner&quot; : pt(wallOuterL / 2, wallOuterW / 2)
             });
-        skRectangle(lipSketch, &quot;lipMinus&quot;, {
-                &quot;firstCorner&quot; : pt(-wallOuterL / 2, -wallOuterW / 2),
-                &quot;secondCorner&quot; : pt(wallOuterL / 2, -(cavityW / 2 - definition.lipOverhang))
-            });
-        skSolve(lipSketch);
-        opExtrude(context, id + &quot;lipTools&quot;, {
-                &quot;entities&quot; : qSketchRegion(id + &quot;lipSketch&quot;),
+        skSolve(topSketch);
+        opExtrude(context, id + &quot;topFace&quot;, {
+                &quot;entities&quot; : qSketchRegion(id + &quot;topSketch&quot;),
                 &quot;direction&quot; : vector(0, 0, 1),
                 &quot;endBound&quot; : BoundingType.BLIND,
-                &quot;endDepth&quot; : definition.lipThickness
+                &quot;endDepth&quot; : definition.topFaceThickness
             });
 
-        // 9. Merge the lips into the main body. The main body is listed first
-        //    in the union so the result keeps the base identity. ---------------
-        opBoolean(context, id + &quot;mergeLips&quot;, {
-                &quot;tools&quot; : qUnion([qCreatedBy(id + &quot;base&quot;, EntityType.BODY), qCreatedBy(id + &quot;lipTools&quot;, EntityType.BODY)]),
+        // 9. Merge the top face into the main body. The main body is listed
+        //    first in the union so the result keeps the base identity. --------
+        opBoolean(context, id + &quot;mergeTopFace&quot;, {
+                &quot;tools&quot; : qUnion([qCreatedBy(id + &quot;base&quot;, EntityType.BODY), qCreatedBy(id + &quot;topFace&quot;, EntityType.BODY)]),
                 &quot;operationType&quot; : BooleanOperationType.UNION
             });
 
@@ -1544,42 +1633,93 @@ export const revSlimBatteryHolder = defineFeature(function(context is Context, i
                 &quot;operationType&quot; : BooleanOperationType.SUBTRACTION
             });
 
-        // 12. Cable slot tool: a rectangular box through the front (+Y) side
-        //     wall, 12 mm long (X) x 6.3 mm tall (Z), near the bottom of the
-        //     wall, towards the closed (-X) end. In top view (opening on the
-        //     right) the wire runs along the top/north side towards the left,
-        //     and this hole faces north, out through that same front face.
-        //     Sketched on a plane at the slot&#x27;s bottom height and extruded up
-        //     by the slot height; its Y extent runs 1 mm past the wall on
-        //     each side so the cut goes clean through. --------------------------
-        var slotSketch = newSketchOnPlane(context, id + &quot;slotSketch&quot;, {
-                &quot;sketchPlane&quot; : plane(vector(0, 0, 1) * definition.cableSlotBottomZ, vector(0, 0, 1))
+        // 12. Right-wall cable slot tool: the small rectangular slot for the
+        //     XT30 wire through the right (+X) wall only, towards the top of
+        //     the wall (the &quot;top&quot; in the top view, where the text reads
+        //     upright — +Y), long side horizontal: 12 mm along Y, 6.3 mm
+        //     along Z, centred at (Y 30, Z 20). This is the same 12 x 6.3 mm
+        //     cable rectangle from the earlier versions, moved onto the right
+        //     wall so the battery lead passes out through it — the top face
+        //     is now clear except for the team number. The sketch sits on a
+        //     YZ plane at the wall&#x27;s inner face minus 1 mm (X = cavityL/2 -
+        //     1 mm), with the plane&#x27;s x-axis along +Y and its y-axis along
+        //     +Z, so the pt() coordinates are (Y, Z) directly; the tool
+        //     extrudes along +X by the wall thickness + 2 mm, so it goes
+        //     clean through the wall and 1 mm past each face. Its footprint
+        //     sits over the cavity and below the top face, so it touches
+        //     nothing but the right wall. --------------------------------------
+        var cableSketch = newSketchOnPlane(context, id + &quot;cableSketch&quot;, {
+                &quot;sketchPlane&quot; : plane(vector(1, 0, 0) * (cavityL / 2 - 1 * millimeter), vector(1, 0, 0), vector(0, 1, 0))
             });
-        skRectangle(slotSketch, &quot;slotRect&quot;, {
-                &quot;firstCorner&quot; : pt(definition.cableSlotCenterX - definition.cableSlotWidth / 2, cavityW / 2 - 1 * millimeter),
-                &quot;secondCorner&quot; : pt(definition.cableSlotCenterX + definition.cableSlotWidth / 2, wallOuterW / 2 + 1 * millimeter)
+        skRectangle(cableSketch, &quot;cableRect&quot;, {
+                &quot;firstCorner&quot; : pt(definition.cableSlotCenterY - definition.cableSlotLength / 2, definition.cableSlotCenterZ - definition.cableSlotHeight / 2),
+                &quot;secondCorner&quot; : pt(definition.cableSlotCenterY + definition.cableSlotLength / 2, definition.cableSlotCenterZ + definition.cableSlotHeight / 2)
             });
-        skSolve(slotSketch);
-        opExtrude(context, id + &quot;slotTool&quot;, {
-                &quot;entities&quot; : qSketchRegion(id + &quot;slotSketch&quot;),
-                &quot;direction&quot; : vector(0, 0, 1),
+        skSolve(cableSketch);
+        opExtrude(context, id + &quot;cableTool&quot;, {
+                &quot;entities&quot; : qSketchRegion(id + &quot;cableSketch&quot;),
+                &quot;direction&quot; : vector(1, 0, 0),
                 &quot;endBound&quot; : BoundingType.BLIND,
-                &quot;endDepth&quot; : definition.cableSlotHeight
+                &quot;endDepth&quot; : definition.wallThickness + 2 * millimeter
             });
 
-        // 13. Subtract the cable slot tool from the main body. -----------------
-        opBoolean(context, id + &quot;cutSlot&quot;, {
-                &quot;tools&quot; : qCreatedBy(id + &quot;slotTool&quot;, EntityType.BODY),
+        // 13. Subtract the right-wall cable slot tool from the main body. -----
+        opBoolean(context, id + &quot;cutCable&quot;, {
+                &quot;tools&quot; : qCreatedBy(id + &quot;cableTool&quot;, EntityType.BODY),
                 &quot;targets&quot; : qCreatedBy(id + &quot;base&quot;, EntityType.BODY),
                 &quot;operationType&quot; : BooleanOperationType.SUBTRACTION
             });
 
         // 14. Fillet every edge of the finished body by the fillet radius
         //     (1 mm default) so no sharp edge touches the battery. The fillet
-        //     runs last so the slot and hole edges are filleted too. -----------
+        //     runs BEFORE the text engraving on purpose: a 1 mm fillet fails
+        //     on the text glyphs&#x27; small edges (the digit strokes are only
+        //     ~1.5-2 mm wide at 10 mm text height, with tight inner corners
+        //     and the &quot;0&quot;&#x27;s island), and opFillet fails the whole operation
+        //     if any selected edge cannot take the radius — that is exactly
+        //     the FILLET_FAILED this step threw when it ran after the text.
+        //     The text is cut after the fillet, so its edges stay sharp
+        //     (crisp lettering, and the text is on top of the top face where
+        //     it never touches the battery). ----------------------------------
         opFillet(context, id + &quot;filletAll&quot;, {
                 &quot;entities&quot; : qOwnedByBody(qCreatedBy(id + &quot;base&quot;, EntityType.BODY), EntityType.EDGE),
                 &quot;radius&quot; : definition.filletRadius
+            });
+
+        // 15. Label text tool: the team number sketched on the top face, at
+        //     its centre (0, 0) — the top face is otherwise clear, so the text
+        //     has no neighbours to clear. skText fills the rectangle&#x27;s height
+        //     with the first line, starting at the left and extending right;
+        //     the rectangle width is the labelWidth estimate above, so the
+        //     text lands centred.
+        //     The sketch sits on the plane at the bottom of the engrave
+        //     (Z = totalH - textDepth) and extrudes up by textDepth, so the
+        //     tool is the text glyphs, 1 mm deep into the top face. A shallow
+        //     engrave (not a through-cut) keeps the &quot;0&quot;&#x27;s island attached — a
+        //     through-cut would drop it out. ----------------------------------
+        var textSketch = newSketchOnPlane(context, id + &quot;textSketch&quot;, {
+                &quot;sketchPlane&quot; : plane(vector(0, 0, 1) * (totalH - definition.textDepth), vector(0, 0, 1))
+            });
+        skText(textSketch, &quot;labelText&quot;, {
+                &quot;text&quot; : definition.labelText,
+                &quot;fontName&quot; : &quot;OpenSans-Regular.ttf&quot;,
+                &quot;firstCorner&quot; : pt(definition.textCenterX - labelWidth / 2, definition.textCenterY - definition.textHeight / 2),
+                &quot;secondCorner&quot; : pt(definition.textCenterX + labelWidth / 2, definition.textCenterY + definition.textHeight / 2)
+            });
+        skSolve(textSketch);
+        opExtrude(context, id + &quot;textTool&quot;, {
+                &quot;entities&quot; : qSketchRegion(id + &quot;textSketch&quot;),
+                &quot;direction&quot; : vector(0, 0, 1),
+                &quot;endBound&quot; : BoundingType.BLIND,
+                &quot;endDepth&quot; : definition.textDepth
+            });
+
+        // 16. Subtract the text tool from the main body (a 1 mm engraving
+        //     into the top face). --------------------------------------------
+        opBoolean(context, id + &quot;cutText&quot;, {
+                &quot;tools&quot; : qCreatedBy(id + &quot;textTool&quot;, EntityType.BODY),
+                &quot;targets&quot; : qCreatedBy(id + &quot;base&quot;, EntityType.BODY),
+                &quot;operationType&quot; : BooleanOperationType.SUBTRACTION
             });
     });</code></pre></div>
 <div class="page-end"><span>Appendix</span><strong>Complete files: the battery holder in one place</strong></div>
@@ -1634,7 +1774,7 @@ GuideShell.init({
   brandSubtitle: "Custom features for Onshape, from first sketch to a real part",
   keywords: ["annotation", "as", "break", "catch", "const", "continue", "else", "enum", "export", "false", "for", "function", "if", "import", "is", "new", "predicate", "precondition", "return", "returns", "silent", "throw", "true", "try", "type", "var", "while"],
   types: ["boolean", "number", "string", "array", "map", "box", "function", "builtin", "undefined", "Context", "Id", "Sketch", "Query", "Vector", "Matrix", "Plane", "Line", "CoordSystem", "Transform", "ValueWithUnits", "LengthBoundSpec", "AngleBoundSpec", "IntegerBoundSpec", "RealBoundSpec", "Path", "Box3d", "BSplineCurve", "BSplineSurface", "Cone", "Cylinder", "Torus", "Sphere", "FeatureList", "ErrorStringEnum", "BoundingType", "BooleanOperationType", "EntityType", "BodyType", "ConstraintType", "FilletCrossSection", "LoftTopology", "ChamferType", "GeometryType"],
-  sections: [{"id": "welcome", "title": "Welcome: write your first custom feature", "group": "Start here", "summary": "What this guide builds, who it is for, and the running example you will finish with."}, {"id": "mental-model", "title": "What FeatureScript actually is", "group": "Start here", "summary": "A language inside Onshape, features, operations, and the Context."}, {"id": "roadmap", "title": "Roadmap and versions used in this guide", "group": "Start here", "summary": "The path through the guide, and the FeatureScript 3112 pin."}, {"id": "setup", "title": "Set up a Feature Studio", "group": "Start here", "summary": "Create a Feature Studio, paste code, and run the feature in a Part Studio."}, {"id": "types-values", "title": "Types and values", "group": "Language core", "summary": "The nine standard types, var and const, and type constraints."}, {"id": "valuewithunits", "title": "Numbers with units: ValueWithUnits", "group": "Language core", "summary": "Lengths are values with units, there is no Length type, and how unit arithmetic works."}, {"id": "vectors-planes", "title": "Vectors, planes, and lines", "group": "Language core", "summary": "The geometry types you build everything from."}, {"id": "functions", "title": "Functions, predicates, and overloading", "group": "Language core", "summary": "Defining functions, predicates, and multiple overloads."}, {"id": "control-flow", "title": "Control flow and operators", "group": "Language core", "summary": "if, for, while, try/catch, and the operators that surprise people."}, {"id": "type-tags", "title": "Type tags, enums, and custom types", "group": "Language core", "summary": "is and as, enums, and types with a typecheck predicate."}, {"id": "errors", "title": "Errors, preconditions, and reporting", "group": "Language core", "summary": "Exceptions, try silent, regenError, verify, and warnings."}, {"id": "define-feature", "title": "defineFeature, annotation, and precondition", "group": "Your first feature", "summary": "The shape of a feature and how its dialog is built."}, {"id": "ids-context", "title": "Ids and the Context", "group": "Your first feature", "summary": "How ids name operations, and what the Context holds."}, {"id": "bounds", "title": "Parameters with bounds: LengthBoundSpec", "group": "Your first feature", "summary": "isLength with bounds, and the standard bound constants."}, {"id": "hello-feature", "title": "Your first feature: a parameterized block", "group": "Your first feature", "summary": "A complete small feature, tested in a Part Studio."}, {"id": "sketching-intro", "title": "Sketches: newSketchOnPlane and skSolve", "group": "Sketching", "summary": "The sketch workflow, planes, and offset planes."}, {"id": "sketch-geometry", "title": "Sketch geometry: lines, arcs, circles, rectangles", "group": "Sketching", "summary": "The sk functions and what each one returns."}, {"id": "sketch-points", "title": "Sketch points and the is2dPoint rule", "group": "Sketching", "summary": "Why a sketch point needs length units on every component, and the pt() idiom."}, {"id": "sketch-constraints", "title": "Constraints: usually you don't need them", "group": "Sketching", "summary": "skConstraint, and the ConstraintType values."}, {"id": "op-extrude", "title": "opExtrude: sketch regions into solids", "group": "Modeling operations", "summary": "The full field list, BoundingType, and the missing operationType."}, {"id": "op-boolean", "title": "opBoolean: merge, cut, intersect", "group": "Modeling operations", "summary": "UNION, SUBTRACTION, INTERSECTION, and what happens to identity."}, {"id": "revolve-fillet-chamfer", "title": "Revolve, fillet, and chamfer", "group": "Modeling operations", "summary": "opRevolve, opFillet, and opChamfer."}, {"id": "loft-thicken-more", "title": "Loft, thicken, and other operations", "group": "Modeling operations", "summary": "opLoft, opThicken, and the operations around them."}, {"id": "queries-intro", "title": "Queries: selecting entities", "group": "Queries", "summary": "What a Query is, and how evaluateQuery resolves one."}, {"id": "query-functions", "title": "The query functions you'll use most", "group": "Queries", "summary": "qCreatedBy, qSketchRegion, qUnion, and the filters."}, {"id": "identity", "title": "Identity: who created that body?", "group": "Queries", "summary": "Merged and split entities, and why the holder tracks its body by its first id."}, {"id": "holder-walkthrough", "title": "The battery holder, step by step", "group": "Running example", "summary": "The fourteen steps, from base plate to fillet."}, {"id": "holder-gotchas", "title": "Three traps the holder teaches", "group": "Running example", "summary": "The sketch-point rule, the missing operationType, and boolean identity."}, {"id": "holder-test", "title": "Test the holder in Onshape", "group": "Running example", "summary": "How to test it, what to check, and two things to confirm first."}, {"id": "debugging", "title": "Debugging: println, debug, and reading errors", "group": "Debugging", "summary": "Console output, highlighting entities, and the errors you will actually meet."}, {"id": "extras", "title": "Going further: more enums and functions", "group": "Going further", "summary": "A brief inventory of the rest of the library."}, {"id": "sources", "title": "Sources and further reading", "group": "Going further", "summary": "The FsDoc pages, tutorials, and forum threads this guide was checked against."}, {"id": "complete-files", "title": "Complete files: the battery holder in one place", "group": "Appendix", "summary": "The full FeatureScript file, ready to copy."}]
+  sections: [{"id": "welcome", "title": "Welcome: write your first custom feature", "group": "Start here", "summary": "What this guide builds, who it is for, and the running example you will finish with."}, {"id": "mental-model", "title": "What FeatureScript actually is", "group": "Start here", "summary": "A language inside Onshape, features, operations, and the Context."}, {"id": "roadmap", "title": "Roadmap and versions used in this guide", "group": "Start here", "summary": "The path through the guide, and the FeatureScript 3112 pin."}, {"id": "setup", "title": "Set up a Feature Studio", "group": "Start here", "summary": "Create a Feature Studio, paste code, and run the feature in a Part Studio."}, {"id": "types-values", "title": "Types and values", "group": "Language core", "summary": "The nine standard types, var and const, and type constraints."}, {"id": "valuewithunits", "title": "Numbers with units: ValueWithUnits", "group": "Language core", "summary": "Lengths are values with units, there is no Length type, and how unit arithmetic works."}, {"id": "vectors-planes", "title": "Vectors, planes, and lines", "group": "Language core", "summary": "The geometry types you build everything from."}, {"id": "functions", "title": "Functions, predicates, and overloading", "group": "Language core", "summary": "Defining functions, predicates, and multiple overloads."}, {"id": "control-flow", "title": "Control flow and operators", "group": "Language core", "summary": "if, for, while, try/catch, and the operators that surprise people."}, {"id": "type-tags", "title": "Type tags, enums, and custom types", "group": "Language core", "summary": "is and as, enums, and types with a typecheck predicate."}, {"id": "errors", "title": "Errors, preconditions, and reporting", "group": "Language core", "summary": "Exceptions, try silent, regenError, verify, and warnings."}, {"id": "define-feature", "title": "defineFeature, annotation, and precondition", "group": "Your first feature", "summary": "The shape of a feature and how its dialog is built."}, {"id": "ids-context", "title": "Ids and the Context", "group": "Your first feature", "summary": "How ids name operations, and what the Context holds."}, {"id": "bounds", "title": "Parameters with bounds: LengthBoundSpec", "group": "Your first feature", "summary": "isLength with bounds, and the standard bound constants."}, {"id": "hello-feature", "title": "Your first feature: a parameterized block", "group": "Your first feature", "summary": "A complete small feature, tested in a Part Studio."}, {"id": "sketching-intro", "title": "Sketches: newSketchOnPlane and skSolve", "group": "Sketching", "summary": "The sketch workflow, planes, and offset planes."}, {"id": "sketch-geometry", "title": "Sketch geometry: lines, arcs, circles, rectangles", "group": "Sketching", "summary": "The sk functions and what each one returns."}, {"id": "sketch-points", "title": "Sketch points and the is2dPoint rule", "group": "Sketching", "summary": "Why a sketch point needs length units on every component, and the pt() idiom."}, {"id": "sketch-constraints", "title": "Constraints: usually you don't need them", "group": "Sketching", "summary": "skConstraint, and the ConstraintType values."}, {"id": "op-extrude", "title": "opExtrude: sketch regions into solids", "group": "Modeling operations", "summary": "The full field list, BoundingType, and the missing operationType."}, {"id": "op-boolean", "title": "opBoolean: merge, cut, intersect", "group": "Modeling operations", "summary": "UNION, SUBTRACTION, INTERSECTION, and what happens to identity."}, {"id": "revolve-fillet-chamfer", "title": "Revolve, fillet, and chamfer", "group": "Modeling operations", "summary": "opRevolve, opFillet, and opChamfer."}, {"id": "loft-thicken-more", "title": "Loft, thicken, and other operations", "group": "Modeling operations", "summary": "opLoft, opThicken, and the operations around them."}, {"id": "queries-intro", "title": "Queries: selecting entities", "group": "Queries", "summary": "What a Query is, and how evaluateQuery resolves one."}, {"id": "query-functions", "title": "The query functions you'll use most", "group": "Queries", "summary": "qCreatedBy, qSketchRegion, qUnion, and the filters."}, {"id": "identity", "title": "Identity: who created that body?", "group": "Queries", "summary": "Merged and split entities, and why the holder tracks its body by its first id."}, {"id": "holder-walkthrough", "title": "The battery holder, step by step", "group": "Running example", "summary": "The sixteen steps, from base plate to text."}, {"id": "holder-gotchas", "title": "Three traps the holder teaches", "group": "Running example", "summary": "The sketch-point rule, the missing operationType, and boolean identity."}, {"id": "holder-test", "title": "Test the holder in Onshape", "group": "Running example", "summary": "How to test it, what to check, and two things to confirm first."}, {"id": "debugging", "title": "Debugging: println, debug, and reading errors", "group": "Debugging", "summary": "Console output, highlighting entities, and the errors you will actually meet."}, {"id": "extras", "title": "Going further: more enums and functions", "group": "Going further", "summary": "A brief inventory of the rest of the library."}, {"id": "sources", "title": "Sources and further reading", "group": "Going further", "summary": "The FsDoc pages, tutorials, and forum threads this guide was checked against."}, {"id": "complete-files", "title": "Complete files: the battery holder in one place", "group": "Appendix", "summary": "The full FeatureScript file, ready to copy."}]
 });
 </script>
 </body>
